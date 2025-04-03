@@ -129,6 +129,7 @@ THIRD_PARTY_APPS = [
 
 # Local applications
 LOCAL_APPS = [
+    "apps.common",
     "apps.users",
 ]
 

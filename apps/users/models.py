@@ -1,10 +1,9 @@
-# Standard library imports
-import uuid
-
 # Third-party imports
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from apps.common.models import TimeStampedModel
 
 # Project imports
 from apps.users.managers import UserManager
@@ -12,14 +11,13 @@ from apps.users.validators import UsernameValidator
 
 
 # Custom user model extending Django's AbstractUser
-class User(AbstractUser):
+class User(AbstractUser, TimeStampedModel):
     """Custom user model for the application.
 
     This model extends Django's AbstractUser to provide custom user functionality.
     It uses email-based authentication and includes additional fields for user management.
 
     Attributes:
-        id (UUIDField): Primary key and unique identifier for the user.
         first_name (CharField): User's first name.
         last_name (CharField): User's last name.
         email (EmailField): User's email address, used for authentication.
@@ -33,14 +31,6 @@ class User(AbstractUser):
         verbose_name_plural (str): Human-readable plural name for the model.
         ordering (list): Default ordering for model instances.
     """
-
-    # UUID field for unique identification and primary key
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-        unique=True,
-    )
 
     # User's first name field
     first_name = models.CharField(verbose_name=_("First Name"), max_length=60)
