@@ -1,0 +1,194 @@
+volumes:
+    nginx-data:
+        name: mailpit-data
+        driver: local
+    mailpit-data:
+        name: mailpit-data
+        driver: local
+    postgres-data:
+        name: postgres-data
+        driver: local
+    postgres-backups:
+        name: postgres-backups
+        driver: local
+    redis-data:
+        name: redis-data
+        driver: local
+    minio-data:
+        name: minio-data
+        driver: local
+    pgadmin-data:
+        name: pgadmin-data
+        driver: local
+
+services:
+    nginx-service:
+        build:
+            context: .
+            dockerfile: compose/nginx/dockerfile
+        container_name: nginx-service
+        ports:
+            - "8080:80"
+        volumes:
+            - nginx-data:/data
+        depends_on:
+            django-service:
+                condition: service_healthy
+        networks:
+            - agentsphere-network
+
+    django-service: &django-service
+        build:
+            context: .
+            dockerfile: compose/django/dockerfile
+        container_name: django-service
+        command: /start
+        env_file:
+            - .envs/.django.env
+            - .envs/.postgres.env
+            - .envs/.flower.env
+        volumes:
+            - .:/app:z
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        depends_on:
+            minio-service:
+                condition: service_healthy
+            postgres-service:
+                condition: service_healthy
+            redis-service:
+                condition: service_healthy
+            mailpit-service:
+                condition: service_healthy
+        networks:
+            - agentsphere-network
+
+    celery-worker-service:
+        <<: *django-service
+        container_name: celery-worker-service
+        ports: []
+        command: /start-celeryworker
+        networks:
+            - agentsphere-network
+
+    celery-beat-service:
+        <<: *django-service
+        container_name: celery-beat-service
+        ports: []
+        command: /start-celerybeat
+        networks:
+            - agentsphere-network
+
+    celery-flower-service:
+        <<: *django-service
+        container_name: celery-flower-service
+        ports:
+            - "5555:5555"
+        command: /start-flower
+        networks:
+            - agentsphere-network
+
+    mailpit-service:
+        image: axllent/mailpit:latest
+        container_name: mailpit-service
+        ports:
+            - "8025:8025"
+        env_file:
+            - .envs/.mailpit.env
+        volumes:
+            - mailpit-data:/data
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "--spider",
+                    "http://localhost:8025/api/v1/messages",
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        networks:
+            - agentsphere-network
+
+    postgres-service:
+        build:
+            context: .
+            dockerfile: compose/postgres/dockerfile
+        container_name: postgres-service
+        env_file:
+            - .envs/.postgres.env
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+            - postgres-backups:/backups
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+        networks:
+            - agentsphere-network
+
+    redis-service:
+        image: redis/redis-stack:latest
+        container_name: redis-service
+        ports:
+            - "8001:8001"
+        env_file:
+            - .envs/.redis.env
+        volumes:
+            - redis-data:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+        networks:
+            - agentsphere-network
+
+    minio-service:
+        image: minio/minio:latest
+        container_name: minio-service
+        ports:
+            - "9090:9090"
+        env_file:
+            - .envs/.minio.env
+        command: server /data --console-address ":9090"
+        volumes:
+            - minio-data:/data
+        healthcheck:
+            test:
+                ["CMD", "curl", "-f", "http://localhost:9090/minio/health/live"]
+            interval: 30s
+            timeout: 20s
+            retries: 3
+            start_period: 40s
+        networks:
+            - agentsphere-network
+
+    pgadmin-service:
+        image: dpage/pgadmin4:latest
+        container_name: pgadmin-service
+        ports:
+            - "5050:80"
+        env_file:
+            - .envs/.pgadmin.env
+        volumes:
+            - pgadmin-data:/var/lib/pgadmin
+        depends_on:
+            postgres-service:
+                condition: service_healthy
+        networks:
+            - agentsphere-network
+
+networks:
+    agentsphere-network:
+        name: agentsphere-network
+        driver: bridge

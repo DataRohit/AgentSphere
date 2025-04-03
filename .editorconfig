@@ -1,0 +1,51 @@
+# -----------------------------------------
+# EditorConfig configuration
+# -----------------------------------------
+
+# Set the project root
+root = true
+
+# -----------------------------------------
+# Default settings
+# -----------------------------------------
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# -----------------------------------------
+# Python files
+# -----------------------------------------
+[*.{py,rst,ini}]
+indent_style = space
+indent_size = 4
+
+# -----------------------------------------
+# Web files
+# -----------------------------------------
+[*.{html,css,scss,json,yml,xml,toml}]
+indent_style = space
+indent_size = 4
+
+# -----------------------------------------
+# Markdown files
+# -----------------------------------------
+[*.md]
+trim_trailing_whitespace = false
+
+# -----------------------------------------
+# Build files
+# -----------------------------------------
+[Makefile]
+indent_style = tab
+
+[makefile]
+indent_style = tab
+
+# -----------------------------------------
+# Configuration files
+# -----------------------------------------
+[default.conf]
+indent_style = space
+indent_size = 4

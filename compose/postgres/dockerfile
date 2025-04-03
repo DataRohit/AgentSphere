@@ -1,0 +1,12 @@
+# Use PostgreSQL 16 as the base image
+FROM docker.io/postgres:16
+
+# Copy maintenance scripts to container
+COPY ./compose/postgres/maintenance /usr/local/bin/maintenance
+
+# Make maintenance scripts executable
+RUN chmod +x /usr/local/bin/maintenance/*
+
+# Move maintenance scripts to /usr/local/bin and clean up
+RUN mv /usr/local/bin/maintenance/* /usr/local/bin \
+    && rmdir /usr/local/bin/maintenance

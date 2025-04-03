@@ -1,0 +1,54 @@
+# -----------------------------------------
+# Git attributes configuration
+# -----------------------------------------
+
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# -----------------------------------------
+# Documentation files
+# -----------------------------------------
+
+# Denote all files that are truly binary and should not be modified
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+
+# -----------------------------------------
+# Source code files
+# -----------------------------------------
+
+# Explicitly declare text files to be normalized
+*.css text
+*.html text
+*.js text
+*.json text
+*.md text
+*.py text
+*.scss text
+*.sh text eol=lf
+*.toml text
+*.txt text
+*.xml text
+*.yaml text
+*.yml text
+
+# -----------------------------------------
+# Git specific files
+# -----------------------------------------
+
+.gitattributes text
+.gitignore text
+.gitconfig text

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# View backups.
+#
+# Usage:
+#     $ docker compose -f <environment>.yml (exec |run --rm) postgres backups
+
+# Exit on error, undefined variables, and pipe failures
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# Get the directory of the current script
+working_dir="$(dirname ${0})"
+
+# Source required scripts
+source "${working_dir}/_sourced/constants.sh"
+source "${working_dir}/_sourced/messages.sh"
+
+# Display welcome message
+message_welcome "These are the backups you have got:"
+
+# List backups with details
+ls -lht "${BACKUP_DIR_PATH}"

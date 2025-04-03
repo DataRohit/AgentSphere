@@ -1,0 +1,51 @@
+# -----------------------------------------
+# Development files
+# -----------------------------------------
+.editorconfig
+.gitattributes
+.github
+.gitignore
+.gitlab-ci.yml
+.idea
+.pre-commit-config.yaml
+.readthedocs.yml
+.travis.yml
+
+# -----------------------------------------
+# Environment files
+# -----------------------------------------
+venv
+.git
+.envs/
+
+# -----------------------------------------
+# Cache and temporary files
+# -----------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.coverage
+.coverage.*
+.pytest_cache/
+htmlcov/
+
+# -----------------------------------------
+# Build files
+# -----------------------------------------
+build/
+dist/
+*.egg-info/
+
+# -----------------------------------------
+# Documentation
+# -----------------------------------------
+docs/_build/
+
+# -----------------------------------------
+# Local development
+# -----------------------------------------
+.ipython/
+.env
+node_modules/
