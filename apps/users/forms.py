@@ -81,6 +81,7 @@ class UserCreationForm(admin_forms.UserCreationForm):
         Raises:
             forms.ValidationError: If email is already in use
         """
+
         # Get the email from cleaned data
         email = self.cleaned_data["email"]
 
@@ -101,6 +102,7 @@ class UserCreationForm(admin_forms.UserCreationForm):
         Raises:
             forms.ValidationError: If username is already in use
         """
+
         # Get the username from cleaned data
         username = self.cleaned_data["username"]
 

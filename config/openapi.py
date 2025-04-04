@@ -27,6 +27,7 @@ def preprocess_exclude_schema_endpoint(
     Returns:
         The modified OpenAPI schema dictionary
     """
+
     # Remove the schema endpoint from the OpenAPI schema
     if "paths" in result:
         result["paths"].pop("/api/v1/swagger/schema/", None)

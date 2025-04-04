@@ -40,7 +40,7 @@ clean:
 
 # Deep clean - remove all Docker resources
 clean-all:
-	@echo -e "$(RED)⚠️  Performing deep cleanup...$(NC)"
+	@echo -e "$(RED)Performing deep cleanup...$(NC)"
 	@echo -e "$(YELLOW)Stopping all containers...$(NC)"
 	@docker-compose down -v
 	@echo -e "$(YELLOW)Removing all containers...$(NC)"

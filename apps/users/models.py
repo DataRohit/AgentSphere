@@ -90,6 +90,7 @@ class User(AbstractUser, TimeStampedModel):
         Returns:
             str: Concatenated first and last name of the user.
         """
+
         # Combine first and last name
         full_name = f"{self.first_name} {self.last_name}"
 

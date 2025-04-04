@@ -45,6 +45,7 @@ class UserManager(DjangoUserManager["User"]):
         Raises:
             ValueError: If the email is not provided
         """
+
         # Validate email is provided
         if not email:
             msg = "The given email must be set"
@@ -81,6 +82,7 @@ class UserManager(DjangoUserManager["User"]):
         Returns:
             User: The created regular user instance
         """
+
         # Set default permissions for regular user
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
@@ -108,6 +110,7 @@ class UserManager(DjangoUserManager["User"]):
         Raises:
             ValueError: If is_staff or is_superuser is not True
         """
+
         # Set default permissions for superuser
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
