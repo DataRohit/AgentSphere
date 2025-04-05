@@ -14,10 +14,12 @@ from apps.organization.models import Organization
 from apps.organization.serializers import OrganizationCreateErrorResponseSerializer
 from apps.organization.serializers import OrganizationCreateSerializer
 from apps.organization.serializers import OrganizationCreateSuccessResponseSerializer
+from apps.organization.serializers import OrganizationDetailResponseSerializer
 from apps.organization.serializers import OrganizationLogoErrorResponseSerializer
 from apps.organization.serializers import OrganizationLogoNotFoundResponseSerializer
 from apps.organization.serializers import OrganizationLogoSerializer
 from apps.organization.serializers import OrganizationLogoSuccessResponseSerializer
+from apps.organization.serializers import OrganizationNotFoundResponseSerializer
 from apps.organization.serializers import OrganizationSerializer
 
 
@@ -211,3 +213,88 @@ class OrganizationLogoUploadView(APIView):
             {"errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+# Organization Detail View
+class OrganizationDetailView(APIView):
+    """Organization detail view.
+
+    This view allows organization owners and members to view organization details.
+    Users who are not owners or members of the organization cannot access this view.
+
+    Attributes:
+        renderer_classes (list): The renderer classes for the view.
+        permission_classes (list): The permission classes for the view.
+        object_label (str): The object label for the response.
+    """
+
+    # Define the renderer classes
+    renderer_classes = [GenericJSONRenderer]
+
+    # Define the permission classes - require authentication
+    permission_classes = [IsAuthenticated]
+
+    # Define the object label
+    object_label = "organization"
+
+    # Define the schema
+    @extend_schema(
+        tags=["Organizations"],
+        summary="Get organization details.",
+        description="""
+        Retrieves the details of an organization.
+        The authenticated user must be either the owner or a member of the organization.
+        """,
+        responses={
+            status.HTTP_200_OK: OrganizationDetailResponseSerializer,
+            status.HTTP_404_NOT_FOUND: OrganizationNotFoundResponseSerializer,
+        },
+    )
+    def get(self, request: Request, organization_id: str) -> Response:
+        """Get organization details.
+
+        This method retrieves the details of an organization.
+        The user must be the owner or a member of the organization.
+
+        Args:
+            request (Request): The HTTP request object.
+            organization_id (str): The ID of the organization.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        try:
+            # Get the organization by ID
+            organization = Organization.objects.get(id=organization_id)
+
+            # Check if the user is the owner or a member of the organization
+            if (
+                request.user != organization.owner
+                and request.user not in organization.members.all()
+            ):
+                # Return 404 Not Found if the user is not the owner or a member
+                return Response(
+                    {
+                        "error": "Organization not found or you don't have permission to view this organization.",
+                    },
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Serialize the organization for the response body
+            response_serializer = OrganizationSerializer(organization)
+
+            # Return 200 OK with the serialized organization data
+            return Response(
+                response_serializer.data,
+                status=status.HTTP_200_OK,
+            )
+
+        except Organization.DoesNotExist:
+            # Return 404 Not Found if the organization doesn't exist
+            return Response(
+                {
+                    "error": "Organization not found or you don't have permission to view this organization.",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )

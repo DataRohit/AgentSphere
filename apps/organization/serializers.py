@@ -435,7 +435,52 @@ class OrganizationLogoNotFoundResponseSerializer(GenericResponseSerializer):
 
     # Error message
     error = serializers.CharField(
-        default=_("Organization not found or you are not the owner."),
-        help_text=_("Error message explaining why the resource was not found."),
+        default="Organization not found or you are not the owner.",
+        read_only=True,
+    )
+
+
+# Organization Detail Response Serializer
+class OrganizationDetailResponseSerializer(GenericResponseSerializer):
+    """Organization detail response serializer.
+
+    This serializer defines the structure of the organization detail response.
+    It includes a status code and an organization object.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        organization (OrganizationSerializer): The organization detail serializer.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+
+    # Organization serializer
+    organization = OrganizationSerializer(
+        help_text=_("The organization details."),
+    )
+
+
+# Organization Not Found Response Serializer
+class OrganizationNotFoundResponseSerializer(GenericResponseSerializer):
+    """Organization not found response serializer.
+
+    This serializer defines the structure of the not found response
+    when the organization doesn't exist or user doesn't have permission.
+
+    Attributes:
+        status_code (int): The status code of the response (404 Not Found).
+        error (str): An error message explaining why the resource was not found.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_404_NOT_FOUND,
+        read_only=True,
+    )
+
+    # Error message
+    error = serializers.CharField(
+        default="Organization not found or you don't have permission to view this organization.",
         read_only=True,
     )
