@@ -30,6 +30,7 @@ from apps.users.models import UserDeletionToken
 from apps.users.models import UserPasswordResetToken
 from apps.users.serializers import ResendActivationEmailSerializer
 from apps.users.serializers import ResendActivationErrorResponseSerializer
+from apps.users.serializers import ResendActivationNotFoundResponseSerializer
 from apps.users.serializers import ResendActivationSuccessResponseSerializer
 from apps.users.serializers import UserActivationForbiddenResponseSerializer
 from apps.users.serializers import UserActivationSuccessResponseSerializer
@@ -212,7 +213,7 @@ class ResendActivationEmailView(APIView):
         responses={
             status.HTTP_200_OK: ResendActivationSuccessResponseSerializer,
             status.HTTP_400_BAD_REQUEST: ResendActivationErrorResponseSerializer,
-            status.HTTP_404_NOT_FOUND: ResendActivationErrorResponseSerializer,
+            status.HTTP_404_NOT_FOUND: ResendActivationNotFoundResponseSerializer,
         },
     )
     def post(self, request: Request) -> Response:

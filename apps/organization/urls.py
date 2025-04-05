@@ -4,6 +4,7 @@ from django.urls import path
 # Project imports
 from apps.organization.views import OrganizationCreateView
 from apps.organization.views import OrganizationDetailView
+from apps.organization.views import OrganizationListView
 from apps.organization.views import OrganizationLogoUploadView
 
 # Set application namespace
@@ -13,6 +14,8 @@ app_name = "organization"
 urlpatterns = [
     # Organization creation URL
     path("", OrganizationCreateView.as_view(), name="organization-create"),
+    # Organization list URL (get all owned organizations)
+    path("owned/", OrganizationListView.as_view(), name="organization-list-owned"),
     # Organization detail URL
     path(
         "<str:organization_id>/",

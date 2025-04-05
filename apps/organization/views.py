@@ -1,20 +1,24 @@
 # Third-party imports
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.parsers import FormParser
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
 
 # Project imports
 from apps.common.renderers import GenericJSONRenderer
 from apps.organization.models import Organization
+from apps.organization.serializers import OrganizationAuthErrorResponseSerializer
 from apps.organization.serializers import OrganizationCreateErrorResponseSerializer
 from apps.organization.serializers import OrganizationCreateSerializer
 from apps.organization.serializers import OrganizationCreateSuccessResponseSerializer
 from apps.organization.serializers import OrganizationDetailResponseSerializer
+from apps.organization.serializers import OrganizationListResponseSerializer
 from apps.organization.serializers import OrganizationLogoErrorResponseSerializer
 from apps.organization.serializers import OrganizationLogoNotFoundResponseSerializer
 from apps.organization.serializers import OrganizationLogoSerializer
@@ -45,6 +49,32 @@ class OrganizationCreateView(APIView):
     # Define the object label
     object_label = "organization"
 
+    # Override the handle_exception method to customize error responses
+    def handle_exception(self, exc):
+        """Handle exceptions for the organization creation view.
+
+        This method handles exceptions for the organization creation view.
+
+        Args:
+            exc: The exception that occurred.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Return custom format for authentication errors
+        if isinstance(exc, (AuthenticationFailed, TokenError)):
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Return the exception as a standard error
+        return Response(
+            {"error": str(exc)},
+            status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
+        )
+
     # Define the schema
     @extend_schema(
         tags=["Organizations"],
@@ -58,6 +88,7 @@ class OrganizationCreateView(APIView):
         responses={
             status.HTTP_201_CREATED: OrganizationCreateSuccessResponseSerializer,
             status.HTTP_400_BAD_REQUEST: OrganizationCreateErrorResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
         },
     )
     def post(self, request: Request) -> Response:
@@ -125,6 +156,32 @@ class OrganizationLogoUploadView(APIView):
     # Define the object label
     object_label = "organization"
 
+    # Override the handle_exception method to customize error responses
+    def handle_exception(self, exc):
+        """Handle exceptions for the organization logo upload view.
+
+        This method handles exceptions for the organization logo upload view.
+
+        Args:
+            exc: The exception that occurred.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Return custom format for authentication errors
+        if isinstance(exc, (AuthenticationFailed, TokenError)):
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Return the exception as a standard error
+        return Response(
+            {"error": str(exc)},
+            status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
+        )
+
     # Define the schema
     @extend_schema(
         tags=["Organizations"],
@@ -144,6 +201,7 @@ class OrganizationLogoUploadView(APIView):
             status.HTTP_200_OK: OrganizationLogoSuccessResponseSerializer,
             status.HTTP_400_BAD_REQUEST: OrganizationLogoErrorResponseSerializer,
             status.HTTP_404_NOT_FOUND: OrganizationLogoNotFoundResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
         },
     )
     def put(self, request: Request, organization_id: str) -> Response:
@@ -237,6 +295,32 @@ class OrganizationDetailView(APIView):
     # Define the object label
     object_label = "organization"
 
+    # Override the handle_exception method to customize error responses
+    def handle_exception(self, exc):
+        """Handle exceptions for the organization detail view.
+
+        This method handles exceptions for the organization detail view.
+
+        Args:
+            exc: The exception that occurred.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Return custom format for authentication errors
+        if isinstance(exc, (AuthenticationFailed, TokenError)):
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Return the exception as a standard error
+        return Response(
+            {"error": str(exc)},
+            status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
+        )
+
     # Define the schema
     @extend_schema(
         tags=["Organizations"],
@@ -248,6 +332,7 @@ class OrganizationDetailView(APIView):
         responses={
             status.HTTP_200_OK: OrganizationDetailResponseSerializer,
             status.HTTP_404_NOT_FOUND: OrganizationNotFoundResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
         },
     )
     def get(self, request: Request, organization_id: str) -> Response:
@@ -298,3 +383,87 @@ class OrganizationDetailView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+
+# Organization List View
+class OrganizationListView(APIView):
+    """Organization list view.
+
+    This view allows authenticated users to list all organizations they own.
+
+    Attributes:
+        renderer_classes (list): The renderer classes for the view.
+        permission_classes (list): The permission classes for the view.
+        object_label (str): The object label for the response.
+    """
+
+    # Define the renderer classes
+    renderer_classes = [GenericJSONRenderer]
+
+    # Define the permission classes - require authentication
+    permission_classes = [IsAuthenticated]
+
+    # Define the object label
+    object_label = "organizations"
+
+    # Override the handle_exception method to customize error responses
+    def handle_exception(self, exc):
+        """Handle exceptions for the organization list view.
+
+        This method handles exceptions for the organization list view.
+
+        Args:
+            exc: The exception that occurred.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Return custom format for authentication errors
+        if isinstance(exc, (AuthenticationFailed, TokenError)):
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Return the exception as a standard error
+        return Response(
+            {"error": str(exc)},
+            status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
+        )
+
+    # Define the schema
+    @extend_schema(
+        tags=["Organizations"],
+        summary="List user's owned organizations.",
+        description="""
+        Lists all organizations owned by the authenticated user.
+        """,
+        responses={
+            status.HTTP_200_OK: OrganizationListResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """List user's owned organizations.
+
+        This method retrieves all organizations owned by the authenticated user.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object containing the list of organizations.
+        """
+
+        # Get all organizations owned by the user
+        organizations = Organization.objects.filter(owner=request.user)
+
+        # Serialize the organizations for the response body
+        response_serializer = OrganizationSerializer(organizations, many=True)
+
+        # Return 200 OK with the serialized organizations data
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_200_OK,
+        )

@@ -484,3 +484,50 @@ class OrganizationNotFoundResponseSerializer(GenericResponseSerializer):
         default="Organization not found or you don't have permission to view this organization.",
         read_only=True,
     )
+
+
+# Organization List Response Serializer
+class OrganizationListResponseSerializer(GenericResponseSerializer):
+    """Organization list response serializer.
+
+    This serializer defines the structure of the organization list response.
+    It includes a status code and a list of organizations.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        organizations (List[OrganizationSerializer]): List of organization serializers.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+
+    # Organizations serializer
+    organizations = OrganizationSerializer(
+        many=True,
+        help_text=_("List of organizations owned by the user."),
+    )
+
+
+# Authentication Error Response Serializer
+class OrganizationAuthErrorResponseSerializer(GenericResponseSerializer):
+    """Authentication error response serializer.
+
+    This serializer defines the structure of the authentication error response.
+    It includes a status code and an error message.
+
+    Attributes:
+        status_code (int): The status code of the response (401 Unauthorized).
+        error (str): An error message explaining the authentication failure.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_401_UNAUTHORIZED,
+        read_only=True,
+    )
+
+    # Error message
+    error = serializers.CharField(
+        default="Authentication credentials were not provided.",
+        read_only=True,
+    )
