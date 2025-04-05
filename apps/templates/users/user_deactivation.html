@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Account Deactivated</title>
+        <style>
+            body {
+                font-family: monospace, Courier, Courier New;
+                background-color: #f4f7f6;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                background-color: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .header {
+                background-color: #6c757d;
+                color: #ffffff;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .content {
+                padding: 30px;
+                line-height: 1.6;
+            }
+
+            .button {
+                display: inline-block;
+                padding: 12px 25px;
+                margin: 20px 0;
+                background-color: #28a745;
+                color: #ffffff !important;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+
+            .footer {
+                background-color: #f8f9fa;
+                color: #6c757d;
+                padding: 15px;
+                text-align: center;
+                font-size: 0.9em;
+                border-top: 1px solid #e0e0e0;
+            }
+
+            a {
+                color: #28a745;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Account Deactivated</h1>
+            </div>
+            <div class="content">
+                <p>Hello {{ user.full_name }},</p>
+                <p>We're sorry to see you go. Your account has been successfully deactivated.</p>
+                <p>
+                    If you deactivated your account by mistake or would like to reactivate it in the future, please contact our support team.
+                </p>
+                <p>
+                    We value your feedback. If you have any comments or suggestions that could help us improve our service, please let us know.
+                </p>
+                <p>Thanks for being part of our community.</p>
+                <p>The Team</p>
+            </div>
+            <div class="footer">
+                <p>© {{ current_year }} {{ domain_part }}. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+</html>
