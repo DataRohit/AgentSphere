@@ -18,7 +18,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -614,7 +613,6 @@ class UserMeView(APIView):
     Attributes:
         renderer_classes (list): The renderer classes for the view.
         permission_classes (list): The permission classes for the view.
-        authentication_classes (list): The authentication classes for the view.
     """
 
     # Define the renderer classes
@@ -622,9 +620,6 @@ class UserMeView(APIView):
 
     # Define the permission classes
     permission_classes = [IsAuthenticated]
-
-    # Define the authentication classes
-    authentication_classes = [JWTAuthentication]
 
     # Define the object label
     object_label = "user"
@@ -741,7 +736,6 @@ class UserDeactivateView(APIView):
     Attributes:
         renderer_classes (list): The renderer classes for the view.
         permission_classes (list): The permission classes for the view.
-        authentication_classes (list): The authentication classes for the view.
         object_label (str): The object label for the response.
     """
 
@@ -750,9 +744,6 @@ class UserDeactivateView(APIView):
 
     # Define the permission classes
     permission_classes = [IsAuthenticated]
-
-    # Define the authentication classes
-    authentication_classes = [JWTAuthentication]
 
     # Define the object label
     object_label = "user"
@@ -1115,7 +1106,6 @@ class UserDeletionRequestView(APIView):
     Attributes:
         renderer_classes (list): The renderer classes for the view.
         permission_classes (list): The permission classes for the view.
-        authentication_classes (list): The authentication classes for the view.
         object_label (str): The object label for the response.
     """
 
@@ -1124,9 +1114,6 @@ class UserDeletionRequestView(APIView):
 
     # Define the permission classes - require authentication
     permission_classes = [IsAuthenticated]
-
-    # Define the authentication classes - require JWT
-    authentication_classes = [JWTAuthentication]
 
     # Define the object label
     object_label = "user"

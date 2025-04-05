@@ -1,0 +1,288 @@
+# Third-party imports
+from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
+
+# Project imports
+from apps.common.serializer import GenericResponseSerializer
+from apps.organization.models import Organization
+from apps.users.serializers import UserDetailSerializer
+
+
+# Organization serializer
+class OrganizationSerializer(serializers.ModelSerializer):
+    """Organization serializer.
+
+    This serializer provides a representation of the Organization model.
+
+    Attributes:
+        id (UUID): The organization's ID.
+        name (str): The organization's name.
+        description (str): The organization's description.
+        website (str): The organization's website.
+        logo_url (str): The URL to the organization's logo.
+        owner (UserDetailSerializer): The owner of the organization.
+        member_count (int): The number of members in the organization.
+        is_active (bool): Whether the organization is active.
+        created_at (datetime): The date and time the organization was created.
+        updated_at (datetime): The date and time the organization was last updated.
+
+    Meta:
+        model (Organization): The model class.
+        fields (list): The fields to include in the serializer.
+        read_only_fields (list): Fields that are read-only.
+    """
+
+    # Logo URL field
+    logo_url = serializers.URLField(
+        read_only=True,
+        help_text=_("URL to the organization's logo."),
+    )
+
+    # Member count field
+    member_count = serializers.IntegerField(
+        read_only=True,
+        help_text=_("Number of members in the organization."),
+    )
+
+    # Owner serializer
+    owner = UserDetailSerializer(read_only=True)
+
+    # Meta class for OrganizationSerializer configuration
+    class Meta:
+        """Meta class for OrganizationSerializer configuration.
+
+        Attributes:
+            model (Organization): The model class.
+            fields (list): The fields to include in the serializer.
+            read_only_fields (list): Fields that are read-only.
+        """
+
+        # Model to use for the serializer
+        model = Organization
+
+        # Fields to include in the serializer
+        fields = [
+            "id",
+            "name",
+            "description",
+            "website",
+            "logo_url",
+            "owner",
+            "member_count",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+
+        # Read-only fields
+        read_only_fields = [
+            "id",
+            "owner",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+
+
+# Organization creation serializer
+class OrganizationCreateSerializer(serializers.ModelSerializer):
+    """Organization creation serializer.
+
+    This serializer handles the creation of new organizations. It validates that
+    the user has not exceeded the maximum number of organizations they can create.
+    It also ensures a user cannot create multiple organizations with the same name.
+
+    Meta:
+        model (Organization): The Organization model.
+        fields (list): The fields to include in the serializer.
+        extra_kwargs (dict): Additional field configurations.
+
+    Raises:
+        serializers.ValidationError: If user has already created maximum organizations.
+        serializers.ValidationError: If user already has an organization with the same name.
+
+    Returns:
+        Organization: The newly created organization instance.
+    """
+
+    # Meta class for OrganizationCreateSerializer configuration
+    class Meta:
+        """Meta class for OrganizationCreateSerializer configuration.
+
+        Attributes:
+            model (Organization): The model class.
+            fields (list): The fields to include in the serializer.
+            extra_kwargs (dict): Additional field configurations.
+        """
+
+        # Model to use for the serializer
+        model = Organization
+
+        # Fields to include in the serializer
+        fields = [
+            "name",
+            "description",
+            "website",
+        ]
+
+        # Extra kwargs
+        extra_kwargs = {
+            "name": {"required": True},
+            "description": {"required": False},
+            "website": {"required": False},
+        }
+
+    # Validate the serializer data
+    def validate(self, attrs):
+        """Validate the serializer data.
+
+        This method validates that:
+        1. The user has not exceeded the maximum number of organizations they can create (3).
+        2. The user does not already have an organization with the same name.
+
+        Args:
+            attrs (dict): The attributes to validate.
+
+        Returns:
+            dict: The validated attributes.
+
+        Raises:
+            serializers.ValidationError: If the user has already reached the limit.
+            serializers.ValidationError: If the user already has an organization with the same name.
+        """
+
+        # Get the user from the context
+        user = self.context["request"].user
+
+        # Check if the user has already created the maximum number of organizations
+        if user.owned_organizations.count() >= Organization.MAX_ORGANIZATIONS_PER_USER:
+            # Raise a validation error
+            raise serializers.ValidationError(
+                {
+                    "non_field_errors": [
+                        f"You can only create a maximum of {Organization.MAX_ORGANIZATIONS_PER_USER} organizations.",
+                    ],
+                },
+            )
+
+        # Get the organization name
+        organization_name = attrs.get("name")
+
+        # Check if the user already has an organization with the same name
+        if (
+            organization_name
+            and user.owned_organizations.filter(name=organization_name).exists()
+        ):
+            # Raise a validation error
+            raise serializers.ValidationError(
+                {
+                    "name": [
+                        "You already have an organization with this name.",
+                    ],
+                },
+            )
+
+        # Return the validated attributes
+        return attrs
+
+    # Create a new organization
+    def create(self, validated_data):
+        """Create a new organization.
+
+        This method creates a new organization with the owner set to the current user.
+
+        Args:
+            validated_data (dict): The validated data.
+
+        Returns:
+            Organization: The newly created organization.
+        """
+
+        # Get the user from the context
+        user = self.context["request"].user
+
+        # Create the organization
+        organization = Organization.objects.create(owner=user, **validated_data)
+
+        # Add the owner as a member of the organization
+        organization.add_member(user)
+
+        # Return the organization
+        return organization
+
+
+# Organization creation success response serializer
+class OrganizationCreateSuccessResponseSerializer(GenericResponseSerializer):
+    """Organization creation success response serializer.
+
+    This serializer defines the structure of the successful organization creation response.
+    It includes a status code and an organization object.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        organization (OrganizationSerializer): The organization detail serializer.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(default=201)
+
+    # Organization serializer
+    organization = OrganizationSerializer(
+        read_only=True,
+        help_text=_("The created organization."),
+    )
+
+
+# Organization creation error response serializer
+class OrganizationCreateErrorResponseSerializer(GenericResponseSerializer):
+    """Organization creation error response serializer (for schema).
+
+    This serializer defines the structure of the wrapped validation error response.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        errors (OrganizationCreateErrorsDetailSerializer): The errors detail serializer.
+    """
+
+    # Nested serializer defining the structure of the actual errors
+    class OrganizationCreateErrorsDetailSerializer(serializers.Serializer):
+        """Organization Creation Errors detail serializer.
+
+        Attributes:
+            name (list): Errors related to the name field.
+            description (list): Errors related to the description field.
+            website (list): Errors related to the website field.
+            non_field_errors (list): Non-field specific errors.
+        """
+
+        name = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the name field."),
+        )
+        description = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the description field."),
+        )
+        website = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the website field."),
+        )
+        non_field_errors = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Non-field specific errors (including limit warnings)."),
+        )
+
+    # Override status_code from GenericResponseSerializer
+    status_code = serializers.IntegerField(
+        default=400,
+        help_text=_("HTTP status code indicating a bad request."),
+    )
+
+    # Define the 'errors' field containing the validation error details
+    errors = OrganizationCreateErrorsDetailSerializer(
+        help_text=_("Validation errors for organization creation."),
+    )
