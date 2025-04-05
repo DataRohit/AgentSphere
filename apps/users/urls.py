@@ -6,6 +6,8 @@ from apps.users.views import ResendActivationEmailView
 from apps.users.views import UserActivationView
 from apps.users.views import UserCreateView
 from apps.users.views import UserDeactivateView
+from apps.users.views import UserDeletionConfirmView
+from apps.users.views import UserDeletionRequestView
 from apps.users.views import UserLoginView
 from apps.users.views import UserMeView
 from apps.users.views import UserReactivationConfirmView
@@ -50,5 +52,17 @@ urlpatterns = [
         "reactivate/<str:uid>/<str:token>/",
         UserReactivationConfirmView.as_view(),
         name="user-reactivation-confirm",
+    ),
+    # User deletion request URL
+    path(
+        "delete/",
+        UserDeletionRequestView.as_view(),
+        name="user-deletion-request",
+    ),
+    # User deletion confirmation URL
+    path(
+        "delete/<str:uid>/<str:token>/",
+        UserDeletionConfirmView.as_view(),
+        name="user-deletion-confirm",
     ),
 ]
