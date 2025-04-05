@@ -70,12 +70,17 @@ class GenericJSONRenderer(JSONRenderer):
         # Get status code from response
         status_code = response.status_code
 
-        # Check for errors or error in data
-        error = data.get("error", None) or data.get("errors", None)
+        # If error in data
+        if "error" in data:
+            return json.dumps(
+                {"status_code": status_code, "error": data["error"]},
+            ).encode(self.charset)
 
-        # Return error response without wrapping if error/errors exist
-        if error is not None:
-            return super().render(data)
+        # If errors in data
+        if "errors" in data:
+            return json.dumps(
+                {"status_code": status_code, "errors": data["errors"]},
+            ).encode(self.charset)
 
         # Return standardized response format
         return json.dumps({"status_code": status_code, object_label: data}).encode(

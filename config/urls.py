@@ -46,6 +46,11 @@ urlpatterns += [
     ),
 ]
 
+# API application URLs
+urlpatterns += [
+    path("api/v1/users/", include("apps.users.urls")),
+]
+
 # Health check URLs
 urlpatterns += [
     path("health/", include("health_check.urls")),

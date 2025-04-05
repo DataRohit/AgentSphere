@@ -23,7 +23,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 # -----------------------------------------
 
 # Set the base directory for the project
-BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 # Set the apps directory
 APPS_DIR = BASE_DIR / "apps"
@@ -288,6 +288,7 @@ SESSION_COOKIE_NAME = "sessionid"
 
 # SSL and HTTPS settings
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
 
 # HTTP Strict Transport Security settings
