@@ -10,6 +10,8 @@ from apps.users.views import UserDeletionConfirmView
 from apps.users.views import UserDeletionRequestView
 from apps.users.views import UserLoginView
 from apps.users.views import UserMeView
+from apps.users.views import UserPasswordResetConfirmView
+from apps.users.views import UserPasswordResetRequestView
 from apps.users.views import UserReactivationConfirmView
 from apps.users.views import UserReactivationRequestView
 from apps.users.views import UserReloginView
@@ -64,5 +66,17 @@ urlpatterns = [
         "delete/<str:uid>/<str:token>/",
         UserDeletionConfirmView.as_view(),
         name="user-deletion-confirm",
+    ),
+    # User password reset request URL
+    path(
+        "password-reset/",
+        UserPasswordResetRequestView.as_view(),
+        name="user-password-reset-request",
+    ),
+    # User password reset confirmation URL
+    path(
+        "password-reset/<str:uid>/<str:token>/",
+        UserPasswordResetConfirmView.as_view(),
+        name="user-password-reset-confirm",
     ),
 ]
