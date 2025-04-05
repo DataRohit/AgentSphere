@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Account Deactivated</title>
+        <title>Reactivate Your Account</title>
         <style>
             body {
                 font-family: monospace, Courier, Courier New;
@@ -23,7 +23,7 @@
             }
 
             .header {
-                background-color: #6c757d;
+                background-color: #28a745;
                 color: #ffffff;
                 padding: 20px;
                 text-align: center;
@@ -60,9 +60,9 @@
             }
 
             .message-box {
-                background-color: #f8d7da;
-                border: 1px solid #f5c2c7;
-                color: #842029;
+                background-color: #fff3cd;
+                border: 1px solid #ffecb5;
+                color: #664d03;
                 padding: 15px;
                 border-radius: 5px;
                 margin: 20px 0;
@@ -72,22 +72,26 @@
     <body>
         <div class="container">
             <div class="header">
-                <h1>Account Deactivated</h1>
+                <h1>Reactivate Your Account</h1>
             </div>
             <div class="content">
                 <p>Hello {{ user.full_name }},</p>
                 <div class="message-box">
                     <p>
-                        <strong>Your account has been successfully deactivated.</strong>
+                        <strong>We received a request to reactivate your account. This link will allow you to set a new password and restore access to your account.</strong>
                     </p>
                 </div>
-                <p>
-                    We're sorry to see you go. If you deactivated your account by mistake or would like to reactivate it in the future, please contact our support team.
+                <p>Please click the button below to reactivate:</p>
+                <div style="text-align: center;">
+                    <a href="{{ reactivation_link }}" class="button">Reactivate Account</a>
+                </div>
+                <p>When you visit the link, you'll need to set a new password for your account.</p>
+                <p>If you cannot click the button, please copy and paste the following link into your browser:</p>
+                <p style="word-wrap: break-word; overflow-wrap: break-word;">
+                    <a href="{{ reactivation_link }}">{{ reactivation_link }}</a>
                 </p>
-                <p>
-                    We value your feedback. If you have any comments or suggestions that could help us improve our service, please let us know.
-                </p>
-                <p>Thanks for being part of our community.</p>
+                <p>If you did not request account reactivation, you can safely ignore this email.</p>
+                <p>Thanks,</p>
                 <p>The Team</p>
             </div>
             <div class="footer">

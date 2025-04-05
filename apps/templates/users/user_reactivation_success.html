@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Account Deactivated</title>
+        <title>Account Reactivated Successfully</title>
         <style>
             body {
                 font-family: monospace, Courier, Courier New;
@@ -23,7 +23,7 @@
             }
 
             .header {
-                background-color: #6c757d;
+                background-color: #28a745;
                 color: #ffffff;
                 padding: 20px;
                 text-align: center;
@@ -60,9 +60,9 @@
             }
 
             .message-box {
-                background-color: #f8d7da;
-                border: 1px solid #f5c2c7;
-                color: #842029;
+                background-color: #d4edda;
+                border: 1px solid #c3e6cb;
+                color: #155724;
                 padding: 15px;
                 border-radius: 5px;
                 margin: 20px 0;
@@ -72,22 +72,20 @@
     <body>
         <div class="container">
             <div class="header">
-                <h1>Account Deactivated</h1>
+                <h1>Account Reactivated Successfully</h1>
             </div>
             <div class="content">
                 <p>Hello {{ user.full_name }},</p>
                 <div class="message-box">
                     <p>
-                        <strong>Your account has been successfully deactivated.</strong>
+                        <strong>Your account has been successfully reactivated!</strong>
                     </p>
                 </div>
+                <p>You can now log in to your account with your email address and the new password you created.</p>
                 <p>
-                    We're sorry to see you go. If you deactivated your account by mistake or would like to reactivate it in the future, please contact our support team.
+                    If you did not reactivate your account, please contact us immediately as your account security may have been compromised.
                 </p>
-                <p>
-                    We value your feedback. If you have any comments or suggestions that could help us improve our service, please let us know.
-                </p>
-                <p>Thanks for being part of our community.</p>
+                <p>Thanks for being part of our community again!</p>
                 <p>The Team</p>
             </div>
             <div class="footer">

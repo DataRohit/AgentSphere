@@ -8,6 +8,8 @@ from apps.users.views import UserCreateView
 from apps.users.views import UserDeactivateView
 from apps.users.views import UserLoginView
 from apps.users.views import UserMeView
+from apps.users.views import UserReactivationConfirmView
+from apps.users.views import UserReactivationRequestView
 from apps.users.views import UserReloginView
 
 # Set application namespace
@@ -37,4 +39,16 @@ urlpatterns = [
     path("me/", UserMeView.as_view(), name="user-me"),
     # User deactivation URL
     path("deactivate/", UserDeactivateView.as_view(), name="user-deactivate"),
+    # User reactivation request URL
+    path(
+        "reactivate/",
+        UserReactivationRequestView.as_view(),
+        name="user-reactivation-request",
+    ),
+    # User reactivation confirmation URL
+    path(
+        "reactivate/<str:uid>/<str:token>/",
+        UserReactivationConfirmView.as_view(),
+        name="user-reactivation-confirm",
+    ),
 ]

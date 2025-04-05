@@ -58,6 +58,15 @@
                 color: #007bff;
                 text-decoration: none;
             }
+
+            .message-box {
+                background-color: #cfe2ff;
+                border: 1px solid #b6d4fe;
+                color: #084298;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
         </style>
     </head>
     <body>
@@ -67,7 +76,12 @@
             </div>
             <div class="content">
                 <p>Hello {{ user.full_name }},</p>
-                <p>Thank you for registering. Please click the button below to activate your account:</p>
+                <div class="message-box">
+                    <p>
+                        <strong>Thank you for registering! Your account needs to be activated before you can log in.</strong>
+                    </p>
+                </div>
+                <p>Please click the button below to activate your account:</p>
                 <div style="text-align: center;">
                     <a href="{{ activation_link }}" class="button">Activate Account</a>
                 </div>

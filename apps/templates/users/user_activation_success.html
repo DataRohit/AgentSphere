@@ -23,7 +23,7 @@
             }
 
             .header {
-                background-color: #28a745;
+                background-color: #007bff;
                 color: #ffffff;
                 padding: 20px;
                 text-align: center;
@@ -58,17 +58,31 @@
                 color: #007bff;
                 text-decoration: none;
             }
+
+            .message-box {
+                background-color: #d1e7dd;
+                border: 1px solid #badbcc;
+                color: #0f5132;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>Account Activated!</h1>
+                <h1>Account Activated Successfully</h1>
             </div>
             <div class="content">
                 <p>Hello {{ user.full_name }},</p>
-                <p>Your account has been successfully activated. You can now log in using your credentials.</p>
-                <p>If you have any questions, feel free to contact our support team.</p>
+                <div class="message-box">
+                    <p>
+                        <strong>Your account has been successfully activated!</strong>
+                    </p>
+                </div>
+                <p>You can now log in to your account with your email address and password.</p>
+                <p>Thank you for joining our community. We're excited to have you on board!</p>
                 <p>Thanks,</p>
                 <p>The Team</p>
             </div>
