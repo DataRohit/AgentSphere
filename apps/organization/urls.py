@@ -6,6 +6,9 @@ from apps.organization.views import OrganizationCreateView
 from apps.organization.views import OrganizationDetailView
 from apps.organization.views import OrganizationListView
 from apps.organization.views import OrganizationLogoUploadView
+from apps.organization.views import OrganizationMemberAddByEmailView
+from apps.organization.views import OrganizationMemberAddByIdView
+from apps.organization.views import OrganizationMemberAddByUsernameView
 from apps.organization.views import OrganizationMemberListView
 
 # Set application namespace
@@ -34,5 +37,23 @@ urlpatterns = [
         "<str:organization_id>/logo/",
         OrganizationLogoUploadView.as_view(),
         name="organization-logo-upload",
+    ),
+    # Organization member add by ID URL
+    path(
+        "<str:organization_id>/members/add/by-id/",
+        OrganizationMemberAddByIdView.as_view(),
+        name="organization-member-add-by-id",
+    ),
+    # Organization member add by email URL
+    path(
+        "<str:organization_id>/members/add/by-email/",
+        OrganizationMemberAddByEmailView.as_view(),
+        name="organization-member-add-by-email",
+    ),
+    # Organization member add by username URL
+    path(
+        "<str:organization_id>/members/add/by-username/",
+        OrganizationMemberAddByUsernameView.as_view(),
+        name="organization-member-add-by-username",
     ),
 ]

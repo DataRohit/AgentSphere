@@ -553,3 +553,269 @@ class OrganizationAuthErrorResponseSerializer(GenericResponseSerializer):
         default="Authentication credentials were not provided.",
         read_only=True,
     )
+
+
+# Organization Member Add by ID Serializer
+class OrganizationMemberAddByIdSerializer(serializers.Serializer):
+    """Organization member add by ID serializer.
+
+    This serializer handles adding a new member to an organization using the user's ID.
+
+    Attributes:
+        user_id (UUID): The ID of the user to add as a member.
+    """
+
+    # User ID field
+    user_id = serializers.UUIDField(
+        required=True,
+        help_text=_("The ID of the user to add as a member."),
+    )
+
+    # Validate the user ID
+    def validate_user_id(self, value):
+        """Validate the user ID.
+
+        Args:
+            value (UUID): The user ID to validate.
+
+        Returns:
+            UUID: The validated user ID.
+
+        Raises:
+            serializers.ValidationError: If the user does not exist or is already a member.
+        """
+
+        try:
+            # Get the user by ID
+            user = User.objects.get(id=value)
+
+        except User.DoesNotExist:
+            # Raise a validation error if the user does not exist
+            raise serializers.ValidationError(
+                _("User with this ID does not exist."),
+            )
+
+        # Get the organization from the context
+        organization = self.context.get("organization")
+
+        # Check if the user is already a member of the organization
+        if organization and user in organization.members.all():
+            # Raise a validation error if the user is already a member
+            raise serializers.ValidationError(
+                _("User is already a member of this organization."),
+            )
+
+        # Check if the user is the owner of the organization
+        if organization and user == organization.owner:
+            # Raise a validation error if the user is the owner
+            raise serializers.ValidationError(
+                _("User is the owner of this organization and is already a member."),
+            )
+
+        # Return the validated user ID
+        return value
+
+
+# Organization Member Add by Email Serializer
+class OrganizationMemberAddByEmailSerializer(serializers.Serializer):
+    """Organization member add by email serializer.
+
+    This serializer handles adding a new member to an organization using the user's email.
+
+    Attributes:
+        email (str): The email of the user to add as a member.
+    """
+
+    # Email field
+    email = serializers.EmailField(
+        required=True,
+        help_text=_("The email of the user to add as a member."),
+    )
+
+    # Validate the email
+    def validate_email(self, value):
+        """Validate the email.
+
+        Args:
+            value (str): The email to validate.
+
+        Returns:
+            str: The validated email.
+
+        Raises:
+            serializers.ValidationError: If the user does not exist or is already a member.
+        """
+
+        try:
+            # Get the user by email
+            user = User.objects.get(email=value)
+
+        except User.DoesNotExist:
+            # Raise a validation error if the user does not exist
+            raise serializers.ValidationError(
+                _("User with this email does not exist."),
+            )
+
+        # Get the organization from the context
+        organization = self.context.get("organization")
+
+        # Check if the user is already a member of the organization
+        if organization and user in organization.members.all():
+            # Raise a validation error if the user is already a member
+            raise serializers.ValidationError(
+                _("User is already a member of this organization."),
+            )
+
+        # Check if the user is the owner of the organization
+        if organization and user == organization.owner:
+            # Raise a validation error if the user is the owner
+            raise serializers.ValidationError(
+                _("User is the owner of this organization and is already a member."),
+            )
+
+        # Return the validated email
+        return value
+
+
+# Organization Member Add by Username Serializer
+class OrganizationMemberAddByUsernameSerializer(serializers.Serializer):
+    """Organization member add by username serializer.
+
+    This serializer handles adding a new member to an organization using the user's username.
+
+    Attributes:
+        username (str): The username of the user to add as a member.
+    """
+
+    # Username field
+    username = serializers.CharField(
+        required=True,
+        help_text=_("The username of the user to add as a member."),
+    )
+
+    # Validate the username
+    def validate_username(self, value):
+        """Validate the username.
+
+        Args:
+            value (str): The username to validate.
+
+        Returns:
+            str: The validated username.
+
+        Raises:
+            serializers.ValidationError: If the user does not exist or is already a member.
+        """
+
+        try:
+            # Get the user by username
+            user = User.objects.get(username=value)
+
+        except User.DoesNotExist:
+            # Raise a validation error if the user does not exist
+            raise serializers.ValidationError(
+                _("User with this username does not exist."),
+            )
+
+        # Get the organization from the context
+        organization = self.context.get("organization")
+
+        # Check if the user is already a member of the organization
+        if organization and user in organization.members.all():
+            # Raise a validation error if the user is already a member
+            raise serializers.ValidationError(
+                _("User is already a member of this organization."),
+            )
+
+        # Check if the user is the owner of the organization
+        if organization and user == organization.owner:
+            # Raise a validation error if the user is the owner
+            raise serializers.ValidationError(
+                _("User is the owner of this organization and is already a member."),
+            )
+
+        # Return the validated username
+        return value
+
+
+# Organization Member Add Success Response Serializer
+class OrganizationMemberAddSuccessResponseSerializer(GenericResponseSerializer):
+    """Organization member add success response serializer.
+
+    This serializer defines the structure of the successful member add response.
+    It includes a status code and the updated organization object.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        organization (OrganizationSerializer): The organization detail serializer.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+
+    # Organization serializer
+    organization = OrganizationSerializer(
+        help_text=_("The updated organization with the new member."),
+    )
+
+
+# Organization Member Add Error Response Serializer
+class OrganizationMemberAddErrorResponseSerializer(GenericResponseSerializer):
+    """Organization member add error response serializer.
+
+    This serializer defines the structure of the error response for member add.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        errors (OrganizationMemberAddErrorsDetailSerializer): The errors detail serializer.
+    """
+
+    # Nested serializer defining the structure of the actual errors
+    class OrganizationMemberAddErrorsDetailSerializer(serializers.Serializer):
+        """Organization Member Add Errors detail serializer.
+
+        Attributes:
+            user_id (list): Errors related to the user_id field.
+            email (list): Errors related to the email field.
+            username (list): Errors related to the username field.
+            non_field_errors (list): Non-field specific errors.
+        """
+
+        # User ID field errors
+        user_id = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the user_id field."),
+        )
+
+        # Email field errors
+        email = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the email field."),
+        )
+
+        # Username field errors
+        username = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the username field."),
+        )
+
+        # Non-field errors
+        non_field_errors = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Non-field specific errors."),
+        )
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_400_BAD_REQUEST,
+        help_text=_("HTTP status code indicating a bad request."),
+    )
+
+    # Errors
+    errors = OrganizationMemberAddErrorsDetailSerializer(
+        help_text=_("Object containing validation errors."),
+    )
