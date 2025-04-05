@@ -1074,15 +1074,15 @@ class UserReactivationRequestSerializer(serializers.Serializer):
                     code=status.HTTP_400_BAD_REQUEST,
                 )
 
-            # Return the validated email address
-            return value
-
         except User.DoesNotExist:
             # Raise a validation error if no account with this email exists
             raise serializers.ValidationError(
                 _("No account with this email address exists."),
                 code=status.HTTP_404_NOT_FOUND,
-            )
+            ) from None
+
+        # Return the validated email address
+        return value
 
 
 # User reactivation request success response serializer
@@ -1232,7 +1232,7 @@ class UserReactivationConfirmSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"new_password": list(e)},
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from e
 
         # Return the validated attributes
         return attrs
@@ -1522,15 +1522,15 @@ class UserPasswordResetRequestSerializer(serializers.Serializer):
             # Try to get the user by email
             User.objects.get(email=value)
 
-            # Return the validated email address
-            return value
-
         except User.DoesNotExist:
             # Raise a validation error if no account with this email exists
             raise serializers.ValidationError(
                 _("No account with this email address exists."),
                 code=status.HTTP_404_NOT_FOUND,
-            )
+            ) from None
+
+            # Return the validated email address
+            return value
 
 
 # User password reset request success response serializer
@@ -1703,7 +1703,7 @@ class UserPasswordResetConfirmSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"new_password": list(e)},
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from e
 
         # Return the validated attributes
         return attrs
