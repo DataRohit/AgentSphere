@@ -2,14 +2,19 @@
 from django.urls import path
 
 # Project imports
-from apps.organization.views import OrganizationCreateView
-from apps.organization.views import OrganizationDetailView
-from apps.organization.views import OrganizationListView
-from apps.organization.views import OrganizationLogoUploadView
-from apps.organization.views import OrganizationMemberAddByEmailView
-from apps.organization.views import OrganizationMemberAddByIdView
-from apps.organization.views import OrganizationMemberAddByUsernameView
-from apps.organization.views import OrganizationMemberListView
+from apps.organization.views import (
+    OrganizationCreateView,
+    OrganizationDetailView,
+    OrganizationListView,
+    OrganizationLogoUploadView,
+    OrganizationMemberAddByEmailView,
+    OrganizationMemberAddByIdView,
+    OrganizationMemberAddByUsernameView,
+    OrganizationMemberListView,
+    OrganizationMemberRemoveByEmailView,
+    OrganizationMemberRemoveByIdView,
+    OrganizationMemberRemoveByUsernameView,
+)
 
 # Set application namespace
 app_name = "organization"
@@ -55,5 +60,23 @@ urlpatterns = [
         "<str:organization_id>/members/add/by-username/",
         OrganizationMemberAddByUsernameView.as_view(),
         name="organization-member-add-by-username",
+    ),
+    # Organization member remove by ID URL
+    path(
+        "<str:organization_id>/members/remove/by-id/",
+        OrganizationMemberRemoveByIdView.as_view(),
+        name="organization-member-remove-by-id",
+    ),
+    # Organization member remove by email URL
+    path(
+        "<str:organization_id>/members/remove/by-email/",
+        OrganizationMemberRemoveByEmailView.as_view(),
+        name="organization-member-remove-by-email",
+    ),
+    # Organization member remove by username URL
+    path(
+        "<str:organization_id>/members/remove/by-username/",
+        OrganizationMemberRemoveByUsernameView.as_view(),
+        name="organization-member-remove-by-username",
     ),
 ]

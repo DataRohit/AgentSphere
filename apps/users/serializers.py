@@ -2,13 +2,13 @@
 from typing import Any
 
 # Third-party imports
-from django.contrib.auth import get_user_model
-from django.contrib.auth import password_validation
+from django.contrib.auth import get_user_model, password_validation
 from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers
-from rest_framework import status
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework import serializers, status
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer,
+)
 
 # Project imports
 from apps.common.serializer import GenericResponseSerializer
@@ -102,7 +102,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"password": _("Passwords do not match.")},
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from None
 
         # Return the validated user data
         return attrs
@@ -810,7 +810,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 _("This username is already taken."),
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from None
 
         # Return the validated username
         return value
@@ -953,7 +953,7 @@ class UserDeactivateSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"re_password": _("Passwords do not match.")},
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from None
 
         # Get the user from the context
         user = self.context["request"].user
@@ -964,7 +964,7 @@ class UserDeactivateSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"current_password": _("Current password is incorrect.")},
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from None
 
         # Return the validated attributes
         return attrs
@@ -1108,7 +1108,7 @@ class UserReactivationRequestSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     _("This account is already active."),
                     code=status.HTTP_400_BAD_REQUEST,
-                )
+                ) from None
 
         except User.DoesNotExist:
             # Raise a validation error if no account with this email exists
@@ -1256,7 +1256,7 @@ class UserReactivationConfirmSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"re_new_password": _("Passwords do not match.")},
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from None
 
         # Validate the password using Django's password validators
         try:
@@ -1728,7 +1728,7 @@ class UserPasswordResetConfirmSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"re_new_password": _("Passwords do not match.")},
                 code=status.HTTP_400_BAD_REQUEST,
-            )
+            ) from None
 
         try:
             # Validate the password using Django's password validators

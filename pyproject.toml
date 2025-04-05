@@ -94,9 +94,3 @@ select = [
 ]
 ignore = ["S101", "RUF012", "SIM102", "UP038", "EXE002"]
 extend-unsafe-fixes = ["UP038"]
-
-# -----------------------------------------
-# Ruff isort configuration
-# -----------------------------------------
-[tool.ruff.lint.isort]
-force-single-line = true

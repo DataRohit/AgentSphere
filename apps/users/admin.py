@@ -5,11 +5,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 # Project imports
-from .forms import UserChangeForm
-from .forms import UserCreationForm
-from .models import UserActivationToken
-from .models import UserDeletionToken
-from .models import UserPasswordResetToken
+from .forms import UserChangeForm, UserCreationForm
+from .models import UserActivationToken, UserDeletionToken, UserPasswordResetToken
 
 # Get the User model
 User = get_user_model()

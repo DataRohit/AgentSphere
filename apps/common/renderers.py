@@ -65,7 +65,9 @@ class GenericJSONRenderer(JSONRenderer):
 
         # Validate response object exists
         if not response:
-            raise ValueError(_("Renderer context does not contain a response object"))
+            raise ValueError(
+                _("Renderer context does not contain a response object"),
+            ) from None
 
         # Get status code from response
         status_code = response.status_code

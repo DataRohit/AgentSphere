@@ -10,67 +10,68 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Project imports
 from apps.common.renderers import GenericJSONRenderer
 from apps.common.utils import send_templated_mail
-from apps.users.models import UserActivationToken
-from apps.users.models import UserDeletionToken
-from apps.users.models import UserPasswordResetToken
-from apps.users.serializers import ResendActivationEmailSerializer
-from apps.users.serializers import ResendActivationErrorResponseSerializer
-from apps.users.serializers import ResendActivationNotFoundResponseSerializer
-from apps.users.serializers import ResendActivationSuccessResponseSerializer
-from apps.users.serializers import UserActivationForbiddenResponseSerializer
-from apps.users.serializers import UserActivationSuccessResponseSerializer
-from apps.users.serializers import UserCreateErrorResponseSerializer
-from apps.users.serializers import UserCreateSerializer
-from apps.users.serializers import UserCreateSuccessResponseSerializer
-from apps.users.serializers import UserDeactivateErrorResponseSerializer
-from apps.users.serializers import UserDeactivateSerializer
-from apps.users.serializers import UserDeactivateSuccessResponseSerializer
-from apps.users.serializers import UserDeletionConfirmSuccessResponseSerializer
-from apps.users.serializers import UserDeletionForbiddenResponseSerializer
-from apps.users.serializers import UserDeletionRequestSuccessResponseSerializer
-from apps.users.serializers import UserDeletionRequestUnauthorizedResponseSerializer
-from apps.users.serializers import UserDetailSerializer
-from apps.users.serializers import UserLoginErrorResponseSerializer
-from apps.users.serializers import UserLoginResponseSerializer
-from apps.users.serializers import UserLoginSerializer
-from apps.users.serializers import UserPasswordResetConfirmErrorResponseSerializer
-from apps.users.serializers import UserPasswordResetConfirmSerializer
-from apps.users.serializers import UserPasswordResetConfirmSuccessResponseSerializer
-from apps.users.serializers import UserPasswordResetForbiddenResponseSerializer
-from apps.users.serializers import UserPasswordResetRequestErrorResponseSerializer
-from apps.users.serializers import UserPasswordResetRequestSerializer
-from apps.users.serializers import UserPasswordResetRequestSuccessResponseSerializer
-from apps.users.serializers import UserProfileErrorResponseSerializer
-from apps.users.serializers import UserProfileResponseSerializer
-from apps.users.serializers import UserProfileSerializer
-from apps.users.serializers import UserProfileUpdateErrorResponseSerializer
-from apps.users.serializers import UserProfileUpdateResponseSerializer
-from apps.users.serializers import UserProfileUpdateSerializer
-from apps.users.serializers import UserReactivationConfirmErrorResponseSerializer
-from apps.users.serializers import UserReactivationConfirmSerializer
-from apps.users.serializers import UserReactivationConfirmSuccessResponseSerializer
-from apps.users.serializers import UserReactivationForbiddenResponseSerializer
-from apps.users.serializers import UserReactivationRequestErrorResponseSerializer
-from apps.users.serializers import UserReactivationRequestSerializer
-from apps.users.serializers import UserReactivationRequestSuccessResponseSerializer
-from apps.users.serializers import UserReloginErrorResponseSerializer
-from apps.users.serializers import UserReloginResponseSerializer
-from apps.users.serializers import UserReloginSerializer
+from apps.users.models import (
+    UserActivationToken,
+    UserDeletionToken,
+    UserPasswordResetToken,
+)
+from apps.users.serializers import (
+    ResendActivationEmailSerializer,
+    ResendActivationErrorResponseSerializer,
+    ResendActivationNotFoundResponseSerializer,
+    ResendActivationSuccessResponseSerializer,
+    UserActivationForbiddenResponseSerializer,
+    UserActivationSuccessResponseSerializer,
+    UserCreateErrorResponseSerializer,
+    UserCreateSerializer,
+    UserCreateSuccessResponseSerializer,
+    UserDeactivateErrorResponseSerializer,
+    UserDeactivateSerializer,
+    UserDeactivateSuccessResponseSerializer,
+    UserDeletionConfirmSuccessResponseSerializer,
+    UserDeletionForbiddenResponseSerializer,
+    UserDeletionRequestSuccessResponseSerializer,
+    UserDeletionRequestUnauthorizedResponseSerializer,
+    UserDetailSerializer,
+    UserLoginErrorResponseSerializer,
+    UserLoginResponseSerializer,
+    UserLoginSerializer,
+    UserPasswordResetConfirmErrorResponseSerializer,
+    UserPasswordResetConfirmSerializer,
+    UserPasswordResetConfirmSuccessResponseSerializer,
+    UserPasswordResetForbiddenResponseSerializer,
+    UserPasswordResetRequestErrorResponseSerializer,
+    UserPasswordResetRequestSerializer,
+    UserPasswordResetRequestSuccessResponseSerializer,
+    UserProfileErrorResponseSerializer,
+    UserProfileResponseSerializer,
+    UserProfileSerializer,
+    UserProfileUpdateErrorResponseSerializer,
+    UserProfileUpdateResponseSerializer,
+    UserProfileUpdateSerializer,
+    UserReactivationConfirmErrorResponseSerializer,
+    UserReactivationConfirmSerializer,
+    UserReactivationConfirmSuccessResponseSerializer,
+    UserReactivationForbiddenResponseSerializer,
+    UserReactivationRequestErrorResponseSerializer,
+    UserReactivationRequestSerializer,
+    UserReactivationRequestSuccessResponseSerializer,
+    UserReloginErrorResponseSerializer,
+    UserReloginResponseSerializer,
+    UserReloginSerializer,
+)
 
 # Get the user model
 User = get_user_model()

@@ -87,7 +87,9 @@ class UserCreationForm(admin_forms.UserCreationForm):
 
         # Check if email already exists
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError(self.error_messages["duplicate_email"])
+            raise forms.ValidationError(
+                self.error_messages["duplicate_email"],
+            ) from None
 
         # Return the email
         return email
@@ -108,7 +110,9 @@ class UserCreationForm(admin_forms.UserCreationForm):
 
         # Check if username already exists
         if User.objects.filter(username=username).exists():
-            raise forms.ValidationError(self.error_messages["duplicate_username"])
+            raise forms.ValidationError(
+                self.error_messages["duplicate_username"],
+            ) from None
 
         # Return the username
         return username

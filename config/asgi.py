@@ -45,4 +45,4 @@ async def application(scope, receive, send):
     else:
         # Raise an error
         msg = f"Unknown scope type {scope['type']}"
-        raise NotImplementedError(msg)
+        raise NotImplementedError(msg) from None

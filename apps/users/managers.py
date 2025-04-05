@@ -1,6 +1,5 @@
 # Standard library imports
-from typing import TYPE_CHECKING
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Third-party imports
 from django.contrib.auth.hashers import make_password
@@ -48,8 +47,9 @@ class UserManager(DjangoUserManager["User"]):
 
         # Validate email is provided
         if not email:
+            # Raise a more descriptive error message
             msg = "The given email must be set"
-            raise ValueError(msg)
+            raise ValueError(msg) from None
 
         # Normalize the email address
         email = self.normalize_email(email)
@@ -117,12 +117,14 @@ class UserManager(DjangoUserManager["User"]):
 
         # Validate superuser has required permissions
         if extra_fields.get("is_staff") is not True:
+            # Raise a more descriptive error message
             msg = "Superuser must have is_staff=True."
-            raise ValueError(msg)
+            raise ValueError(msg) from None
 
         if extra_fields.get("is_superuser") is not True:
+            # Raise a more descriptive error message
             msg = "Superuser must have is_superuser=True."
-            raise ValueError(msg)
+            raise ValueError(msg) from None
 
         # Create the superuser using base method
         return self._create_user(email, password, **extra_fields)

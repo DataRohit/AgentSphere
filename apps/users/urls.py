@@ -2,19 +2,21 @@
 from django.urls import path
 
 # Project imports
-from apps.users.views import ResendActivationEmailView
-from apps.users.views import UserActivationView
-from apps.users.views import UserCreateView
-from apps.users.views import UserDeactivateView
-from apps.users.views import UserDeletionConfirmView
-from apps.users.views import UserDeletionRequestView
-from apps.users.views import UserLoginView
-from apps.users.views import UserMeView
-from apps.users.views import UserPasswordResetConfirmView
-from apps.users.views import UserPasswordResetRequestView
-from apps.users.views import UserReactivationConfirmView
-from apps.users.views import UserReactivationRequestView
-from apps.users.views import UserReloginView
+from apps.users.views import (
+    ResendActivationEmailView,
+    UserActivationView,
+    UserCreateView,
+    UserDeactivateView,
+    UserDeletionConfirmView,
+    UserDeletionRequestView,
+    UserLoginView,
+    UserMeView,
+    UserPasswordResetConfirmView,
+    UserPasswordResetRequestView,
+    UserReactivationConfirmView,
+    UserReactivationRequestView,
+    UserReloginView,
+)
 
 # Set application namespace
 app_name = "users"
