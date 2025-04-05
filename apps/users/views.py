@@ -42,6 +42,9 @@ from apps.users.serializers import UserLoginSerializer
 from apps.users.serializers import UserProfileErrorResponseSerializer
 from apps.users.serializers import UserProfileResponseSerializer
 from apps.users.serializers import UserProfileSerializer
+from apps.users.serializers import UserProfileUpdateErrorResponseSerializer
+from apps.users.serializers import UserProfileUpdateResponseSerializer
+from apps.users.serializers import UserProfileUpdateSerializer
 from apps.users.serializers import UserReloginErrorResponseSerializer
 from apps.users.serializers import UserReloginResponseSerializer
 from apps.users.serializers import UserReloginSerializer
@@ -580,7 +583,9 @@ class UserReloginView(TokenRefreshView):
 class UserMeView(APIView):
     """User me view.
 
-    This view returns the authenticated user's profile information.
+    This view handles the authenticated user's profile information.
+    GET: Returns the user's profile information.
+    PATCH: Updates the user's profile information (username, first name, last name).
     It requires a valid JWT access token for authentication.
 
     Attributes:
@@ -620,7 +625,7 @@ class UserMeView(APIView):
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
-    # Define the schema
+    # Define the schema for GET method
     @extend_schema(
         tags=["Users"],
         summary="Get authenticated user profile.",
@@ -650,3 +655,54 @@ class UserMeView(APIView):
 
         # Return the serialized user data
         return Response(serializer.data)
+
+    # Define the schema for PATCH method
+    @extend_schema(
+        tags=["Users"],
+        summary="Update authenticated user profile.",
+        description="""
+        Updates the authenticated user's profile information.
+        Users can update their username, first name, and last name.
+        Requires a valid JWT access token for authentication.
+        """,
+        request=UserProfileUpdateSerializer,
+        responses={
+            status.HTTP_200_OK: UserProfileUpdateResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: UserProfileUpdateErrorResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: UserProfileErrorResponseSerializer,
+        },
+    )
+    def patch(self, request: Request) -> Response:
+        """Handle PATCH request for updating user profile.
+
+        This method updates the authenticated user's profile information.
+        Users can update their username, first name, and last name.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Create serializer instance with request data and context
+        serializer = UserProfileUpdateSerializer(
+            request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+
+        # Validate the serializer
+        if serializer.is_valid():
+            # Save the updated user
+            serializer.save()
+
+            # Return the updated user profile
+            return Response(UserProfileSerializer(request.user).data)
+
+        # Return validation errors
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
