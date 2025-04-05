@@ -5,6 +5,9 @@ from django.urls import path
 from apps.users.views import ResendActivationEmailView
 from apps.users.views import UserActivationView
 from apps.users.views import UserCreateView
+from apps.users.views import UserLoginView
+from apps.users.views import UserMeView
+from apps.users.views import UserReloginView
 
 # Set application namespace
 app_name = "users"
@@ -23,6 +26,12 @@ urlpatterns = [
     path(
         "resend-activation/",
         ResendActivationEmailView.as_view(),
-        name="resend-activation",
+        name="user-resend-activation",
     ),
+    # Login URL
+    path("login/", UserLoginView.as_view(), name="user-login"),
+    # Relogin URL
+    path("relogin/", UserReloginView.as_view(), name="user-relogin"),
+    # User profile URL
+    path("me/", UserMeView.as_view(), name="user-me"),
 ]

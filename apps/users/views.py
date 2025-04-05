@@ -10,11 +10,18 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from drf_spectacular.utils import extend_schema
+from rest_framework import serializers
 from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 # Project imports
 from apps.common.renderers import GenericJSONRenderer
@@ -29,6 +36,15 @@ from apps.users.serializers import UserCreateErrorResponseSerializer
 from apps.users.serializers import UserCreateSerializer
 from apps.users.serializers import UserCreateSuccessResponseSerializer
 from apps.users.serializers import UserDetailSerializer
+from apps.users.serializers import UserLoginErrorResponseSerializer
+from apps.users.serializers import UserLoginResponseSerializer
+from apps.users.serializers import UserLoginSerializer
+from apps.users.serializers import UserProfileErrorResponseSerializer
+from apps.users.serializers import UserProfileResponseSerializer
+from apps.users.serializers import UserProfileSerializer
+from apps.users.serializers import UserReloginErrorResponseSerializer
+from apps.users.serializers import UserReloginResponseSerializer
+from apps.users.serializers import UserReloginSerializer
 
 # Get the user model
 User = get_user_model()
@@ -387,3 +403,250 @@ class UserActivationView(APIView):
                 {"error": "Invalid activation link"},
                 status=status.HTTP_403_FORBIDDEN,
             )
+
+
+# User login view (extends TokenObtainPairView)
+class UserLoginView(TokenObtainPairView):
+    """User login view.
+
+    This view handles user authentication and generates JWT tokens.
+    It extends the TokenObtainPairView to provide custom token claims.
+
+    Attributes:
+        serializer_class (TokenObtainPairSerializer): The serializer class for token generation.
+        permission_classes (list): The permission classes for the view.
+        authentication_classes (list): The authentication classes for the view.
+    """
+
+    # Define the serializer class
+    serializer_class = UserLoginSerializer
+
+    # Define the permission classes
+    permission_classes = [AllowAny]
+
+    # Explicitly set empty authentication classes
+    authentication_classes = []
+
+    # Override the handle_exception method to customize error responses
+    def handle_exception(self, exc):
+        """Handle exceptions for the login view.
+
+        This method handles exceptions for the login view.
+
+        Args:
+            exc: The exception that occurred.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Return only the error field for errors
+        return Response(
+            {"error": str(exc)},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    # Define the schema
+    @extend_schema(
+        tags=["Users"],
+        summary="Log in and get JWT tokens.",
+        description="""
+        Authenticates a user and returns JWT tokens for API access.
+        The access token is valid for 6 hours and the refresh token for 24 hours.
+        Use the access token for all authenticated API requests.
+        """,
+        request=UserLoginSerializer,
+        responses={
+            status.HTTP_200_OK: UserLoginResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: UserLoginErrorResponseSerializer,
+        },
+    )
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        """Handle POST request for user login.
+
+        This method authenticates a user and returns JWT tokens for API access.
+
+        Args:
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object.
+
+        Raises:
+            AuthenticationFailed: If authentication fails.
+        """
+
+        try:
+            # Validate the serializer
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            # Return the tokens
+            return Response(serializer.validated_data)
+
+        except (TokenError, AuthenticationFailed, serializers.ValidationError) as e:
+            # Custom error response with only the error field
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+
+# User relogin view (extends TokenRefreshView)
+class UserReloginView(TokenRefreshView):
+    """User relogin view.
+
+    This view handles refreshing JWT access tokens.
+    It extends the TokenRefreshView to provide custom behavior.
+
+    Attributes:
+        serializer_class (TokenRefreshSerializer): The serializer class for token refresh.
+        permission_classes (list): The permission classes for the view.
+        authentication_classes (list): The authentication classes for the view.
+    """
+
+    # Define the serializer class
+    serializer_class = UserReloginSerializer
+
+    # Define the permission classes
+    permission_classes = [AllowAny]
+
+    # Explicitly set empty authentication classes
+    authentication_classes = []
+
+    # Override the handle_exception method to customize error responses
+    def handle_exception(self, exc):
+        """Handle exceptions for the relogin view.
+
+        This method handles exceptions for the relogin view.
+
+        Args:
+            exc: The exception that occurred.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Return only the error field for errors
+        return Response(
+            {"error": str(exc)},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    # Define the schema
+    @extend_schema(
+        tags=["Users"],
+        summary="Refresh JWT access token.",
+        description="""
+        Refreshes a JWT access token using a valid refresh token.
+        Use this endpoint when the access token has expired.
+        The new access token will be valid for 6 hours.
+        """,
+        request=UserReloginSerializer,
+        responses={
+            status.HTTP_200_OK: UserReloginResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: UserReloginErrorResponseSerializer,
+        },
+    )
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        """Handle POST request for token refresh.
+
+        This method refreshes a JWT access token using a valid refresh token.
+
+        Args:
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object containing only the access token.
+
+        Raises:
+            InvalidToken: If the refresh token is invalid.
+            TokenError: If there is an error with the token.
+        """
+
+        # Validate the refresh token
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Return only the access token
+        return Response({"access": serializer.validated_data["access"]})
+
+
+# User me view
+class UserMeView(APIView):
+    """User me view.
+
+    This view returns the authenticated user's profile information.
+    It requires a valid JWT access token for authentication.
+
+    Attributes:
+        renderer_classes (list): The renderer classes for the view.
+        permission_classes (list): The permission classes for the view.
+        authentication_classes (list): The authentication classes for the view.
+    """
+
+    # Define the renderer classes
+    renderer_classes = [GenericJSONRenderer]
+
+    # Define the permission classes
+    permission_classes = [IsAuthenticated]
+
+    # Define the authentication classes
+    authentication_classes = [JWTAuthentication]
+
+    # Define the object label
+    object_label = "user"
+
+    # Override the handle_exception method to customize error responses
+    def handle_exception(self, exc):
+        """Handle exceptions for the user me view.
+
+        This method handles exceptions for the user me view.
+
+        Args:
+            exc: The exception that occurred.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Return custom format for authentication errors
+        return Response(
+            {"status_code": status.HTTP_401_UNAUTHORIZED, "error": str(exc)},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    # Define the schema
+    @extend_schema(
+        tags=["Users"],
+        summary="Get authenticated user profile.",
+        description="""
+        Returns the authenticated user's profile information.
+        Requires a valid JWT access token for authentication.
+        """,
+        responses={
+            status.HTTP_200_OK: UserProfileResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: UserProfileErrorResponseSerializer,
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """Handle GET request for user profile.
+
+        This method returns the authenticated user's profile information.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Serialize the authenticated user
+        serializer = UserProfileSerializer(request.user)
+
+        # Return the serialized user data
+        return Response(serializer.data)

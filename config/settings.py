@@ -7,6 +7,7 @@ all environments (development, testing, production).
 # Standard library imports
 import logging
 import ssl
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
@@ -124,6 +125,7 @@ THIRD_PARTY_APPS = [
     "silk",
     "djcelery_email",
     "django_extensions",
+    "rest_framework_simplejwt",
     "health_check",
     "health_check.db",
     "health_check.cache",
@@ -399,11 +401,47 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 # REST Framework configuration
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+}
+
+# -----------------------------------------
+# Simple JWT settings
+# -----------------------------------------
+
+# Simple JWT configuration
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        hours=env.int("JWT_ACCESS_TOKEN_LIFETIME_HOURS", default=6),
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        hours=env.int("JWT_REFRESH_TOKEN_LIFETIME_HOURS", default=24),
+    ),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": None,
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "JTI_CLAIM": "jti",
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(
+        hours=env.int("JWT_ACCESS_TOKEN_LIFETIME_HOURS", default=6),
+    ),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(
+        hours=env.int("JWT_REFRESH_TOKEN_LIFETIME_HOURS", default=24),
+    ),
 }
 
 # -----------------------------------------
@@ -454,11 +492,15 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "AgentSphere API",
     "DESCRIPTION": "Documentation of API endpoints of AgentSphere",
     "VERSION": "0.1.0",
-    "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
     "SCHEMA_PATH_PREFIX": "/api/v1/",
     "SERVERS": [],
     "POSTPROCESSING_HOOKS": [
         "config.openapi.preprocess_exclude_schema_endpoint",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES_FILTER": "config.openapi.filter_authentication",
+    "AUTHENTICATION_WHITELIST": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
 

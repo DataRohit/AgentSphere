@@ -6,6 +6,9 @@ This module contains the preprocessing hooks for the OpenAPI schema.
 # Standard library imports
 from typing import Any
 
+# Third party imports
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 def preprocess_exclude_schema_endpoint(
     result: dict[str, Any],
@@ -34,3 +37,25 @@ def preprocess_exclude_schema_endpoint(
 
     # Return the modified OpenAPI schema
     return result
+
+
+def filter_authentication(request, view):
+    """Filter authentication classes to only include JWT for swagger docs.
+
+    This function filters out SessionAuthentication to prevent the
+    sessionid cookie auth from appearing in the Swagger UI.
+
+    Args:
+        request: The request object
+        view: The view being processed
+
+    Returns:
+        List of authentication classes to use in the schema
+    """
+
+    # Return only JWTAuthentication classes
+    return [
+        auth
+        for auth in view.authentication_classes
+        if isinstance(auth, type) and issubclass(auth, JWTAuthentication)
+    ]

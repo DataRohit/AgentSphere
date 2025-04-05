@@ -6,6 +6,8 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework import status
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
 # Project imports
 from apps.common.serializer import GenericResponseSerializer
@@ -430,4 +432,290 @@ class ResendActivationErrorResponseSerializer(GenericResponseSerializer):
     # Errors - Point to the renamed nested serializer
     errors = ResendActivationErrorsDetailSerializer(
         help_text=_("Object containing error details."),
+    )
+
+
+# User login serializer (extends TokenObtainPairSerializer)
+class UserLoginSerializer(TokenObtainPairSerializer):
+    """User login serializer.
+
+    This serializer handles user authentication and generates JWT tokens.
+    It extends the TokenObtainPairSerializer to provide customized token claims.
+
+    Attributes:
+        email (str): The user's email address for authentication.
+        password (str): The user's password for authentication.
+    """
+
+    # Email field for authentication
+    email = serializers.EmailField(
+        help_text=_("User's email address for authentication."),
+        label=_("Email Address"),
+    )
+
+    # Override password field to add better documentation
+    password = serializers.CharField(
+        write_only=True,
+        style={"input_type": "password"},
+        help_text=_("User's password for authentication."),
+        label=_("Password"),
+    )
+
+    # No username field as we use email authentication
+    username = None
+
+    # Meta class
+    class Meta:
+        # Fields to include in the serializer
+        fields = ["email", "password"]
+
+    # Override the validate method to use email for authentication
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        """Validate the login credentials.
+
+        This method validates the email and password provided for authentication.
+
+        Args:
+            attrs (dict[str, Any]): The attributes to validate.
+
+        Returns:
+            dict[str, Any]: The validated attributes.
+
+        Raises:
+            serializers.ValidationError: If authentication fails.
+        """
+
+        # Set the username field to the email field for JWT validation
+        attrs[self.username_field] = attrs.get("email")
+
+        # Call the parent validate method
+        return super().validate(attrs)
+
+    # Override the get_token method to add custom claims
+    @classmethod
+    def get_token(cls, user):
+        """Get token for the user with custom claims.
+
+        This method generates a token for the user and adds custom claims.
+
+        Args:
+            user (User): The user for whom to generate the token.
+
+        Returns:
+            Token: The generated token.
+        """
+
+        # Get the token
+        token = super().get_token(user)
+
+        # Add custom claims
+        token["email"] = user.email
+        token["full_name"] = user.full_name
+        token["is_staff"] = user.is_staff
+        token["is_superuser"] = user.is_superuser
+
+        # Return the token
+        return token
+
+
+# User login response serializer
+class UserLoginResponseSerializer(serializers.Serializer):
+    """User login response serializer.
+
+    This serializer defines the structure of the login response.
+
+    Attributes:
+        refresh (str): The refresh token for obtaining new access tokens.
+        access (str): The access token for authenticating API requests.
+    """
+
+    # Refresh token field
+    refresh = serializers.CharField(
+        help_text=_("Refresh token for obtaining new access tokens."),
+        read_only=True,
+    )
+
+    # Access token field
+    access = serializers.CharField(
+        help_text=_("Access token for authenticating API requests."),
+        read_only=True,
+    )
+
+
+# User login error response serializer
+class UserLoginErrorResponseSerializer(serializers.Serializer):
+    """User login error response serializer.
+
+    This serializer defines the structure of the login error response.
+
+    Attributes:
+        error (str): The error message.
+    """
+
+    # Error message field
+    error = serializers.CharField(
+        help_text=_("Error message for login failure."),
+        read_only=True,
+    )
+
+
+# User relogin serializer (extends TokenRefreshSerializer)
+class UserReloginSerializer(TokenRefreshSerializer):
+    """User relogin serializer.
+
+    This serializer handles refreshing JWT access tokens.
+    It extends the TokenRefreshSerializer to provide better documentation.
+
+    Attributes:
+        refresh (str): The refresh token for obtaining new access tokens.
+    """
+
+    # Refresh token field with better documentation
+    refresh = serializers.CharField(
+        help_text=_("Refresh token for obtaining new access tokens."),
+    )
+
+
+# User relogin response serializer
+class UserReloginResponseSerializer(serializers.Serializer):
+    """User relogin response serializer.
+
+    This serializer defines the structure of the token refresh response.
+
+    Attributes:
+        access (str): The new access token for authenticating API requests.
+    """
+
+    # Access token field
+    access = serializers.CharField(
+        help_text=_("New access token for authenticating API requests."),
+        read_only=True,
+    )
+
+
+# User relogin error response serializer
+class UserReloginErrorResponseSerializer(serializers.Serializer):
+    """User relogin error response serializer.
+
+    This serializer defines the structure of the token refresh error response.
+
+    Attributes:
+        error (str): The error message.
+    """
+
+    # Error message field
+    error = serializers.CharField(
+        help_text=_("Error message for token refresh failure."),
+        read_only=True,
+    )
+
+
+# User profile serializer
+class UserProfileSerializer(serializers.ModelSerializer):
+    """User profile serializer.
+
+    This serializer provides a detailed representation of the authenticated user's profile.
+
+    Attributes:
+        id (UUID): The user's ID.
+        email (str): The user's email address.
+        username (str): The user's username.
+        first_name (str): The user's first name.
+        last_name (str): The user's last name.
+        full_name (str): The user's full name.
+        is_active (bool): Whether the user is active.
+        is_staff (bool): Whether the user is a staff member.
+        is_superuser (bool): Whether the user is a superuser.
+        date_joined (datetime): The date and time the user joined the system.
+        last_login (datetime): The date and time the user last logged in.
+    """
+
+    # Full name field
+    full_name = serializers.CharField(
+        help_text=_("User's full name."),
+        read_only=True,
+    )
+
+    # Meta class
+    class Meta:
+        # Model to use for the serializer
+        model = User
+
+        # Fields to include in the serializer
+        fields = [
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "full_name",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+            "last_login",
+        ]
+
+        # Extra kwargs
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "email": {"read_only": True},
+            "username": {"read_only": True},
+            "first_name": {"read_only": True},
+            "last_name": {"read_only": True},
+            "is_active": {"read_only": True},
+            "is_staff": {"read_only": True},
+            "is_superuser": {"read_only": True},
+            "date_joined": {"read_only": True},
+            "last_login": {"read_only": True},
+        }
+
+
+# User profile error response serializer
+class UserProfileErrorResponseSerializer(serializers.Serializer):
+    """User profile error response serializer.
+
+    This serializer defines the structure of the profile error response.
+
+    Attributes:
+        status_code (int): The HTTP status code.
+        error (str): The error message.
+    """
+
+    # Status code field
+    status_code = serializers.IntegerField(
+        default=status.HTTP_401_UNAUTHORIZED,
+        help_text=_("HTTP status code for the response."),
+        read_only=True,
+    )
+
+    # Error message field
+    error = serializers.CharField(
+        help_text=_("Error message for profile retrieval failure."),
+        read_only=True,
+    )
+
+
+# User profile response serializer for proper Swagger documentation
+class UserProfileResponseSerializer(GenericResponseSerializer):
+    """User profile response serializer.
+
+    This serializer defines the structure of the user profile response as it will
+    be formatted by the GenericJSONRenderer.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        user (UserProfileSerializer): The user profile data.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+    )
+
+    # User profile
+    user = UserProfileSerializer(
+        help_text=_("User profile data."),
+        read_only=True,
     )
