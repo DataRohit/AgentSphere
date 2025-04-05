@@ -6,6 +6,7 @@ from apps.organization.views import OrganizationCreateView
 from apps.organization.views import OrganizationDetailView
 from apps.organization.views import OrganizationListView
 from apps.organization.views import OrganizationLogoUploadView
+from apps.organization.views import OrganizationMemberListView
 
 # Set application namespace
 app_name = "organization"
@@ -16,6 +17,12 @@ urlpatterns = [
     path("", OrganizationCreateView.as_view(), name="organization-create"),
     # Organization list URL (get all owned organizations)
     path("owned/", OrganizationListView.as_view(), name="organization-list-owned"),
+    # Organization member list URL (get all organizations where the user is a member)
+    path(
+        "memberships/",
+        OrganizationMemberListView.as_view(),
+        name="organization-list-memberships",
+    ),
     # Organization detail URL
     path(
         "<str:organization_id>/",

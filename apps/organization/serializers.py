@@ -508,6 +508,28 @@ class OrganizationListResponseSerializer(GenericResponseSerializer):
     )
 
 
+# Organization Membership List Response Serializer
+class OrganizationMembershipListResponseSerializer(GenericResponseSerializer):
+    """Organization membership list response serializer.
+
+    This serializer defines the structure of the organization membership list response.
+    It includes a status code and a list of organizations where the user is a member.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        organizations (List[OrganizationSerializer]): List of organization serializers.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+
+    # Organizations serializer
+    organizations = OrganizationSerializer(
+        many=True,
+        help_text=_("List of organizations where the user is a member or owner."),
+    )
+
+
 # Authentication Error Response Serializer
 class OrganizationAuthErrorResponseSerializer(GenericResponseSerializer):
     """Authentication error response serializer.
