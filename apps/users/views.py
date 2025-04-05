@@ -1,4 +1,5 @@
 # Third-party imports
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
@@ -17,9 +18,11 @@ from rest_framework.views import APIView
 
 # Project imports
 from apps.common.renderers import GenericJSONRenderer
-from apps.common.utils import get_activation_base_url
 from apps.common.utils import send_templated_mail
 from apps.users.models import UserActivationToken
+from apps.users.serializers import ResendActivationEmailSerializer
+from apps.users.serializers import ResendActivationErrorResponseSerializer
+from apps.users.serializers import ResendActivationSuccessResponseSerializer
 from apps.users.serializers import UserActivationForbiddenResponseSerializer
 from apps.users.serializers import UserActivationSuccessResponseSerializer
 from apps.users.serializers import UserCreateErrorResponseSerializer
@@ -96,8 +99,9 @@ class UserCreateView(APIView):
                 token=token,
             )
 
-            # Get scheme and domain part from utility function
-            scheme, domain_part = get_activation_base_url(request)
+            # Get scheme and domain from settings
+            scheme = settings.ACTIVATION_SCHEME
+            domain_part = settings.ACTIVATION_DOMAIN
 
             # Construct full activation URL
             relative_activation_path = reverse(
@@ -132,6 +136,134 @@ class UserCreateView(APIView):
         return Response(
             {"errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+# Resend Activation Email View
+class ResendActivationEmailView(APIView):
+    """View to resend the activation email for an inactive user.
+
+    Accepts an email address via POST request. If a matching inactive user is found,
+    it generates a new activation token, updates the database, and resends the activation email.
+    """
+
+    # Define the renderer classes
+    renderer_classes = [GenericJSONRenderer]
+
+    # Disable authentication checks for this view
+    authentication_classes = []
+
+    # Define the permission classes
+    permission_classes = [AllowAny]
+
+    # Define the object label
+    object_label = "activation"
+
+    # Define the schema
+    @extend_schema(
+        tags=["Users"],
+        summary="Resend activation email.",
+        description="""
+        Resends the activation email to a user if their account is inactive.
+        The user must be inactive to receive a new activation email.
+        """,
+        request=ResendActivationEmailSerializer,
+        responses={
+            status.HTTP_200_OK: ResendActivationSuccessResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: ResendActivationErrorResponseSerializer,
+            status.HTTP_404_NOT_FOUND: ResendActivationErrorResponseSerializer,
+        },
+    )
+    def post(self, request: Request) -> Response:
+        """Handle POST request to resend activation email.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        # Validate the serializer
+        serializer = ResendActivationEmailSerializer(data=request.data)
+
+        # If the serializer is not valid
+        if not serializer.is_valid():
+            # Return 400 Bad Request with validation errors
+            return Response(
+                {"errors": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Get the email from the validated data
+        email = serializer.validated_data["email"]
+
+        try:
+            # Get the user from the database
+            user = User.objects.get(email=email)
+
+        except User.DoesNotExist:
+            # Return 404 Not Found with an error message
+            return Response(
+                {"errors": {"email": ["User with this email does not exist."]}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # If the user is already active
+        if user.is_active:
+            # Return 400 Bad Request with an error message
+            return Response(
+                {
+                    "errors": {
+                        "non_field_errors": ["This account is already active."],
+                    },
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Generate new activation token and uid
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        # Use transaction.atomic for the database operation
+        with transaction.atomic():
+            # Update or create the activation token
+            UserActivationToken.objects.update_or_create(
+                user=user,
+                defaults={"uid": uid, "token": token},
+            )
+
+        # Get scheme and domain from settings
+        scheme = settings.ACTIVATION_SCHEME
+        domain_part = settings.ACTIVATION_DOMAIN
+
+        # Construct full activation URL
+        relative_activation_path = reverse(
+            "users:user-activation",
+            kwargs={"uid": uid, "token": token},
+        )
+        activation_url = f"{scheme}://{domain_part}{relative_activation_path}"
+
+        # Prepare email context
+        context = {
+            "user": user,
+            "activation_link": activation_url,
+            "current_year": timezone.now().year,
+            "domain_part": domain_part,
+        }
+
+        # Send activation email
+        send_templated_mail(
+            template_name="users/user_activation.html",
+            subject="Activate Your Account (Resent)",
+            context=context,
+            recipient_list=[user.email],
+        )
+
+        # Return success response
+        return Response(
+            {"message": "Activation email resent successfully."},
+            status=status.HTTP_200_OK,
         )
 
 
@@ -225,8 +357,8 @@ class UserActivationView(APIView):
                 # Delete the token since it's been used
                 activation_token.delete()
 
-            # Get domain part for the email footer
-            _, domain_part = get_activation_base_url(request)
+            # Get domain part for the email footer from settings
+            domain_part = settings.ACTIVATION_DOMAIN
 
             # Prepare activation success email context
             context = {

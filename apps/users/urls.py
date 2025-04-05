@@ -2,6 +2,7 @@
 from django.urls import path
 
 # Project imports
+from apps.users.views import ResendActivationEmailView
 from apps.users.views import UserActivationView
 from apps.users.views import UserCreateView
 
@@ -17,5 +18,11 @@ urlpatterns = [
         "activate/<str:uid>/<str:token>/",
         UserActivationView.as_view(),
         name="user-activation",
+    ),
+    # Resend activation email URL
+    path(
+        "resend-activation/",
+        ResendActivationEmailView.as_view(),
+        name="resend-activation",
     ),
 ]

@@ -46,6 +46,13 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # Secret key for cryptographic signing
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
+# Activation link settings
+ACTIVATION_SCHEME = env.str("DJANGO_ACTIVATION_SCHEME", default="https")
+ACTIVATION_DOMAIN = env.str(
+    "DJANGO_ACTIVATION_DOMAIN",
+    default="agentsphere.serveo.net",
+)
+
 # Allowed hosts for the application
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",

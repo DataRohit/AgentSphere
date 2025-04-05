@@ -100,7 +100,7 @@ class User(AbstractUser, TimeStampedModel):
         """
 
         # Combine first and last name
-        full_name = f"{self.first_name} {self.last_name}"
+        full_name = f"{self.first_name} {self.last_name}".title()
 
         # Return trimmed full name
         return full_name.strip()

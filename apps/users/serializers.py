@@ -199,11 +199,23 @@ class UserCreateErrorResponseSerializer(GenericResponseSerializer):
 
     Attributes:
         status_code (int): The status code of the response.
-        errors (ErrorsDetailSerializer): The errors detail serializer.
+        errors (UserCreateErrorsDetailSerializer): The errors detail serializer.
     """
 
     # Nested serializer defining the structure of the actual errors
-    class ErrorsDetailSerializer(serializers.Serializer):
+    class UserCreateErrorsDetailSerializer(serializers.Serializer):
+        """User Creation Errors detail serializer.
+
+        Attributes:
+            username (list): Errors related to the username field.
+            email (list): Errors related to the email field.
+            first_name (list): Errors related to the first name field.
+            last_name (list): Errors related to the last name field.
+            password (list): Errors related to the password field.
+            re_password (list): Errors related to the password confirmation field.
+            non_field_errors (list): Non-field specific errors.
+        """
+
         username = serializers.ListField(
             child=serializers.CharField(),
             required=False,
@@ -247,7 +259,9 @@ class UserCreateErrorResponseSerializer(GenericResponseSerializer):
     )
 
     # Define the 'errors' field containing the validation error details
-    errors = ErrorsDetailSerializer(help_text=_("Object containing validation errors."))
+    errors = UserCreateErrorsDetailSerializer(
+        help_text=_("Object containing validation errors."),
+    )
 
 
 # User activation success response serializer
@@ -259,12 +273,12 @@ class UserActivationSuccessResponseSerializer(GenericResponseSerializer):
 
     Attributes:
         status_code (int): The status code of the response.
-        activation (ActivationDataSerializer): The activation data.
+        activation (UserActivationDataSerializer): The activation data.
     """
 
     # Nested serializer for the activation data
-    class ActivationDataSerializer(serializers.Serializer):
-        """Activation data serializer.
+    class UserActivationDataSerializer(serializers.Serializer):
+        """User Activation data serializer.
 
         This serializer defines the structure of the activation data.
 
@@ -286,7 +300,7 @@ class UserActivationSuccessResponseSerializer(GenericResponseSerializer):
     )
 
     # Activation data
-    activation = ActivationDataSerializer(
+    activation = UserActivationDataSerializer(
         help_text=_("Activation data containing success message."),
         read_only=True,
     )
@@ -314,4 +328,106 @@ class UserActivationForbiddenResponseSerializer(GenericResponseSerializer):
     error = serializers.CharField(
         help_text=_("Error message explaining why access is forbidden."),
         read_only=True,
+    )
+
+
+# Resend activation email serializer
+class ResendActivationEmailSerializer(serializers.Serializer):
+    """Serializer for requesting a resend of the activation email.
+
+    Requires the user's email address to identify the account.
+
+    Attributes:
+        email (str): The user's email address.
+    """
+
+    # Email field
+    email = serializers.EmailField(
+        write_only=True,
+        help_text=_("Email address of the user needing a new activation link."),
+        label=_("Email Address"),
+    )
+
+
+# Resend activation success response serializer
+class ResendActivationSuccessResponseSerializer(GenericResponseSerializer):
+    """Resend activation success response serializer.
+
+    Defines the structure of the successful resend activation response.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        activation (ResendActivationDataSerializer): The activation data.
+    """
+
+    # Nested serializer for the activation data
+    class ResendActivationDataSerializer(serializers.Serializer):
+        """Resend Activation data serializer.
+
+        Attributes:
+            message (str): A success message.
+        """
+
+        # Success message
+        message = serializers.CharField(
+            default=_("Activation email resent successfully."),
+            help_text=_("Success message for resending activation email."),
+            read_only=True,
+        )
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+    )
+
+    # Activation data
+    activation = ResendActivationDataSerializer(read_only=True)
+
+
+# Resend activation error response serializer
+class ResendActivationErrorResponseSerializer(GenericResponseSerializer):
+    """Resend activation error response serializer (for schema).
+
+    Defines the structure of the error response (e.g., 400 Bad Request, 404 Not Found).
+
+    Attributes:
+        status_code (int): The status code of the response.
+        errors (ErrorsDetailSerializer): The errors detail serializer.
+    """
+
+    # Nested serializer defining the structure of the actual errors
+    class ResendActivationErrorsDetailSerializer(serializers.Serializer):
+        """Resend Activation Errors detail serializer.
+
+        Attributes:
+            email (list): A list of errors related to the email field.
+            non_field_errors (list): A list of non-field specific errors.
+        """
+
+        # Email field
+        email = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the email field."),
+        )
+
+        # Non-field errors
+        non_field_errors = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=(
+                _("Non-field specific errors (e.g., user not found, already active).")
+            ),
+        )
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_400_BAD_REQUEST,
+        help_text=_("HTTP status code indicating the error."),
+    )
+
+    # Errors - Point to the renamed nested serializer
+    errors = ResendActivationErrorsDetailSerializer(
+        help_text=_("Object containing error details."),
     )
