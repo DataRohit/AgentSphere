@@ -10,6 +10,10 @@ from apps.organization.views import (
     OrganizationMemberAddView,
     OrganizationMemberListView,
     OrganizationMemberRemoveView,
+    OrganizationOwnershipTransferAcceptView,
+    OrganizationOwnershipTransferCancelView,
+    OrganizationOwnershipTransferInitView,
+    OrganizationOwnershipTransferRejectView,
 )
 
 # Set application namespace
@@ -50,5 +54,29 @@ urlpatterns = [
         "<str:organization_id>/members/remove/",
         OrganizationMemberRemoveView.as_view(),
         name="organization-member-remove",
+    ),
+    # Organization ownership transfer initialization URL
+    path(
+        "<str:organization_id>/transfer/",
+        OrganizationOwnershipTransferInitView.as_view(),
+        name="organization-ownership-transfer-init",
+    ),
+    # Organization ownership transfer cancel URL
+    path(
+        "<str:organization_id>/transfer/cancel/",
+        OrganizationOwnershipTransferCancelView.as_view(),
+        name="organization-ownership-transfer-cancel",
+    ),
+    # Organization ownership transfer accept URL
+    path(
+        "transfer/<str:transfer_id>/accept/",
+        OrganizationOwnershipTransferAcceptView.as_view(),
+        name="organization-ownership-transfer-accept",
+    ),
+    # Organization ownership transfer reject URL
+    path(
+        "transfer/<str:transfer_id>/reject/",
+        OrganizationOwnershipTransferRejectView.as_view(),
+        name="organization-ownership-transfer-reject",
     ),
 ]

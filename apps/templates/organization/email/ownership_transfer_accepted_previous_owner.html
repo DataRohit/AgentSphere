@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Organization Ownership Transfer Accepted</title>
+        <style>
+            body {
+                font-family: monospace, Courier, Courier New;
+                background-color: #f4f7f6;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                background-color: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .header {
+                background-color: #007bff;
+                color: #ffffff;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .content {
+                padding: 30px;
+                line-height: 1.6;
+            }
+
+            .footer {
+                background-color: #f8f9fa;
+                color: #6c757d;
+                padding: 15px;
+                text-align: center;
+                font-size: 0.9em;
+                border-top: 1px solid #e0e0e0;
+            }
+
+            a {
+                color: #007bff;
+                text-decoration: none;
+            }
+
+            .message-box {
+                background-color: #cfe2ff;
+                border: 1px solid #b6d4fe;
+                color: #084298;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Organization Ownership Transfer Accepted</h1>
+            </div>
+            <div class="content">
+                <p>Hello {{ previous_owner.username }},</p>
+                <div class="message-box">
+                    <p>
+                        <strong>{{ new_owner.username }} has accepted your request to transfer ownership of the organization <span style="text-decoration: underline;">{{ organization.name }}</span>.</strong>
+                    </p>
+                </div>
+                <p>
+                    The organization's ownership has been successfully transferred to {{ new_owner.username }}. You are still a member of the organization, but you no longer have owner privileges.
+                </p>
+                <p>If you believe this was done in error, please contact {{ new_owner.username }} directly.</p>
+                <p>Thanks,</p>
+                <p>The Team</p>
+            </div>
+            <div class="footer">
+                <p>© {% now "Y" %} AgentSphere. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+</html>
