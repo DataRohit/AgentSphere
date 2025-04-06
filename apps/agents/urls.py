@@ -1,8 +1,15 @@
+# Standard library imports
+
 # Third-party imports
 from django.urls import path
 
 # Local application imports
-from apps.agents.views import AgentCreateView, AgentDetailView, AgentListView
+from apps.agents.views import (
+    AgentCreateView,
+    AgentDetailView,
+    AgentListView,
+    AgentUpdateView,
+)
 
 # Set application namespace
 app_name = "agents"
@@ -15,4 +22,6 @@ urlpatterns = [
     path("list/", AgentListView.as_view(), name="agent-list"),
     # Agent detail URL - get an agent by ID
     path("<str:agent_id>/", AgentDetailView.as_view(), name="agent-detail"),
+    # Agent update URL - update an agent by ID
+    path("<str:agent_id>/update/", AgentUpdateView.as_view(), name="agent-update"),
 ]
