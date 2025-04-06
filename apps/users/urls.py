@@ -5,6 +5,7 @@ from django.urls import path
 from apps.users.views import (
     ResendActivationEmailView,
     UserActivationView,
+    UserAvatarUploadView,
     UserCreateView,
     UserDeactivateView,
     UserDeletionConfirmView,
@@ -43,6 +44,8 @@ urlpatterns = [
     path("relogin/", UserReloginView.as_view(), name="user-relogin"),
     # User profile URL
     path("me/", UserMeView.as_view(), name="user-me"),
+    # User avatar upload URL
+    path("me/avatar/", UserAvatarUploadView.as_view(), name="user-avatar-upload"),
     # User deactivation URL
     path("deactivate/", UserDeactivateView.as_view(), name="user-deactivate"),
     # User reactivation request URL

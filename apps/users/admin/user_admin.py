@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # Project imports
@@ -39,6 +40,7 @@ class UserAdmin(BaseUserAdmin):
     # Fields to display in the list view
     list_display = [
         "id",
+        "display_avatar",
         "email",
         "first_name",
         "last_name",
@@ -48,7 +50,7 @@ class UserAdmin(BaseUserAdmin):
     ]
 
     # Fields that link to the detail view
-    list_display_links = ["id", "email", "username"]
+    list_display_links = ["id", "display_avatar", "email", "username"]
 
     # Fields to search in the admin interface
     search_fields = ["email", "first_name", "last_name"]
@@ -56,10 +58,24 @@ class UserAdmin(BaseUserAdmin):
     # Default ordering for the list view
     ordering = ["id"]
 
+    # Fields that cannot be modified
+    readonly_fields = ["display_avatar", "last_login", "date_joined"]
+
     # Field grouping for the detail view
     fieldsets = (
         (_("Login Credentials"), {"fields": ("email", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", "username")}),
+        (
+            _("Personal info"),
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "username",
+                    "avatar",
+                    "display_avatar",
+                ),
+            },
+        ),
         (
             _("Permissions and Groups"),
             {
@@ -86,9 +102,27 @@ class UserAdmin(BaseUserAdmin):
                     "email",
                     "first_name",
                     "last_name",
+                    "avatar",
                     "password1",
                     "password2",
                 ),
             },
         ),
     )
+
+    # Display the user avatar in the admin interface
+    def display_avatar(self, obj: User) -> str:
+        """Display the user avatar in the admin interface.
+
+        Args:
+            obj (User): The user instance.
+
+        Returns:
+            str: HTML for displaying the avatar.
+        """
+
+        # Return the avatar URL
+        return format_html('<img src="{}" width="50" height="50" />', obj.avatar_url)
+
+    # Short description for the avatar field
+    display_avatar.short_description = _("Avatar")

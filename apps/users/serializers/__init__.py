@@ -9,6 +9,12 @@ from apps.users.serializers.user_activation import (
     UserActivationForbiddenResponseSerializer,
     UserActivationSuccessResponseSerializer,
 )
+from apps.users.serializers.user_avatar import (
+    UserAvatarAuthErrorResponseSerializer,
+    UserAvatarErrorResponseSerializer,
+    UserAvatarSerializer,
+    UserAvatarSuccessResponseSerializer,
+)
 from apps.users.serializers.user_create import (
     UserCreateErrorResponseSerializer,
     UserCreateSerializer,
@@ -74,6 +80,10 @@ __all__ = [
     "ResendActivationSuccessResponseSerializer",
     "UserActivationForbiddenResponseSerializer",
     "UserActivationSuccessResponseSerializer",
+    "UserAvatarAuthErrorResponseSerializer",
+    "UserAvatarErrorResponseSerializer",
+    "UserAvatarSerializer",
+    "UserAvatarSuccessResponseSerializer",
     "UserCreateErrorResponseSerializer",
     "UserCreateSerializer",
     "UserCreateSuccessResponseSerializer",

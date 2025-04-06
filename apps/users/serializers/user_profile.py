@@ -23,6 +23,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         first_name (str): The user's first name.
         last_name (str): The user's last name.
         full_name (str): The user's full name.
+        avatar_url (str): The user's avatar URL.
         is_active (bool): Whether the user is active.
         is_staff (bool): Whether the user is a staff member.
         is_superuser (bool): Whether the user is a superuser.
@@ -33,6 +34,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     # Full name field
     full_name = serializers.CharField(
         help_text=_("User's full name."),
+        read_only=True,
+    )
+
+    # Avatar URL field
+    avatar_url = serializers.SerializerMethodField(
+        help_text=_("User's avatar URL."),
         read_only=True,
     )
 
@@ -49,6 +56,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "full_name",
+            "avatar_url",
             "is_active",
             "is_staff",
             "is_superuser",
@@ -63,12 +71,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "username": {"read_only": True},
             "first_name": {"read_only": True},
             "last_name": {"read_only": True},
+            "avatar_url": {"read_only": True},
             "is_active": {"read_only": True},
             "is_staff": {"read_only": True},
             "is_superuser": {"read_only": True},
             "date_joined": {"read_only": True},
             "last_login": {"read_only": True},
         }
+
+    def get_avatar_url(self, obj):
+        """Get the avatar URL for the user.
+
+        Returns the avatar_url property from the user instance,
+        which will return either the actual avatar URL or the default DiceBear URL.
+
+        Args:
+            obj: The user instance.
+
+        Returns:
+            str: The URL of the user's avatar.
+        """
+        return obj.avatar_url
 
 
 # User profile error response serializer

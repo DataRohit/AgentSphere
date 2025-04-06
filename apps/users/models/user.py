@@ -22,6 +22,7 @@ class User(AbstractUser, TimeStampedModel):
         last_name (CharField): User's last name.
         email (EmailField): User's email address, used for authentication.
         username (CharField): User's username, must be unique.
+        avatar (ImageField): User's avatar image, uploaded to 'avatars/' directory.
 
     Properties:
         full_name (str): Concatenated first and last name of the user.
@@ -52,6 +53,15 @@ class User(AbstractUser, TimeStampedModel):
         max_length=60,
         unique=True,
         validators=[UsernameValidator],
+    )
+
+    # User's avatar field
+    avatar = models.ImageField(
+        verbose_name=_("Avatar"),
+        upload_to="avatars/",
+        blank=True,
+        null=True,
+        help_text=_("User avatar image"),
     )
 
     # Field used for email-based authentication
@@ -103,3 +113,29 @@ class User(AbstractUser, TimeStampedModel):
 
         # Return trimmed full name
         return full_name.strip()
+
+    @property
+    def avatar_url(self) -> str:
+        """Get the user's avatar URL.
+
+        This property returns the URL of the user's avatar.
+        If the user has no avatar, it returns the default avatar URL.
+
+        Returns:
+            str: The URL of the user's avatar.
+        """
+
+        # If the user has an avatar
+        if self.avatar and hasattr(self.avatar, "url"):
+            # Return the avatar URL
+            return self.avatar.url
+
+        # Generate the default avatar URL
+        base_url = "https://api.dicebear.com/9.x/avataaars/png"
+        params = (
+            f"seed={self.username}&eyes=happy,wink&facialHair[]&"
+            f"facialHairProbability=0&mouth=smile&eyebrows=default"
+        )
+
+        # Return the default avatar URL
+        return f"{base_url}?{params}"
