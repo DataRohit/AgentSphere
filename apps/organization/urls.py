@@ -7,13 +7,9 @@ from apps.organization.views import (
     OrganizationDetailView,
     OrganizationListView,
     OrganizationLogoUploadView,
-    OrganizationMemberAddByEmailView,
-    OrganizationMemberAddByIdView,
-    OrganizationMemberAddByUsernameView,
+    OrganizationMemberAddView,
     OrganizationMemberListView,
-    OrganizationMemberRemoveByEmailView,
-    OrganizationMemberRemoveByIdView,
-    OrganizationMemberRemoveByUsernameView,
+    OrganizationMemberRemoveView,
 )
 
 # Set application namespace
@@ -43,40 +39,16 @@ urlpatterns = [
         OrganizationLogoUploadView.as_view(),
         name="organization-logo-upload",
     ),
-    # Organization member add by ID URL
+    # Organization member add URL (unified: accepts user_id, email, or username)
     path(
-        "<str:organization_id>/members/add/by-id/",
-        OrganizationMemberAddByIdView.as_view(),
-        name="organization-member-add-by-id",
+        "<str:organization_id>/members/add/",
+        OrganizationMemberAddView.as_view(),
+        name="organization-member-add",
     ),
-    # Organization member add by email URL
+    # Organization member remove URL (unified: accepts user_id, email, or username)
     path(
-        "<str:organization_id>/members/add/by-email/",
-        OrganizationMemberAddByEmailView.as_view(),
-        name="organization-member-add-by-email",
-    ),
-    # Organization member add by username URL
-    path(
-        "<str:organization_id>/members/add/by-username/",
-        OrganizationMemberAddByUsernameView.as_view(),
-        name="organization-member-add-by-username",
-    ),
-    # Organization member remove by ID URL
-    path(
-        "<str:organization_id>/members/remove/by-id/",
-        OrganizationMemberRemoveByIdView.as_view(),
-        name="organization-member-remove-by-id",
-    ),
-    # Organization member remove by email URL
-    path(
-        "<str:organization_id>/members/remove/by-email/",
-        OrganizationMemberRemoveByEmailView.as_view(),
-        name="organization-member-remove-by-email",
-    ),
-    # Organization member remove by username URL
-    path(
-        "<str:organization_id>/members/remove/by-username/",
-        OrganizationMemberRemoveByUsernameView.as_view(),
-        name="organization-member-remove-by-username",
+        "<str:organization_id>/members/remove/",
+        OrganizationMemberRemoveView.as_view(),
+        name="organization-member-remove",
     ),
 ]

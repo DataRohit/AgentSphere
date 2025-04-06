@@ -555,187 +555,152 @@ class OrganizationAuthErrorResponseSerializer(GenericResponseSerializer):
     )
 
 
-# Organization Member Add by ID Serializer
-class OrganizationMemberAddByIdSerializer(serializers.Serializer):
-    """Organization member add by ID serializer.
+# Organization Member Add Serializer
+class OrganizationMemberAddSerializer(serializers.Serializer):
+    """Organization member add serializer.
 
-    This serializer handles adding a new member to an organization using the user's ID.
+    Handles adding a new member to an organization using user's ID, email, or username.
+    Exactly one identifier (user_id, email, or username) must be provided.
 
     Attributes:
-        user_id (UUID): The ID of the user to add as a member.
+        user_id (UUID, optional): The ID of the user to add.
+        email (str, optional): The email of the user to add.
+        username (str, optional): The username of the user to add.
     """
 
-    # User ID field
+    # User identifiers (optional, but one is required)
     user_id = serializers.UUIDField(
-        required=True,
+        required=False,
+        allow_null=True,
         help_text=_("The ID of the user to add as a member."),
     )
-
-    # Validate the user ID
-    def validate_user_id(self, value):
-        """Validate the user ID.
-
-        Args:
-            value (UUID): The user ID to validate.
-
-        Returns:
-            UUID: The validated user ID.
-
-        Raises:
-            serializers.ValidationError: If the user does not exist or is already a member.
-        """
-
-        try:
-            # Get the user by ID
-            user = User.objects.get(id=value)
-
-        except User.DoesNotExist:
-            # Raise a validation error if the user does not exist
-            raise serializers.ValidationError(
-                _("User with this ID does not exist."),
-            ) from None
-
-        # Get the organization from the context
-        organization = self.context.get("organization")
-
-        # Check if the user is already a member of the organization
-        if organization and user in organization.members.all():
-            # Raise a validation error if the user is already a member
-            raise serializers.ValidationError(
-                _("User is already a member of this organization."),
-            ) from None
-
-        # Check if the user is the owner of the organization
-        if organization and user == organization.owner:
-            # Raise a validation error if the user is the owner
-            raise serializers.ValidationError(
-                _("User is the owner of this organization and is already a member."),
-            ) from None
-
-        # Return the validated user ID
-        return value
-
-
-# Organization Member Add by Email Serializer
-class OrganizationMemberAddByEmailSerializer(serializers.Serializer):
-    """Organization member add by email serializer.
-
-    This serializer handles adding a new member to an organization using the user's email.
-
-    Attributes:
-        email (str): The email of the user to add as a member.
-    """
-
-    # Email field
     email = serializers.EmailField(
-        required=True,
+        required=False,
+        allow_null=True,
         help_text=_("The email of the user to add as a member."),
     )
-
-    # Validate the email
-    def validate_email(self, value):
-        """Validate the email.
-
-        Args:
-            value (str): The email to validate.
-
-        Returns:
-            str: The validated email.
-
-        Raises:
-            serializers.ValidationError: If the user does not exist or is already a member.
-        """
-
-        try:
-            # Get the user by email
-            user = User.objects.get(email=value)
-
-        except User.DoesNotExist:
-            # Raise a validation error if the user does not exist
-            raise serializers.ValidationError(
-                _("User with this email does not exist."),
-            ) from None
-
-        # Get the organization from the context
-        organization = self.context.get("organization")
-
-        # Check if the user is already a member of the organization
-        if organization and user in organization.members.all():
-            # Raise a validation error if the user is already a member
-            raise serializers.ValidationError(
-                _("User is already a member of this organization."),
-            ) from None
-
-        # Check if the user is the owner of the organization
-        if organization and user == organization.owner:
-            # Raise a validation error if the user is the owner
-            raise serializers.ValidationError(
-                _("User is the owner of this organization and is already a member."),
-            ) from None
-
-        # Return the validated email
-        return value
-
-
-# Organization Member Add by Username Serializer
-class OrganizationMemberAddByUsernameSerializer(serializers.Serializer):
-    """Organization member add by username serializer.
-
-    This serializer handles adding a new member to an organization using the user's username.
-
-    Attributes:
-        username (str): The username of the user to add as a member.
-    """
-
-    # Username field
     username = serializers.CharField(
-        required=True,
+        required=False,
+        allow_null=True,
         help_text=_("The username of the user to add as a member."),
     )
 
-    # Validate the username
-    def validate_username(self, value):
-        """Validate the username.
+    # Store the resolved user
+    _user_to_add = None
+
+    # Validate the input data
+    def validate(self, attrs: dict) -> dict:
+        """Validate the input data.
+
+        Ensures exactly one identifier is provided and the user is valid for addition.
 
         Args:
-            value (str): The username to validate.
+            attrs (dict): The input data.
 
         Returns:
-            str: The validated username.
+            dict: The validated data.
 
         Raises:
-            serializers.ValidationError: If the user does not exist or is already a member.
+            serializers.ValidationError: If the input data is invalid.
+            User.DoesNotExist: If the user does not exist.
+            Organization.DoesNotExist: If the organization does not exist.
+            ValueError: If the organization is not provided in the context.
         """
 
+        # Get the user identifiers
+        user_id = attrs.get("user_id")
+        email = attrs.get("email")
+        username = attrs.get("username")
+
+        # Check if exactly one identifier is provided
+        provided_identifiers = [i for i in [user_id, email, username] if i is not None]
+        if len(provided_identifiers) != 1:
+            # Raise a validation error if the input data is invalid
+            raise serializers.ValidationError(
+                _("Exactly one of user_id, email, or username must be provided."),
+            )
+
+        # Check if the identifier is valid
+        if not provided_identifiers:
+            # Raise a validation error if the input data is invalid
+            raise serializers.ValidationError(
+                _("No valid identifier provided."),
+            )
+
+        # Get the organization from context
+        organization = self.context.get("organization")
+
+        # Check if the organization is provided in the context
+        if not organization:
+            # This should ideally not happen if context is always passed correctly
+            raise serializers.ValidationError(
+                _("Organization context is missing."),
+            )
+
+        # Initialize the user variable
+        user = None
+
+        # Try to find the user based on the provided identifier
         try:
-            # Get the user by username
-            user = User.objects.get(username=value)
+            # Find the user based on the provided identifier
+            if user_id:
+                # Find the user by ID
+                user = User.objects.get(id=user_id)
+                field_name = "user_id"
+
+            elif email:
+                # Find the user by email
+                user = User.objects.get(email=email)
+                field_name = "email"
+
+            elif username:
+                # Find the user by username
+                user = User.objects.get(username=username)
+                field_name = "username"
 
         except User.DoesNotExist:
             # Raise a validation error if the user does not exist
             raise serializers.ValidationError(
-                _("User with this username does not exist."),
+                {
+                    field_name: _("User with this %s does not exist.")
+                    % field_name.replace("_", " "),
+                },
             ) from None
 
-        # Get the organization from the context
-        organization = self.context.get("organization")
-
-        # Check if the user is already a member of the organization
-        if organization and user in organization.members.all():
-            # Raise a validation error if the user is already a member
-            raise serializers.ValidationError(
-                _("User is already a member of this organization."),
-            ) from None
-
-        # Check if the user is the owner of the organization
-        if organization and user == organization.owner:
+        # Check if the user is the owner
+        if user == organization.owner:
             # Raise a validation error if the user is the owner
             raise serializers.ValidationError(
-                _("User is the owner of this organization and is already a member."),
-            ) from None
+                {
+                    field_name: _(
+                        "User is the owner of this organization and is already a member.",
+                    ),
+                },
+            )
 
-        # Return the validated username
-        return value
+        # Check if the user is already a member
+        if user in organization.members.all():
+            # Raise a validation error if the user is already a member
+            raise serializers.ValidationError(
+                {
+                    field_name: _(
+                        "User is already a member of this organization.",
+                    ),
+                },
+            )
+
+        # Store the user for the view to use
+        self._user_to_add = user
+
+        # Return the validated attributes
+        return attrs
+
+    # Getter for the resolved user
+    def get_user(self) -> User:
+        """Get the resolved user object."""
+
+        # Return the resolved user
+        return self._user_to_add
 
 
 # Organization Member Add Success Response Serializer
@@ -778,7 +743,7 @@ class OrganizationMemberAddErrorResponseSerializer(GenericResponseSerializer):
             user_id (list): Errors related to the user_id field.
             email (list): Errors related to the email field.
             username (list): Errors related to the username field.
-            non_field_errors (list): Non-field specific errors.
+            non_field_errors (list): Non-field specific errors (e.g., multiple identifiers provided).
         """
 
         # User ID field errors
@@ -806,7 +771,9 @@ class OrganizationMemberAddErrorResponseSerializer(GenericResponseSerializer):
         non_field_errors = serializers.ListField(
             child=serializers.CharField(),
             required=False,
-            help_text=_("Non-field specific errors."),
+            help_text=_(
+                "Non-field specific errors (e.g., provide exactly one identifier).",
+            ),
         )
 
     # Status code
@@ -821,187 +788,141 @@ class OrganizationMemberAddErrorResponseSerializer(GenericResponseSerializer):
     )
 
 
-# Organization Member Remove by ID Serializer
-class OrganizationMemberRemoveByIdSerializer(serializers.Serializer):
-    """Organization member remove by ID serializer.
+# Organization Member Remove Serializer
+class OrganizationMemberRemoveSerializer(serializers.Serializer):
+    """Organization member remove serializer.
 
-    This serializer handles removing a member from an organization using the user's ID.
+    Handles removing a member from an organization using user's ID, email, or username.
+    Exactly one identifier (user_id, email, or username) must be provided.
 
     Attributes:
-        user_id (UUID): The ID of the user to remove as a member.
+        user_id (UUID, optional): The ID of the user to remove.
+        email (str, optional): The email of the user to remove.
+        username (str, optional): The username of the user to remove.
     """
 
-    # User ID field
+    # User identifiers (optional, but one is required)
     user_id = serializers.UUIDField(
-        required=True,
+        required=False,
+        allow_null=True,
         help_text=_("The ID of the user to remove from the organization."),
     )
-
-    # Validate the user ID
-    def validate_user_id(self, value):
-        """Validate the user ID.
-
-        Args:
-            value (UUID): The user ID to validate.
-
-        Returns:
-            UUID: The validated user ID.
-
-        Raises:
-            serializers.ValidationError: If the user does not exist or is not a member.
-        """
-
-        try:
-            # Get the user by ID
-            user = User.objects.get(id=value)
-
-        except User.DoesNotExist:
-            # Raise a validation error if the user does not exist
-            raise serializers.ValidationError(
-                _("User with this ID does not exist."),
-            ) from None
-
-        # Get the organization from the context
-        organization = self.context.get("organization")
-
-        # Check if the user is not a member of the organization
-        if organization and user not in organization.members.all():
-            # Raise a validation error if the user is not a member
-            raise serializers.ValidationError(
-                _("User is not a member of this organization."),
-            ) from None
-
-        # Check if the user is the owner of the organization
-        if organization and user == organization.owner:
-            # Raise a validation error if the user is the owner
-            raise serializers.ValidationError(
-                _("Cannot remove the owner from the organization."),
-            ) from None
-
-        # Return the validated user ID
-        return value
-
-
-# Organization Member Remove by Email Serializer
-class OrganizationMemberRemoveByEmailSerializer(serializers.Serializer):
-    """Organization member remove by email serializer.
-
-    This serializer handles removing a member from an organization using the user's email.
-
-    Attributes:
-        email (str): The email of the user to remove as a member.
-    """
-
-    # Email field
     email = serializers.EmailField(
-        required=True,
+        required=False,
+        allow_null=True,
         help_text=_("The email of the user to remove from the organization."),
     )
-
-    # Validate the email
-    def validate_email(self, value):
-        """Validate the email.
-
-        Args:
-            value (str): The email to validate.
-
-        Returns:
-            str: The validated email.
-
-        Raises:
-            serializers.ValidationError: If the user does not exist or is not a member.
-        """
-
-        try:
-            # Get the user by email
-            user = User.objects.get(email=value)
-
-        except User.DoesNotExist:
-            # Raise a validation error if the user does not exist
-            raise serializers.ValidationError(
-                _("User with this email does not exist."),
-            ) from None
-
-        # Get the organization from the context
-        organization = self.context.get("organization")
-
-        # Check if the user is not a member of the organization
-        if organization and user not in organization.members.all():
-            # Raise a validation error if the user is not a member
-            raise serializers.ValidationError(
-                _("User is not a member of this organization."),
-            ) from None
-
-        # Check if the user is the owner of the organization
-        if organization and user == organization.owner:
-            # Raise a validation error if the user is the owner
-            raise serializers.ValidationError(
-                _("Cannot remove the owner from the organization."),
-            ) from None
-
-        # Return the validated email
-        return value
-
-
-# Organization Member Remove by Username Serializer
-class OrganizationMemberRemoveByUsernameSerializer(serializers.Serializer):
-    """Organization member remove by username serializer.
-
-    This serializer handles removing a member from an organization using the user's username.
-
-    Attributes:
-        username (str): The username of the user to remove as a member.
-    """
-
-    # Username field
     username = serializers.CharField(
-        required=True,
+        required=False,
+        allow_null=True,
         help_text=_("The username of the user to remove from the organization."),
     )
 
-    # Validate the username
-    def validate_username(self, value):
-        """Validate the username.
+    # Store the resolved user
+    _user_to_remove = None
+
+    # Validate the input data
+    def validate(self, attrs: dict) -> dict:
+        """Validate the input data.
+
+        Ensures exactly one identifier is provided and the user is valid for removal.
 
         Args:
-            value (str): The username to validate.
+            attrs (dict): The input data.
 
         Returns:
-            str: The validated username.
+            dict: The validated data.
 
         Raises:
-            serializers.ValidationError: If the user does not exist or is not a member.
+            serializers.ValidationError: If the input data is invalid.
+            User.DoesNotExist: If the user does not exist.
+            Organization.DoesNotExist: If the organization does not exist.
+            ValueError: If the organization is not provided in the context.
         """
 
+        # Get the user identifiers
+        user_id = attrs.get("user_id")
+        email = attrs.get("email")
+        username = attrs.get("username")
+
+        # Check if exactly one identifier is provided
+        provided_identifiers = [i for i in [user_id, email, username] if i is not None]
+        if len(provided_identifiers) != 1:
+            # Raise a validation error if the input data is invalid
+            raise serializers.ValidationError(
+                _("Exactly one of user_id, email, or username must be provided."),
+            )
+
+        # Get the organization from context
+        organization = self.context.get("organization")
+        if not organization:
+            # This should ideally not happen if context is always passed correctly
+            raise serializers.ValidationError(
+                _("Organization context is missing."),
+            )
+
+        # Find the user based on the provided identifier
+        user = None
         try:
-            # Get the user by username
-            user = User.objects.get(username=value)
+            # Find the user based on the provided identifier
+            if user_id:
+                # Find the user by ID
+                user = User.objects.get(id=user_id)
+                field_name = "user_id"
+
+            elif email:
+                # Find the user by email
+                user = User.objects.get(email=email)
+                field_name = "email"
+
+            elif username:
+                # Find the user by username
+                user = User.objects.get(username=username)
+                field_name = "username"
 
         except User.DoesNotExist:
             # Raise a validation error if the user does not exist
             raise serializers.ValidationError(
-                _("User with this username does not exist."),
+                {
+                    field_name: _("User with this %s does not exist.")
+                    % field_name.replace("_", " "),
+                },
             ) from None
 
-        # Get the organization from the context
-        organization = self.context.get("organization")
-
-        # Check if the user is not a member of the organization
-        if organization and user not in organization.members.all():
-            # Raise a validation error if the user is not a member
-            raise serializers.ValidationError(
-                _("User is not a member of this organization."),
-            ) from None
-
-        # Check if the user is the owner of the organization
-        if organization and user == organization.owner:
+        # Check if the user is the owner
+        if user == organization.owner:
             # Raise a validation error if the user is the owner
             raise serializers.ValidationError(
-                _("Cannot remove the owner from the organization."),
-            ) from None
+                {
+                    field_name: _(
+                        "Cannot remove the owner from the organization.",
+                    ),
+                },
+            )
 
-        # Return the validated username
-        return value
+        # Check if the user is actually a member
+        if user not in organization.members.all():
+            # Raise a validation error if the user is not a member
+            raise serializers.ValidationError(
+                {
+                    field_name: _(
+                        "User is not a member of this organization.",
+                    ),
+                },
+            )
+
+        # Store the user for the view to use
+        self._user_to_remove = user
+
+        # Return the validated attributes
+        return attrs
+
+    # Getter for the resolved user
+    def get_user(self) -> User:
+        """Get the resolved user object."""
+
+        # Return the resolved user
+        return self._user_to_remove
 
 
 # Organization Member Remove Success Response Serializer
@@ -1044,7 +965,7 @@ class OrganizationMemberRemoveErrorResponseSerializer(GenericResponseSerializer)
             user_id (list): Errors related to the user_id field.
             email (list): Errors related to the email field.
             username (list): Errors related to the username field.
-            non_field_errors (list): Non-field specific errors.
+            non_field_errors (list): Non-field specific errors (e.g., multiple identifiers provided).
         """
 
         # User ID field errors
@@ -1072,7 +993,9 @@ class OrganizationMemberRemoveErrorResponseSerializer(GenericResponseSerializer)
         non_field_errors = serializers.ListField(
             child=serializers.CharField(),
             required=False,
-            help_text=_("Non-field specific errors."),
+            help_text=_(
+                "Non-field specific errors (e.g., provide exactly one identifier).",
+            ),
         )
 
     # Status code
