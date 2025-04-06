@@ -8,7 +8,7 @@ from django.contrib.auth.models import UserManager as DjangoUserManager
 # Type checking imports
 if TYPE_CHECKING:
     # Type checking imports
-    from .models import User
+    from apps.users.models import User
 
 
 # Custom user manager for handling user creation and management
