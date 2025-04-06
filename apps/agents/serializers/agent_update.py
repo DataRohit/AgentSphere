@@ -1,5 +1,6 @@
 # Third-party imports
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, status
 
 # Project imports
@@ -80,10 +81,25 @@ class AgentUpdateSuccessResponseSerializer(GenericResponseSerializer):
     )
 
     # Agent serializer
-    agent = AgentResponseSchema(
+    agent = serializers.SerializerMethodField(
         help_text=_("The updated agent."),
-        read_only=True,
     )
+
+    @extend_schema_field(serializers.JSONField())
+    def get_agent(self, obj) -> dict:
+        """Get the agent representation.
+
+        For documentation purposes only, not used in actual response.
+
+        Args:
+            obj: The agent object.
+
+        Returns:
+            dict: The agent representation.
+        """
+
+        # Return the agent representation
+        return AgentResponseSchema(obj).data
 
 
 # Agent update error response serializer

@@ -1,5 +1,6 @@
 # Third-party imports
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 # Project imports
@@ -86,7 +87,8 @@ class AgentSerializer(serializers.ModelSerializer):
         ]
 
     # Get the avatar URL for the agent
-    def get_avatar_url(self, obj):
+    @extend_schema_field(serializers.URLField())
+    def get_avatar_url(self, obj: Agent) -> str:
         """Get the avatar URL for the agent.
 
         Args:
