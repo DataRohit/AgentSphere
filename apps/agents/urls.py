@@ -6,6 +6,7 @@ from django.urls import path
 # Local application imports
 from apps.agents.views import (
     AgentCreateView,
+    AgentDeleteView,
     AgentDetailView,
     AgentListView,
     AgentUpdateView,
@@ -24,4 +25,6 @@ urlpatterns = [
     path("<str:agent_id>/", AgentDetailView.as_view(), name="agent-detail"),
     # Agent update URL - update an agent by ID
     path("<str:agent_id>/update/", AgentUpdateView.as_view(), name="agent-update"),
+    # Agent delete URL - delete an agent by ID
+    path("<str:agent_id>/delete/", AgentDeleteView.as_view(), name="agent-delete"),
 ]
