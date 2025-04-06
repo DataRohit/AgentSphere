@@ -2,8 +2,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-
-# Import timezone at the top of the file
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -48,6 +46,9 @@ from apps.organization.serializers import (
     OrganizationOwnershipTransferStatusErrorResponseSerializer,
     OrganizationOwnershipTransferStatusSuccessResponseSerializer,
     OrganizationSerializer,
+    OrganizationUpdateErrorResponseSerializer,
+    OrganizationUpdateSerializer,
+    OrganizationUpdateSuccessResponseSerializer,
 )
 
 # Get the User model
@@ -306,6 +307,7 @@ class OrganizationDetailView(APIView):
 
     This view allows organization owners and members to view organization details.
     Users who are not owners or members of the organization cannot access this view.
+    Only owners can update organization details.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -407,6 +409,86 @@ class OrganizationDetailView(APIView):
             return Response(
                 {
                     "error": "Organization not found or you don't have permission to view this organization.",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    # Define the schema
+    @extend_schema(
+        tags=["Organizations"],
+        summary="Update organization details.",
+        description="""
+        Updates details of an organization.
+        Only the owner of the organization can update its details.
+        """,
+        request=OrganizationUpdateSerializer,
+        responses={
+            status.HTTP_200_OK: OrganizationUpdateSuccessResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: OrganizationUpdateErrorResponseSerializer,
+            status.HTTP_404_NOT_FOUND: OrganizationNotFoundResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
+        },
+    )
+    def patch(self, request: Request, organization_id: str) -> Response:
+        """Update organization details.
+
+        This method updates the details of an organization.
+        Only the owner can update organization details.
+
+        Args:
+            request (Request): The HTTP request object.
+            organization_id (str): The ID of the organization.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+        try:
+            # Get the organization by ID
+            organization = Organization.objects.get(id=organization_id)
+
+            # Check if the user is the owner of the organization
+            if request.user != organization.owner:
+                # Return 404 Not Found if the user is not the owner
+                return Response(
+                    {
+                        "error": "Organization not found or you are not the owner.",
+                    },
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Create a serializer with the organization and request data
+            serializer = OrganizationUpdateSerializer(
+                organization,
+                data=request.data,
+                partial=True,
+                context={"request": request},
+            )
+
+            # Validate the serializer
+            if serializer.is_valid():
+                # Save the updated organization
+                updated_organization = serializer.save()
+
+                # Serialize the updated organization for the response
+                response_serializer = OrganizationSerializer(updated_organization)
+
+                # Return 200 OK with the updated organization data
+                return Response(
+                    response_serializer.data,
+                    status=status.HTTP_200_OK,
+                )
+
+            # Return 400 Bad Request with validation errors
+            return Response(
+                {"errors": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        except Organization.DoesNotExist:
+            # Return 404 Not Found if the organization doesn't exist
+            return Response(
+                {
+                    "error": "Organization not found or you are not the owner.",
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )

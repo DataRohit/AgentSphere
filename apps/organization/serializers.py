@@ -1456,3 +1456,159 @@ class OrganizationOwnershipTransferNotFoundResponseSerializer(
         read_only=True,
         help_text=_("Error message indicating the transfer was not found."),
     )
+
+
+# Organization Update Serializer
+class OrganizationUpdateSerializer(serializers.ModelSerializer):
+    """Organization update serializer.
+
+    This serializer handles updating existing organizations. It validates that
+    the name is unique among the user's organizations if it is being changed.
+
+    Attributes:
+        name (str): The organization's name.
+        description (str): The organization's description.
+        website (str): The organization's website.
+
+    Meta:
+        model (Organization): The Organization model.
+        fields (list): The fields that can be updated.
+        extra_kwargs (dict): Additional field configurations.
+    """
+
+    # Meta class for OrganizationUpdateSerializer configuration
+    class Meta:
+        """Meta class for OrganizationUpdateSerializer configuration."""
+
+        # Model to use for the serializer
+        model = Organization
+
+        # Fields to include in the serializer
+        fields = [
+            "name",
+            "description",
+            "website",
+        ]
+
+        # Extra kwargs
+        extra_kwargs = {
+            "name": {"required": False},
+            "description": {"required": False},
+            "website": {"required": False},
+        }
+
+    # Validate the serializer data
+    def validate_name(self, value):
+        """Validate that the name is unique among the user's organizations.
+
+        Args:
+            value (str): The name to validate.
+
+        Returns:
+            str: The validated name.
+
+        Raises:
+            serializers.ValidationError: If the user already has an organization with this name.
+        """
+
+        # Get the current organization
+        organization = self.instance
+
+        # Get the user from the context
+        user = self.context["request"].user
+
+        # Check if the name is changing
+        if value != organization.name:
+            # Check if the user already has an organization with this name
+            if user.owned_organizations.filter(name=value).exists():
+                # Raise a validation error
+                raise serializers.ValidationError(
+                    _("You already have an organization with this name."),
+                ) from None
+
+        # Return the validated name
+        return value
+
+
+# Organization Update Success Response Serializer
+class OrganizationUpdateSuccessResponseSerializer(GenericResponseSerializer):
+    """Organization update success response serializer.
+
+    This serializer defines the structure of the successful organization update response.
+    It includes a status code and the updated organization object.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        organization (OrganizationSerializer): The updated organization.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+
+    # Organization serializer
+    organization = OrganizationSerializer(
+        read_only=True,
+        help_text=_("The updated organization."),
+    )
+
+
+# Organization Update Error Response Serializer
+class OrganizationUpdateErrorResponseSerializer(GenericResponseSerializer):
+    """Organization update error response serializer.
+
+    This serializer defines the structure of the error response for organization update.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        errors (OrganizationUpdateErrorsDetailSerializer): The errors detail serializer.
+    """
+
+    # Nested serializer defining the structure of the actual errors
+    class OrganizationUpdateErrorsDetailSerializer(serializers.Serializer):
+        """Organization Update Errors detail serializer.
+
+        Attributes:
+            name (list): Errors related to the name field.
+            description (list): Errors related to the description field.
+            website (list): Errors related to the website field.
+            non_field_errors (list): Non-field specific errors.
+        """
+
+        # Name field errors
+        name = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the name field."),
+        )
+
+        # Description field errors
+        description = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the description field."),
+        )
+
+        # Website field errors
+        website = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the website field."),
+        )
+
+        # Non-field errors
+        non_field_errors = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Non-field specific errors."),
+        )
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_400_BAD_REQUEST,
+        help_text=_("HTTP status code indicating a bad request."),
+    )
+
+    # Errors
+    errors = OrganizationUpdateErrorsDetailSerializer(
+        help_text=_("Object containing validation errors."),
+    )
