@@ -1277,29 +1277,6 @@ class OrganizationOwnershipTransferInitResponseSerializer(serializers.ModelSeria
         read_only_fields = fields
 
 
-# Organization Ownership Transfer Initialization Success Response serializer
-class OrganizationOwnershipTransferInitSuccessResponseSerializer(
-    GenericResponseSerializer,
-):
-    """Organization Ownership Transfer Initialization success response serializer.
-
-    This serializer defines the structure of the successful transfer initialization response.
-    It includes a status code and a transfer object.
-
-    Attributes:
-        status_code (int): The status code of the response.
-        transfer (OrganizationOwnershipTransferInitResponseSerializer): The transfer detail serializer.
-    """
-
-    # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_201_CREATED)
-
-    # Transfer serializer
-    transfer = OrganizationOwnershipTransferInitResponseSerializer(
-        help_text=_("The ownership transfer details."),
-    )
-
-
 # Organization Ownership Transfer Initialization Error Response serializer
 class OrganizationOwnershipTransferInitErrorResponseSerializer(
     GenericResponseSerializer,

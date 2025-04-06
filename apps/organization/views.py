@@ -41,7 +41,6 @@ from apps.organization.serializers import (
     OrganizationOwnershipTransferInitErrorResponseSerializer,
     OrganizationOwnershipTransferInitResponseSerializer,
     OrganizationOwnershipTransferInitSerializer,
-    OrganizationOwnershipTransferInitSuccessResponseSerializer,
     OrganizationOwnershipTransferNotFoundResponseSerializer,
     OrganizationOwnershipTransferStatusErrorResponseSerializer,
     OrganizationOwnershipTransferStatusSuccessResponseSerializer,
@@ -442,6 +441,7 @@ class OrganizationDetailView(APIView):
         Returns:
             Response: The HTTP response object.
         """
+
         try:
             # Get the organization by ID
             organization = Organization.objects.get(id=organization_id)
@@ -482,6 +482,72 @@ class OrganizationDetailView(APIView):
             return Response(
                 {"errors": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        except Organization.DoesNotExist:
+            # Return 404 Not Found if the organization doesn't exist
+            return Response(
+                {
+                    "error": "Organization not found or you are not the owner.",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    # Define the schema
+    @extend_schema(
+        tags=["Organizations"],
+        summary="Delete an organization.",
+        description="""
+        Deletes an organization.
+        Only the owner of the organization can delete it.
+        This operation cannot be undone.
+        """,
+        responses={
+            status.HTTP_200_OK: OrganizationOwnershipTransferStatusSuccessResponseSerializer,
+            status.HTTP_404_NOT_FOUND: OrganizationNotFoundResponseSerializer,
+            status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
+        },
+    )
+    def delete(self, request: Request, organization_id: str) -> Response:
+        """Delete an organization.
+
+        This method deletes an organization.
+        Only the owner can delete an organization.
+
+        Args:
+            request (Request): The HTTP request object.
+            organization_id (str): The ID of the organization.
+
+        Returns:
+            Response: The HTTP response object.
+        """
+
+        try:
+            # Get the organization by ID
+            organization = Organization.objects.get(id=organization_id)
+
+            # Check if the user is the owner of the organization
+            if request.user != organization.owner:
+                # Return 404 Not Found if the user is not the owner
+                return Response(
+                    {
+                        "error": "Organization not found or you are not the owner.",
+                    },
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Store organization name before deletion for the response message
+            organization_name = organization.name
+
+            # Delete the organization
+            organization.delete()
+
+            # Return 200 OK with a success message
+            return Response(
+                {
+                    "message": f"Organization '{organization_name}' was successfully deleted.",
+                },
+                status=status.HTTP_200_OK,
             )
 
         except Organization.DoesNotExist:
@@ -982,7 +1048,7 @@ class OrganizationOwnershipTransferInitView(APIView):
         """,
         request=OrganizationOwnershipTransferInitSerializer,
         responses={
-            status.HTTP_201_CREATED: OrganizationOwnershipTransferInitSuccessResponseSerializer,
+            status.HTTP_201_CREATED: OrganizationOwnershipTransferInitResponseSerializer,
             status.HTTP_400_BAD_REQUEST: OrganizationOwnershipTransferInitErrorResponseSerializer,
             status.HTTP_404_NOT_FOUND: OrganizationNotFoundResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
