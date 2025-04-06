@@ -140,6 +140,7 @@ LOCAL_APPS = [
     "apps.common",
     "apps.users",
     "apps.organization",
+    "apps.agents",
 ]
 
 # Combined applications list

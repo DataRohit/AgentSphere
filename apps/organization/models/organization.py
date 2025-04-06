@@ -182,4 +182,4 @@ class Organization(TimeStampedModel):
         seed = slugify(self.name)
 
         # Return the logo URL
-        return f"https://api.dicebear.com/9.x/shapes/svg?seed={seed}"
+        return f"https://api.dicebear.com/9.x/shapes/png?seed={seed}"

@@ -51,6 +51,7 @@ urlpatterns += [
 urlpatterns += [
     path("api/v1/users/", include("apps.users.urls")),
     path("api/v1/organizations/", include("apps.organization.urls")),
+    path("api/v1/agents/", include("apps.agents.urls")),
 ]
 
 # Health check URLs
