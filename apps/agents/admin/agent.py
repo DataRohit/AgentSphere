@@ -29,7 +29,6 @@ class AgentAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "name",
-        "type",
         "is_public",
         "organization",
         "user",
@@ -37,17 +36,17 @@ class AgentAdmin(admin.ModelAdmin):
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["type", "is_public", "created_at", "organization"]
+    list_filter = ["is_public", "created_at", "organization"]
 
     # Fields that can be searched
-    search_fields = ["name", "description", "type", "user__username", "user__email"]
+    search_fields = ["name", "description", "user__username", "user__email"]
 
     # Field sets for the detail view
     fieldsets = [
         (
             _("Basic Information"),
             {
-                "fields": ["name", "description", "type"],
+                "fields": ["name", "description"],
             },
         ),
         (

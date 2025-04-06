@@ -19,7 +19,6 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
     Attributes:
         name (CharField): The name of the agent.
         description (TextField): A description of the agent.
-        type (CharField): The type or category of the agent.
         system_prompt (TextField): The system prompt used for the agent.
         is_public (BooleanField): Whether the agent is publicly visible.
 
@@ -46,7 +45,6 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "name",
             "description",
-            "type",
             "system_prompt",
             "is_public",
         ]
@@ -55,7 +53,6 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "name": {"required": False},
             "description": {"required": False},
-            "type": {"required": False},
             "system_prompt": {"required": False},
             "is_public": {"required": False},
         }
@@ -126,7 +123,6 @@ class AgentUpdateErrorResponseSerializer(GenericResponseSerializer):
 
         Attributes:
             name (list): Errors related to the name field.
-            type (list): Errors related to the type field.
             system_prompt (list): Errors related to the system prompt field.
             is_public (list): Errors related to the is_public field.
             non_field_errors (list): Non-field specific errors.
@@ -137,13 +133,6 @@ class AgentUpdateErrorResponseSerializer(GenericResponseSerializer):
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the name field."),
-        )
-
-        # Type field
-        type = serializers.ListField(
-            child=serializers.CharField(),
-            required=False,
-            help_text=_("Errors related to the type field."),
         )
 
         # System prompt field

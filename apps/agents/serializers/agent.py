@@ -17,7 +17,6 @@ class AgentSerializer(serializers.ModelSerializer):
         id (UUID): The agent's ID.
         name (str): The agent's name.
         description (str): The agent's description.
-        type (str): The agent's type or category.
         system_prompt (str): The agent's system prompt.
         is_public (bool): Whether the agent is publicly visible.
         avatar_url (str): The URL to the agent's avatar.
@@ -69,7 +68,6 @@ class AgentSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "description",
-            "type",
             "system_prompt",
             "is_public",
             "avatar_url",
@@ -112,7 +110,6 @@ class AgentResponseSchema(serializers.Serializer):
         id (UUID): The agent's ID.
         name (str): The agent's name.
         description (str): The agent's description.
-        type (str): The agent's type or category.
         system_prompt (str): The agent's system prompt.
         is_public (bool): Whether the agent is publicly visible.
         avatar_url (str): The URL to the agent's avatar.
@@ -136,11 +133,6 @@ class AgentResponseSchema(serializers.Serializer):
     description = serializers.CharField(
         help_text=_("Description of the agent."),
         allow_blank=True,
-    )
-
-    # Type field
-    type = serializers.CharField(
-        help_text=_("Type or category of the agent."),
     )
 
     # System prompt field

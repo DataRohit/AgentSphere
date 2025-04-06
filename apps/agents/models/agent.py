@@ -20,12 +20,11 @@ class Agent(TimeStampedModel):
     """Model for AI agents in the system.
 
     This model stores AI agent information including name, description,
-    type, system prompt, and visibility settings.
+    system prompt, and visibility settings.
 
     Attributes:
         name (CharField): The name of the AI agent.
         description (TextField): A detailed description of the agent.
-        type (CharField): The type or category of the agent.
         system_prompt (TextField): The system prompt used to define agent behavior.
         is_public (BooleanField): Whether the agent is publicly visible.
         organization (ForeignKey): The organization this agent belongs to.
@@ -49,12 +48,6 @@ class Agent(TimeStampedModel):
     description = models.TextField(
         verbose_name=_("Description"),
         blank=True,
-    )
-
-    # Agent type
-    type = models.CharField(
-        verbose_name=_("Type"),
-        max_length=100,
     )
 
     # Agent system prompt
