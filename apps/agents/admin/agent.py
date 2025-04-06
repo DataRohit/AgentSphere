@@ -27,13 +27,13 @@ class AgentAdmin(admin.ModelAdmin):
 
     # Fields to display in the list view
     list_display = [
+        "id",
         "name",
         "type",
         "is_public",
         "organization",
         "user",
         "created_at",
-        "avatar_preview",
     ]
 
     # Fields that can be used for filtering in the admin
