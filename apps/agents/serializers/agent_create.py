@@ -4,7 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, status
 
 # Project imports
-from apps.agents.models import Agent
+from apps.agents.models import LLM, Agent
 from apps.agents.serializers.agent import AgentResponseSchema
 from apps.common.serializers import GenericResponseSerializer
 from apps.organization.models import Organization
@@ -24,6 +24,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
         description (TextField): A description of the agent.
         system_prompt (TextField): The system prompt used for the agent.
         is_public (BooleanField): Whether the agent is publicly visible.
+        llm_id (UUIDField): The ID of the LLM to associate the agent with.
 
     Meta:
         model (Agent): The Agent model.
@@ -33,6 +34,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
     Raises:
         serializers.ValidationError: If user is not a member of the organization.
         serializers.ValidationError: If user has already created maximum agents.
+        serializers.ValidationError: If LLM doesn't exist or user doesn't have access.
 
     Returns:
         Agent: The newly created agent instance.
@@ -48,6 +50,12 @@ class AgentCreateSerializer(serializers.ModelSerializer):
     organization_id = serializers.UUIDField(
         required=True,
         help_text=_("ID of the organization to associate the agent with."),
+    )
+
+    # LLM ID field
+    llm_id = serializers.UUIDField(
+        required=True,
+        help_text=_("ID of the LLM model to use with this agent."),
     )
 
     # Meta class for AgentCreateSerializer configuration
@@ -70,6 +78,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
             "description",
             "system_prompt",
             "is_public",
+            "llm_id",
         ]
 
         # Extra kwargs
@@ -89,6 +98,8 @@ class AgentCreateSerializer(serializers.ModelSerializer):
         2. The user has not exceeded the maximum number of agents they can create.
            - Maximum 10 agents total per user
            - Within those 10, maximum 5 can be public agents
+        3. The specified LLM exists and user has access to it.
+        4. The LLM and agent must belong to the same organization and user.
 
         Args:
             attrs (dict): The attributes to validate.
@@ -106,6 +117,9 @@ class AgentCreateSerializer(serializers.ModelSerializer):
         # Get the organization ID
         organization_id = attrs.get("organization_id")
 
+        # Get the LLM ID
+        llm_id = attrs.get("llm_id")
+
         try:
             # Try to get the organization
             organization = Organization.objects.get(id=organization_id)
@@ -121,14 +135,55 @@ class AgentCreateSerializer(serializers.ModelSerializer):
                     },
                 ) from None
 
+            # Try to get the LLM
+            try:
+                llm = LLM.objects.get(id=llm_id)
+
+                # Check if the user has access to the LLM
+                if llm.user and llm.user != user:
+                    # Raise a validation error
+                    raise serializers.ValidationError(
+                        {
+                            "llm_id": [
+                                _("You do not have access to this LLM."),
+                            ],
+                        },
+                    ) from None
+
+                # Check if the LLM belongs to the same organization
+                if llm.organization and llm.organization != organization:
+                    # Raise a validation error
+                    raise serializers.ValidationError(
+                        {
+                            "llm_id": [
+                                _(
+                                    "The LLM must belong to the same organization as the agent.",
+                                ),
+                            ],
+                        },
+                    ) from None
+
+                # Store the LLM in attrs for later use
+                attrs["llm"] = llm
+
+            except LLM.DoesNotExist:
+                raise serializers.ValidationError(
+                    {
+                        "llm_id": [
+                            _("LLM not found."),
+                        ],
+                    },
+                ) from None
+
             # Store the organization in attrs for later use
             attrs["organization"] = organization
 
             # Store the user in attrs for later use
             attrs["user"] = user
 
-            # Remove the organization_id from attrs as it's not a field in the Agent model
+            # Remove the organization_id and llm_id from attrs as they're not fields in the Agent model
             del attrs["organization_id"]
+            del attrs["llm_id"]
 
             # Check if the user has already created the maximum number of total agents
             total_agent_count = Agent.objects.filter(
@@ -137,6 +192,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
 
             # Check if the user has reached the overall limit of 10 agents
             if total_agent_count >= self.MAX_AGENTS_PER_ORGANIZATION:
+                # Raise a validation error
                 raise serializers.ValidationError(
                     {
                         "non_field_errors": [
@@ -158,6 +214,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
 
                 # Check if the user has reached the limit for public agents
                 if public_agent_count >= self.MAX_PUBLIC_AGENTS_PER_ORGANIZATION:
+                    # Raise a validation error
                     raise serializers.ValidationError(
                         {
                             "is_public": [
@@ -183,7 +240,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create a new agent.
 
-        This method creates a new agent with the organization and user set from validated data.
+        This method creates a new agent with the organization, user, and LLM set from validated data.
 
         Args:
             validated_data (dict): The validated data.
@@ -198,10 +255,14 @@ class AgentCreateSerializer(serializers.ModelSerializer):
         # Get the user from validated data
         user = validated_data.pop("user")
 
+        # Get the LLM from validated data
+        llm = validated_data.pop("llm")
+
         # Return the created agent
         return Agent.objects.create(
             organization=organization,
             user=user,
+            llm=llm,
             **validated_data,
         )
 
@@ -277,6 +338,7 @@ class AgentCreateErrorResponseSerializer(GenericResponseSerializer):
             name (list): Errors related to the name field.
             system_prompt (list): Errors related to the system prompt field.
             is_public (list): Errors related to the is_public field.
+            llm_id (list): Errors related to the LLM ID field.
             non_field_errors (list): Non-field specific errors.
         """
 
@@ -306,6 +368,13 @@ class AgentCreateErrorResponseSerializer(GenericResponseSerializer):
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the is_public field."),
+        )
+
+        # LLM ID field
+        llm_id = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the LLM ID field."),
         )
 
         # Non-field errors

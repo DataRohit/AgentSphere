@@ -4,7 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, status
 
 # Project imports
-from apps.agents.models import Agent
+from apps.agents.models import LLM, Agent
 from apps.agents.serializers.agent import AgentResponseSchema
 from apps.common.serializers import GenericResponseSerializer
 
@@ -21,12 +21,20 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
         description (TextField): A description of the agent.
         system_prompt (TextField): The system prompt used for the agent.
         is_public (BooleanField): Whether the agent is publicly visible.
+        llm_id (UUIDField): The ID of the LLM to associate with the agent.
 
     Meta:
         model (Agent): The Agent model.
         fields (list): The fields that can be updated.
         extra_kwargs (dict): Additional field configurations.
     """
+
+    # LLM ID field
+    llm_id = serializers.UUIDField(
+        required=False,
+        help_text=_("ID of the LLM model to use with this agent."),
+        write_only=True,
+    )
 
     # Meta class for AgentUpdateSerializer configuration
     class Meta:
@@ -47,6 +55,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
             "description",
             "system_prompt",
             "is_public",
+            "llm_id",
         ]
 
         # Extra kwargs
@@ -56,6 +65,88 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
             "system_prompt": {"required": False},
             "is_public": {"required": False},
         }
+
+    # Validate the LLM ID
+    def validate_llm_id(self, value):
+        """Validate that the specified LLM exists and is accessible by the user.
+
+        Args:
+            value: The LLM ID value.
+
+        Returns:
+            UUID: The validated LLM ID.
+
+        Raises:
+            serializers.ValidationError: If validation fails.
+        """
+
+        # Get the agent instance being updated
+        agent = self.instance
+
+        try:
+            # Try to get the LLM
+            llm = LLM.objects.get(id=value)
+
+            # Check if the user has access to the LLM
+            if llm.user and llm.user != agent.user:
+                raise serializers.ValidationError(
+                    _("You do not have access to this LLM."),
+                )
+
+            # Check if the LLM belongs to the same organization
+            if (
+                llm.organization
+                and agent.organization
+                and llm.organization != agent.organization
+            ):
+                # Raise a validation error
+                raise serializers.ValidationError(
+                    _("The LLM must belong to the same organization as the agent."),
+                )
+
+        except LLM.DoesNotExist:
+            # Error message
+            error_message = _("LLM not found.")
+
+            # Raise a validation error
+            raise serializers.ValidationError(error_message) from None
+
+        # Return the validated LLM ID
+        return value
+
+    # Update method
+    def update(self, instance: Agent, validated_data: dict) -> Agent:
+        """Update the agent instance.
+
+        Args:
+            instance: The agent instance to update.
+            validated_data: The validated data to update with.
+
+        Returns:
+            Agent: The updated agent instance.
+        """
+
+        # Handle the LLM ID if provided
+        llm_id = validated_data.pop("llm_id", None)
+
+        # If the LLM ID is provided
+        if llm_id:
+            try:
+                # Try to get the LLM
+                llm = LLM.objects.get(id=llm_id)
+
+                # Update the agent's LLM
+                instance.llm = llm
+
+            except LLM.DoesNotExist:
+                # Error message
+                error_message = _("LLM not found.")
+
+                # Raise a validation error
+                raise serializers.ValidationError(error_message) from None
+
+        # Update the instance with the rest of the validated data
+        return super().update(instance, validated_data)
 
 
 # Agent update success response serializer
@@ -84,7 +175,7 @@ class AgentUpdateSuccessResponseSerializer(GenericResponseSerializer):
 
     # Get the agent representation
     @extend_schema_field(serializers.JSONField())
-    def get_agent(self, obj) -> dict:
+    def get_agent(self, obj: Agent) -> dict:
         """Get the agent representation.
 
         For documentation purposes only, not used in actual response.
@@ -127,6 +218,7 @@ class AgentUpdateErrorResponseSerializer(GenericResponseSerializer):
             name (list): Errors related to the name field.
             system_prompt (list): Errors related to the system prompt field.
             is_public (list): Errors related to the is_public field.
+            llm_id (list): Errors related to the LLM ID field.
             non_field_errors (list): Non-field specific errors.
         """
 
@@ -149,6 +241,13 @@ class AgentUpdateErrorResponseSerializer(GenericResponseSerializer):
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the is_public field."),
+        )
+
+        # LLM ID field
+        llm_id = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the LLM ID field."),
         )
 
         # Non-field errors

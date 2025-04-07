@@ -22,6 +22,7 @@ class AgentSerializer(serializers.ModelSerializer):
         avatar_url (str): The URL to the agent's avatar.
         organization_id (UUID): The ID of the organization the agent belongs to.
         user_id (UUID): The ID of the user who created the agent.
+        llm_id (UUID): The ID of the LLM model associated with the agent.
         created_at (datetime): The date and time the agent was created.
         updated_at (datetime): The date and time the agent was last updated.
 
@@ -50,6 +51,13 @@ class AgentSerializer(serializers.ModelSerializer):
         help_text=_("ID of the user who created the agent."),
     )
 
+    # LLM ID field
+    llm_id = serializers.UUIDField(
+        source="llm.id",
+        read_only=True,
+        help_text=_("ID of the LLM model associated with the agent."),
+    )
+
     # Meta class for AgentSerializer configuration
     class Meta:
         """Meta class for AgentSerializer configuration.
@@ -73,6 +81,7 @@ class AgentSerializer(serializers.ModelSerializer):
             "avatar_url",
             "organization_id",
             "user_id",
+            "llm_id",
             "created_at",
             "updated_at",
         ]
@@ -115,6 +124,7 @@ class AgentResponseSchema(serializers.Serializer):
         avatar_url (str): The URL to the agent's avatar.
         organization_id (UUID): The ID of the organization the agent belongs to.
         user_id (UUID): The ID of the user who created the agent.
+        llm_id (UUID): The ID of the LLM model associated with the agent.
         created_at (datetime): The date and time the agent was created.
         updated_at (datetime): The date and time the agent was last updated.
     """
@@ -170,4 +180,10 @@ class AgentResponseSchema(serializers.Serializer):
     user_id = serializers.UUIDField(
         help_text=_("ID of the user who created the agent."),
         source="user.id",
+    )
+
+    # LLM ID field
+    llm_id = serializers.UUIDField(
+        help_text=_("ID of the LLM model associated with the agent."),
+        source="llm.id",
     )
