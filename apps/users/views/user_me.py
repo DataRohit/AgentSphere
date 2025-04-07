@@ -89,7 +89,10 @@ class UserMeView(APIView):
         serializer = UserProfileSerializer(request.user)
 
         # Return the serialized user data
-        return Response(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
 
     # Define the schema for PATCH method
     @extend_schema(
@@ -134,7 +137,10 @@ class UserMeView(APIView):
             serializer.save()
 
             # Return the updated user profile
-            return Response(UserProfileSerializer(request.user).data)
+            return Response(
+                UserProfileSerializer(request.user).data,
+                status=status.HTTP_200_OK,
+            )
 
         # Return validation errors
         return Response(

@@ -79,7 +79,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "last_login": {"read_only": True},
         }
 
-    def get_avatar_url(self, obj):
+    # Get the avatar URL
+    def get_avatar_url(self, obj: User) -> str:
         """Get the avatar URL for the user.
 
         Returns the avatar_url property from the user instance,
@@ -91,6 +92,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         Returns:
             str: The URL of the user's avatar.
         """
+
+        # Return the avatar URL
         return obj.avatar_url
 
 

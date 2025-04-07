@@ -137,7 +137,11 @@ class UserCreateSuccessResponseSerializer(GenericResponseSerializer):
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_201_CREATED)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_201_CREATED,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful creation."),
+    )
 
     # User detail serializer
     user = UserDetailSerializer(

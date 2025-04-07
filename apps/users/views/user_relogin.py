@@ -93,4 +93,9 @@ class UserReloginView(TokenRefreshView):
         serializer.is_valid(raise_exception=True)
 
         # Return only the access token
-        return Response({"access": serializer.validated_data["access"]})
+        return Response(
+            {
+                "access": serializer.validated_data["access"],
+            },
+            status=status.HTTP_200_OK,
+        )

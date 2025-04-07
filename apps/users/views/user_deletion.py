@@ -167,7 +167,13 @@ class UserDeletionRequestView(APIView):
         )
 
         # Return success response
-        return Response({"message": "Account deletion email sent successfully."})
+        return Response(
+            {
+                "message": "Account deletion email sent successfully.",
+                "status_code": status.HTTP_200_OK,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 # User deletion confirm view
@@ -284,7 +290,13 @@ class UserDeletionConfirmView(APIView):
             )
 
             # Return success response
-            return Response({"message": "Account deleted successfully"})
+            return Response(
+                {
+                    "message": "Account deleted successfully",
+                    "status_code": status.HTTP_200_OK,
+                },
+                status=status.HTTP_200_OK,
+            )
 
         except (TypeError, ValueError, AttributeError):
             # Return error response for specific exceptions

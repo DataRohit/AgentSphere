@@ -130,7 +130,10 @@ class UserDeactivateView(APIView):
             )
 
             # Return success response
-            return Response({"message": "Account deactivated successfully."})
+            return Response(
+                {"message": "Account deactivated successfully."},
+                status=status.HTTP_200_OK,
+            )
 
         # Return validation errors
         return Response(

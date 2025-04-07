@@ -144,7 +144,12 @@ class UserPasswordResetRequestView(APIView):
         )
 
         # Return success response
-        return Response({"message": "Password reset email sent successfully."})
+        return Response(
+            {
+                "message": "Password reset email sent successfully.",
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 # User password reset confirm view
@@ -274,7 +279,12 @@ class UserPasswordResetConfirmView(APIView):
             )
 
             # Return success response
-            return Response({"message": "Password reset successfully"})
+            return Response(
+                {
+                    "message": "Password reset successfully",
+                },
+                status=status.HTTP_200_OK,
+            )
 
         except (TypeError, ValueError, AttributeError):
             # Return error response for specific exceptions

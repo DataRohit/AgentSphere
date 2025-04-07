@@ -129,14 +129,22 @@ class UserAvatarErrorResponseSerializer(GenericResponseSerializer):
 
 
 # User avatar auth error response serializer
-class UserAvatarAuthErrorResponseSerializer(serializers.Serializer):
+class UserAvatarAuthErrorResponseSerializer(GenericResponseSerializer):
     """User avatar auth error response serializer.
 
     This serializer defines the structure of the authentication error response.
 
     Attributes:
+        status_code (int): The HTTP status code.
         error (str): The error message.
     """
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_401_UNAUTHORIZED,
+        read_only=True,
+        help_text=_("HTTP status code indicating an authentication error."),
+    )
 
     # Error message field
     error = serializers.CharField(

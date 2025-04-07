@@ -36,6 +36,7 @@ class UserDeletionRequestSuccessResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_200_OK,
         read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
     )
 
     # User field
@@ -60,6 +61,7 @@ class UserDeletionRequestUnauthorizedResponseSerializer(GenericResponseSerialize
     status_code = serializers.IntegerField(
         default=status.HTTP_401_UNAUTHORIZED,
         read_only=True,
+        help_text=_("HTTP status code indicating an unauthorized request."),
     )
 
     # Error message
@@ -99,6 +101,7 @@ class UserDeletionConfirmSuccessResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_200_OK,
         read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
     )
 
     # User field
@@ -124,6 +127,7 @@ class UserDeletionForbiddenResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_403_FORBIDDEN,
         read_only=True,
+        help_text=_("HTTP status code indicating a forbidden request."),
     )
 
     # Error message

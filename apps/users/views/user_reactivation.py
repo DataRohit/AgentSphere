@@ -142,7 +142,13 @@ class UserReactivationRequestView(APIView):
         )
 
         # Return success response
-        return Response({"message": "Reactivation email sent successfully."})
+        return Response(
+            {
+                "message": "Reactivation email sent successfully.",
+                "status_code": status.HTTP_200_OK,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class UserReactivationConfirmView(APIView):
@@ -253,4 +259,10 @@ class UserReactivationConfirmView(APIView):
         )
 
         # Return success response
-        return Response({"message": "Account reactivated successfully."})
+        return Response(
+            {
+                "message": "Account reactivated successfully.",
+                "status_code": status.HTTP_200_OK,
+            },
+            status=status.HTTP_200_OK,
+        )
