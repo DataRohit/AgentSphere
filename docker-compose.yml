@@ -20,6 +20,9 @@ volumes:
     pgadmin-data:
         name: pgadmin-data
         driver: local
+    vault-data:
+        name: vault-data
+        driver: local
 
 services:
     nginx-service:
@@ -63,6 +66,8 @@ services:
             redis-service:
                 condition: service_healthy
             mailpit-service:
+                condition: service_healthy
+            vault-service:
                 condition: service_healthy
         networks:
             - agentsphere-network
@@ -185,6 +190,26 @@ services:
         depends_on:
             postgres-service:
                 condition: service_healthy
+        networks:
+            - agentsphere-network
+
+    vault-service:
+        image: hashicorp/vault:latest
+        container_name: vault-service
+        ports:
+            - "8200:8200"
+        env_file:
+            - .envs/.vault.env
+        volumes:
+            - vault-data:/vault/data
+        cap_add:
+            - IPC_LOCK
+        healthcheck:
+            test: ["CMD", "vault", "status"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
         networks:
             - agentsphere-network
 

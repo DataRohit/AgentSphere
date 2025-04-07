@@ -82,7 +82,6 @@ pre-commit==4.2.0
 # -----------------------------------------
 # Django extensions
 # -----------------------------------------
-factory-boy==3.3.2
 django-extensions==3.2.3
 django-health-check==3.18.3
 
@@ -92,4 +91,9 @@ django-health-check==3.18.3
 ag2==0.8.5
 ag2[gemini]==0.8.5
 ag2[ollama]==0.8.5
+
+# -----------------------------------------
+# Secret management
+# -----------------------------------------
+hvac==2.3.0
 
