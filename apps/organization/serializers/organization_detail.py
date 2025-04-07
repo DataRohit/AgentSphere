@@ -20,7 +20,11 @@ class OrganizationDetailResponseSerializer(GenericResponseSerializer):
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
+    )
 
     # Organization serializer
     organization = OrganizationSerializer(
@@ -45,6 +49,7 @@ class OrganizationNotFoundResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_404_NOT_FOUND,
         read_only=True,
+        help_text=_("HTTP status code indicating a not found resource."),
     )
 
     # Error message

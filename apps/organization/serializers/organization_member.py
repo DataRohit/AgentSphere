@@ -21,17 +21,21 @@ class OrganizationMemberAddSerializer(serializers.Serializer):
         username (str, optional): The username of the user to add.
     """
 
-    # User identifiers (optional, but one is required)
+    # User ID field
     user_id = serializers.UUIDField(
         required=False,
         allow_null=True,
         help_text=_("The ID of the user to add as a member."),
     )
+
+    # Email field
     email = serializers.EmailField(
         required=False,
         allow_null=True,
         help_text=_("The email of the user to add as a member."),
     )
+
+    # Username field
     username = serializers.CharField(
         required=False,
         allow_null=True,
@@ -175,7 +179,11 @@ class OrganizationMemberAddSuccessResponseSerializer(GenericResponseSerializer):
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
+    )
 
     # Organization serializer
     organization = OrganizationSerializer(
@@ -239,12 +247,14 @@ class OrganizationMemberAddErrorResponseSerializer(GenericResponseSerializer):
     # Status code
     status_code = serializers.IntegerField(
         default=status.HTTP_400_BAD_REQUEST,
+        read_only=True,
         help_text=_("HTTP status code indicating a bad request."),
     )
 
     # Errors
     errors = OrganizationMemberAddErrorsDetailSerializer(
         help_text=_("Object containing validation errors."),
+        read_only=True,
     )
 
 
@@ -261,17 +271,21 @@ class OrganizationMemberRemoveSerializer(serializers.Serializer):
         username (str, optional): The username of the user to remove.
     """
 
-    # User identifiers (optional, but one is required)
+    # User ID field
     user_id = serializers.UUIDField(
         required=False,
         allow_null=True,
         help_text=_("The ID of the user to remove from the organization."),
     )
+
+    # Email field
     email = serializers.EmailField(
         required=False,
         allow_null=True,
         help_text=_("The email of the user to remove from the organization."),
     )
+
+    # Username field
     username = serializers.CharField(
         required=False,
         allow_null=True,
@@ -404,7 +418,11 @@ class OrganizationMemberRemoveSuccessResponseSerializer(GenericResponseSerialize
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
+    )
 
     # Organization serializer
     organization = OrganizationSerializer(
@@ -468,10 +486,12 @@ class OrganizationMemberRemoveErrorResponseSerializer(GenericResponseSerializer)
     # Status code
     status_code = serializers.IntegerField(
         default=status.HTTP_400_BAD_REQUEST,
+        read_only=True,
         help_text=_("HTTP status code indicating a bad request."),
     )
 
     # Errors
     errors = OrganizationMemberRemoveErrorsDetailSerializer(
         help_text=_("Object containing validation errors."),
+        read_only=True,
     )

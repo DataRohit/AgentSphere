@@ -241,14 +241,9 @@ class OrganizationOwnershipTransferInitView(APIView):
                 recipient_list=[request.user.email],
             )
 
-            # Serialize the transfer for the response
-            response_serializer = OrganizationOwnershipTransferInitResponseSerializer(
-                transfer,
-            )
-
             # Return 201 Created with the transfer data
             return Response(
-                response_serializer.data,
+                {"message": "Transfer initiated successfully."},
                 status=status.HTTP_201_CREATED,
             )
 

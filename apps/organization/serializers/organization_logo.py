@@ -81,7 +81,11 @@ class OrganizationLogoSuccessResponseSerializer(GenericResponseSerializer):
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=200)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
+    )
 
     # Organization serializer
     organization = OrganizationSerializer(
@@ -128,11 +132,13 @@ class OrganizationLogoErrorResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_400_BAD_REQUEST,
         help_text=_("HTTP status code indicating a bad request."),
+        read_only=True,
     )
 
     # Errors
     errors = OrganizationLogoErrorsDetailSerializer(
         help_text=_("Object containing validation errors."),
+        read_only=True,
     )
 
 

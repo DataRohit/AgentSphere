@@ -148,7 +148,11 @@ class OrganizationCreateSuccessResponseSerializer(GenericResponseSerializer):
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_201_CREATED)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_201_CREATED,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful creation."),
+    )
 
     # Organization serializer
     organization = OrganizationSerializer(
@@ -179,21 +183,28 @@ class OrganizationCreateErrorResponseSerializer(GenericResponseSerializer):
             non_field_errors (list): Non-field specific errors.
         """
 
+        # Name field
         name = serializers.ListField(
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the name field."),
         )
+
+        # Description field
         description = serializers.ListField(
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the description field."),
         )
+
+        # Website field
         website = serializers.ListField(
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the website field."),
         )
+
+        # Non-field errors
         non_field_errors = serializers.ListField(
             child=serializers.CharField(),
             required=False,
@@ -204,9 +215,11 @@ class OrganizationCreateErrorResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_400_BAD_REQUEST,
         help_text=_("HTTP status code indicating a bad request."),
+        read_only=True,
     )
 
     # Define the 'errors' field containing the validation error details
     errors = OrganizationCreateErrorsDetailSerializer(
         help_text=_("Object containing validation errors."),
+        read_only=True,
     )

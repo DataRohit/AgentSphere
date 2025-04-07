@@ -20,7 +20,11 @@ class OrganizationListResponseSerializer(GenericResponseSerializer):
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
+    )
 
     # Organizations serializer
     organizations = OrganizationSerializer(
@@ -43,7 +47,11 @@ class OrganizationMembershipListResponseSerializer(GenericResponseSerializer):
     """
 
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
+    )
 
     # Organizations serializer
     organizations = OrganizationSerializer(

@@ -67,6 +67,7 @@ class OrganizationLogoUploadView(APIView):
 
         # Return custom format for authentication errors
         if isinstance(exc, (AuthenticationFailed, TokenError)):
+            # Return 401 Unauthorized with the error message
             return Response(
                 {"error": str(exc)},
                 status=status.HTTP_401_UNAUTHORIZED,

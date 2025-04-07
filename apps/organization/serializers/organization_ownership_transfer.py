@@ -5,7 +5,6 @@ from rest_framework import serializers, status
 # Project imports
 from apps.common.serializers import GenericResponseSerializer
 from apps.organization.models import Organization
-from apps.organization.serializers.organization import OrganizationSerializer
 from apps.users.models import User
 
 
@@ -22,17 +21,21 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
         username (str, optional): The username of the user to transfer ownership to.
     """
 
-    # User identifiers (optional, but one is required)
+    # User ID field
     user_id = serializers.UUIDField(
         required=False,
         allow_null=True,
         help_text=_("The ID of the user to transfer ownership to."),
     )
+
+    # Email field
     email = serializers.EmailField(
         required=False,
         allow_null=True,
         help_text=_("The email of the user to transfer ownership to."),
     )
+
+    # Username field
     username = serializers.CharField(
         required=False,
         allow_null=True,
@@ -133,6 +136,7 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
         Returns:
             Organization: The organization.
         """
+
         # Get the organization from the context
         organization = self.context.get("organization")
 
@@ -156,6 +160,7 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
         Returns:
             User: The current user.
         """
+
         # Get the current user from the context
         current_user = self.context.get("request").user
 
@@ -302,25 +307,33 @@ class OrganizationOwnershipTransferInitResponseSerializer(GenericResponseSeriali
         expires_at (datetime): The expiry time of the transfer token.
     """
 
+    # Organization ownership transfer initialization message response serializer
+    class OrganizationOwnershipTransferInitMessageResponseSerializer(
+        serializers.Serializer,
+    ):
+        """Organization ownership transfer initialization message response serializer.
+
+        Attributes:
+            message (str): A success message.
+        """
+
+        # Message
+        message = serializers.CharField(
+            read_only=True,
+            help_text=_("Message indicating the transfer was initiated successfully."),
+        )
+
     # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code indicating a successful request."),
+    )
 
     # Success message
-    message = serializers.CharField(
+    organization = OrganizationOwnershipTransferInitMessageResponseSerializer(
         read_only=True,
         help_text=_("Message indicating the transfer was initiated successfully."),
-    )
-
-    # Transfer token
-    token = serializers.CharField(
-        read_only=True,
-        help_text=_("The token that can be used to confirm the transfer."),
-    )
-
-    # Expiry time
-    expires_at = serializers.DateTimeField(
-        read_only=True,
-        help_text=_("The expiry time of the transfer token."),
     )
 
 
@@ -380,11 +393,13 @@ class OrganizationOwnershipTransferInitErrorResponseSerializer(
     status_code = serializers.IntegerField(
         default=status.HTTP_400_BAD_REQUEST,
         help_text=_("HTTP status code indicating a bad request."),
+        read_only=True,
     )
 
     # Errors
     errors = TransferInitErrorsDetailSerializer(
         help_text=_("Object containing validation errors."),
+        read_only=True,
     )
 
 
@@ -403,17 +418,31 @@ class OrganizationOwnershipTransferStatusSuccessResponseSerializer(
         organization (OrganizationSerializer): The updated organization with the new owner.
     """
 
-    # Status code
-    status_code = serializers.IntegerField(default=status.HTTP_200_OK)
+    # Organization ownership transfer status message response serializer
+    class OrganizationOwnershipTransferStatusMessageResponseSerializer(
+        serializers.Serializer,
+    ):
+        """Organization ownership transfer status message response serializer.
 
-    # Success message
-    message = serializers.CharField(
+        Attributes:
+            message (str): A success message.
+        """
+
+        # Message
+        message = serializers.CharField(
+            read_only=True,
+            help_text=_("Message indicating the transfer was completed successfully."),
+        )
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
         read_only=True,
-        help_text=_("Message indicating the transfer was completed successfully."),
+        help_text=_("HTTP status code indicating a successful request."),
     )
 
-    # Organization serializer
-    organization = OrganizationSerializer(
+    # Success message
+    organization = OrganizationOwnershipTransferStatusMessageResponseSerializer(
         read_only=True,
         help_text=_("The updated organization with the new owner."),
     )

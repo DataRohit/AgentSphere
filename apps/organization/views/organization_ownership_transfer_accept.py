@@ -101,7 +101,6 @@ class OrganizationOwnershipTransferAcceptView(APIView):
             Response: The HTTP response object.
         """
 
-        # Try to get the transfer by ID
         try:
             # Get the transfer
             transfer = OrganizationOwnershipTransfer.objects.get(id=transfer_id)
