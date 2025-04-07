@@ -23,6 +23,12 @@ volumes:
     vault-data:
         name: vault-data
         driver: local
+    vault-logs:
+        name: vault-logs
+        driver: local
+    vault-files:
+        name: vault-files
+        driver: local
 
 services:
     nginx-service:
@@ -202,6 +208,8 @@ services:
             - .envs/.vault.env
         volumes:
             - vault-data:/vault/data
+            - vault-logs:/vault/logs
+            - vault-files:/vault/file
         cap_add:
             - IPC_LOCK
         healthcheck:
