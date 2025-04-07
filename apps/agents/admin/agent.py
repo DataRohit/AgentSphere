@@ -30,16 +30,23 @@ class AgentAdmin(admin.ModelAdmin):
         "id",
         "name",
         "is_public",
+        "llm",
         "organization",
         "user",
         "created_at",
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["is_public", "created_at", "organization"]
+    list_filter = ["is_public", "created_at", "organization", "llm__api_type"]
 
     # Fields that can be searched
-    search_fields = ["name", "description", "user__username", "user__email"]
+    search_fields = [
+        "name",
+        "description",
+        "user__username",
+        "user__email",
+        "llm__model",
+    ]
 
     # Field sets for the detail view
     fieldsets = [
@@ -52,7 +59,7 @@ class AgentAdmin(admin.ModelAdmin):
         (
             _("Configuration"),
             {
-                "fields": ["system_prompt", "is_public"],
+                "fields": ["system_prompt", "is_public", "llm"],
             },
         ),
         (
@@ -80,6 +87,9 @@ class AgentAdmin(admin.ModelAdmin):
     # Fields that are read-only and can't be edited
     readonly_fields = ["created_at", "updated_at", "avatar_preview"]
 
+    # Define autocomplete fields for better performance with large datasets
+    autocomplete_fields = ["llm"]
+
     # Display a preview of the agent's avatar in the admin
     def avatar_preview(self, obj: Agent) -> str:
         """Display a preview of the agent's avatar in the admin.
@@ -105,3 +115,30 @@ class AgentAdmin(admin.ModelAdmin):
 
     # Short description for the avatar preview
     avatar_preview.short_description = _("Avatar Preview")
+
+    # Custom save method to ensure organization and user consistency
+    def save_model(self, request, obj, form, change):
+        """Custom save method for Agent model.
+
+        Ensures that when an agent is saved, the organization and user
+        are consistent with its associated LLM.
+
+        Args:
+            request: The request object
+            obj: The Agent instance
+            form: The form instance
+            change: Boolean indicating if this is an edit
+        """
+
+        # If LLM is set, ensure organization and user are consistent
+        if obj.llm:
+            # Set organization based on LLM if not already set
+            if not obj.organization and obj.llm.organization:
+                obj.organization = obj.llm.organization
+
+            # Set user based on LLM if not already set
+            if not obj.user and obj.llm.user:
+                obj.user = obj.llm.user
+
+        # Save the agent
+        super().save_model(request, obj, form, change)

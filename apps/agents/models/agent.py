@@ -2,6 +2,7 @@
 from urllib.parse import quote
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
 # Third-party imports
 from django.db import models
@@ -29,6 +30,7 @@ class Agent(TimeStampedModel):
         is_public (BooleanField): Whether the agent is publicly visible.
         organization (ForeignKey): The organization this agent belongs to.
         user (ForeignKey): The user who created this agent.
+        llm (ForeignKey): The LLM model this agent is connected to.
         avatar_url (URLField): URL for the agent's avatar image.
 
     Meta:
@@ -78,6 +80,17 @@ class Agent(TimeStampedModel):
         verbose_name=_("Created By"),
         on_delete=models.CASCADE,
         related_name="created_agents",
+        null=True,
+        blank=True,
+    )
+
+    # LLM model connected to this agent
+    llm = models.ForeignKey(
+        "agents.LLM",
+        verbose_name=_("LLM Model"),
+        on_delete=models.CASCADE,
+        related_name="agents",
+        help_text=_("The LLM model this agent uses for responses"),
         null=True,
         blank=True,
     )
@@ -140,3 +153,47 @@ class Agent(TimeStampedModel):
 
         # Return the complete avatar URL
         return f"{base_url}?{params}"
+
+    # Custom clean method to validate organization and user consistency
+    def clean(self):
+        """Validate that agent and LLM belong to the same organization and user.
+
+        Ensures that the agent and its associated LLM model belong to the
+        same organization and were created by the same user.
+
+        Raises:
+            ValidationError: If the organization or user doesn't match.
+        """
+        super().clean()
+
+        # Check if both agent and LLM have been assigned
+        if self.llm:
+            # Validate organization consistency
+            if (
+                self.organization
+                and self.llm.organization
+                and self.organization != self.llm.organization
+            ):
+                raise ValidationError(
+                    {
+                        "llm": _(
+                            "The agent and LLM must belong to the same organization.",
+                        ),
+                    },
+                )
+
+            # Validate user consistency
+            if self.user and self.llm.user and self.user != self.llm.user:
+                raise ValidationError(
+                    {"llm": _("The agent and LLM must be created by the same user.")},
+                )
+
+            # If agent has organization but LLM doesn't, assign agent's organization to LLM
+            if self.organization and not self.llm.organization:
+                self.llm.organization = self.organization
+                self.llm.save(update_fields=["organization"])
+
+            # If agent has user but LLM doesn't, assign agent's user to LLM
+            if self.user and not self.llm.user:
+                self.llm.user = self.user
+                self.llm.save(update_fields=["user"])

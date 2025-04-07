@@ -44,7 +44,20 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
     # Validate the serializer data
     def validate(self, attrs: dict) -> dict:
-        """Validate the serializer data."""
+        """Validate the serializer data.
+
+        This method validates the serializer data by ensuring that exactly one
+        identifier (user_id, email, or username) is provided. It also validates
+        that the organization exists, the current user is authenticated, and
+        that the current user is the owner of the organization.
+
+        Args:
+            attrs (dict): The serializer data.
+
+        Returns:
+            dict: The validated attributes.
+        """
+
         # Validate identifiers
         self._validate_identifiers(attrs)
 
@@ -69,7 +82,16 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
     # Validate identifiers
     def _validate_identifiers(self, attrs: dict) -> None:
-        """Validate that exactly one identifier is provided."""
+        """Validate that exactly one identifier is provided.
+
+        This method validates that exactly one identifier (user_id, email, or username)
+        is provided in the serializer data. If no identifiers are provided, a validation
+        error is raised. If more than one identifier is provided, a validation error is
+        raised.
+
+        Args:
+            attrs (dict): The serializer data.
+        """
 
         # Get the provided identifiers
         identifiers = ["user_id", "email", "username"]
@@ -103,8 +125,14 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
     # Validate organization
     def _validate_organization(self) -> Organization:
-        """Validate organization exists."""
+        """Validate organization exists.
 
+        This method validates that the organization exists in the context.
+        If the organization is not found, a validation error is raised.
+
+        Returns:
+            Organization: The organization.
+        """
         # Get the organization from the context
         organization = self.context.get("organization")
 
@@ -120,8 +148,14 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
     # Validate current user
     def _validate_current_user(self) -> User:
-        """Validate current user is authenticated."""
+        """Validate current user is authenticated.
 
+        This method validates that the current user is authenticated.
+        If the current user is not found, a validation error is raised.
+
+        Returns:
+            User: The current user.
+        """
         # Get the current user from the context
         current_user = self.context.get("request").user
 
@@ -140,7 +174,14 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
         organization: Organization,
         current_user: User,
     ) -> None:
-        """Validate current user is the owner."""
+        """Validate current user is the owner.
+
+        This method validates that the current user is the owner of the organization.
+        If the current user is not the owner, a validation error is raised.
+
+        Args:
+            organization (Organization): The organization.
+        """
 
         # If the current user is not the owner
         if organization.owner != current_user:
@@ -155,7 +196,15 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
     # Resolve the new owner
     def _resolve_new_owner(self, attrs: dict) -> None:
-        """Resolve the new owner based on the provided identifier."""
+        """Resolve the new owner based on the provided identifier.
+
+        This method resolves the new owner based on the provided identifier
+        (user_id, email, or username). If the user does not exist, a validation
+        error is raised.
+
+        Args:
+            attrs (dict): The serializer data.
+        """
 
         # Try to get the new owner
         try:
@@ -189,7 +238,11 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
     # Validate not self transfer
     def _validate_not_self_transfer(self) -> None:
-        """Validate new owner is not the current owner."""
+        """Validate new owner is not the current owner.
+
+        This method validates that the new owner is not the current user.
+        If the new owner is the current user, a validation error is raised.
+        """
 
         # Get the current user from the context
         current_user = self.context.get("request").user
@@ -202,7 +255,14 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
     # Validate new owner membership
     def _validate_new_owner_membership(self, organization: Organization) -> None:
-        """Validate new owner is a member of the organization."""
+        """Validate new owner is a member of the organization.
+
+        This method validates that the new owner is a member of the organization.
+        If the new owner is not a member of the organization, a validation error is raised.
+
+        Args:
+            organization (Organization): The organization.
+        """
 
         # If the new owner is not a member of the organization
         if self._new_owner not in organization.members.all():
@@ -217,6 +277,8 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
     # Get the resolved user
     def get_user(self) -> User:
         """Get the resolved user.
+
+        This method returns the resolved user.
 
         Returns:
             User: The resolved user.

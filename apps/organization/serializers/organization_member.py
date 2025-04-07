@@ -150,7 +150,13 @@ class OrganizationMemberAddSerializer(serializers.Serializer):
 
     # Getter for the resolved user
     def get_user(self) -> User:
-        """Get the resolved user object."""
+        """Get the resolved user object.
+
+        This method returns the resolved user object.
+
+        Returns:
+            User: The resolved user object.
+        """
 
         # Return the resolved user
         return self._user_to_add
@@ -373,7 +379,13 @@ class OrganizationMemberRemoveSerializer(serializers.Serializer):
 
     # Getter for the resolved user
     def get_user(self) -> User:
-        """Get the resolved user object."""
+        """Get the resolved user object.
+
+        This method returns the resolved user object.
+
+        Returns:
+            User: The resolved user object.
+        """
 
         # Return the resolved user
         return self._user_to_remove
