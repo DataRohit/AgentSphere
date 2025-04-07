@@ -61,6 +61,7 @@ class OrganizationCreateView(APIView):
 
         # Return custom format for authentication errors
         if isinstance(exc, (AuthenticationFailed, TokenError)):
+            # Return the error response
             return Response(
                 {"error": str(exc)},
                 status=status.HTTP_401_UNAUTHORIZED,

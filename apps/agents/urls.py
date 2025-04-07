@@ -10,6 +10,7 @@ from apps.agents.views import (
     AgentUpdateView,
     LLMCreateView,
     LLMDeleteView,
+    LLMDetailView,
     LLMListView,
 )
 
@@ -32,6 +33,8 @@ urlpatterns = [
     path("llm/", LLMCreateView.as_view(), name="llm-create"),
     # LLM list URL - get all LLMs created by the user
     path("llm/list/", LLMListView.as_view(), name="llm-list"),
+    # LLM detail URL - get an LLM by ID
+    path("llm/<str:llm_id>/", LLMDetailView.as_view(), name="llm-detail"),
     # LLM delete URL - delete an LLM by ID
     path("llm/<str:llm_id>/delete/", LLMDeleteView.as_view(), name="llm-delete"),
 ]

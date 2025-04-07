@@ -10,12 +10,11 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
 # Project imports
-from apps.agents.models import Agent
+from apps.agents.models import LLM
 from apps.agents.serializers import (
-    AgentAuthErrorResponseSerializer,
-    AgentDeleteNotFoundResponseSerializer,
-    AgentDeletePermissionDeniedResponseSerializer,
-    AgentDeleteSuccessResponseSerializer,
+    LLMAuthErrorResponseSerializer,
+    LLMResponseSchema,
+    LLMSerializer,
 )
 from apps.common.renderers import GenericJSONRenderer
 
@@ -23,12 +22,12 @@ from apps.common.renderers import GenericJSONRenderer
 User = get_user_model()
 
 
-# Agent delete view
-class AgentDeleteView(APIView):
-    """Agent delete view.
+# LLM detail view
+class LLMDetailView(APIView):
+    """LLM detail view.
 
-    This view allows users to delete their own agents.
-    Only the user who created an agent can delete it.
+    This view allows authenticated users to retrieve LLM configuration details by ID.
+    Users can only view LLM configurations they created or LLMs from organizations they own.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -43,13 +42,13 @@ class AgentDeleteView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Define the object label
-    object_label = "agent"
+    object_label = "llm"
 
     # Override the handle_exception method to customize error responses
     def handle_exception(self, exc):
-        """Handle exceptions for the agent delete view.
+        """Handle exceptions for the LLM detail view.
 
-        This method handles exceptions for the agent delete view.
+        This method handles exceptions for the LLM detail view.
 
         Args:
             exc: The exception that occurred.
@@ -88,64 +87,72 @@ class AgentDeleteView(APIView):
             status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
         )
 
-    # Define the schema
+    # Define the schema for the detail view
     @extend_schema(
-        tags=["Agents"],
-        summary="Delete an existing agent.",
+        tags=["LLMs"],
+        summary="Get LLM configuration details by ID.",
         description="""
-        Deletes an existing agent. Only the user who created the agent can delete it.
+        Retrieves the details of a specific LLM configuration by its ID.
+        Users can only view:
+        - LLM configurations they created
+        - LLM configurations from organizations they own
         """,
         responses={
-            status.HTTP_200_OK: AgentDeleteSuccessResponseSerializer,
-            status.HTTP_401_UNAUTHORIZED: AgentAuthErrorResponseSerializer,
-            status.HTTP_403_FORBIDDEN: AgentDeletePermissionDeniedResponseSerializer,
-            status.HTTP_404_NOT_FOUND: AgentDeleteNotFoundResponseSerializer,
+            status.HTTP_200_OK: LLMResponseSchema,
+            status.HTTP_401_UNAUTHORIZED: LLMAuthErrorResponseSerializer,
+            status.HTTP_403_FORBIDDEN: LLMAuthErrorResponseSerializer,
+            status.HTTP_404_NOT_FOUND: LLMAuthErrorResponseSerializer,
         },
     )
-    def delete(self, request: Request, agent_id: str) -> Response:
-        """Delete an existing agent.
+    def get(self, request: Request, llm_id: str) -> Response:
+        """Get LLM configuration details by ID.
 
-        This method deletes an existing agent. Only the user who created the agent can delete it.
+        This method retrieves the details of a specific LLM configuration by its ID.
 
         Args:
             request (Request): The HTTP request object.
-            agent_id (str): The ID of the agent to delete.
+            llm_id (str): The ID of the LLM to retrieve.
 
         Returns:
-            Response: The HTTP response object.
+            Response: The HTTP response object with the LLM details.
 
         Raises:
-            NotFound: If the agent doesn't exist.
-            PermissionDenied: If the user isn't the creator of the agent.
+            NotFound: If the LLM does not exist.
+            PermissionDenied: If the user does not have permission to view the LLM.
         """
 
         # Get the authenticated user
         user = request.user
 
         try:
-            # Try to get the agent
-            agent = Agent.objects.get(id=agent_id)
+            # Try to get the LLM
+            llm = LLM.objects.get(id=llm_id)
 
-            # Check if the user is the creator of the agent
-            if agent.user != user:
-                # Return the error response
+            # Check if the user is the creator of the LLM
+            if user == llm.user:
+                # Return the LLM details
                 return Response(
-                    {"error": "You do not have permission to delete this agent."},
-                    status=status.HTTP_403_FORBIDDEN,
+                    LLMSerializer(llm).data,
+                    status=status.HTTP_200_OK,
                 )
 
-            # Delete the agent
-            agent.delete()
+            # Check if the user is the organization owner
+            if llm.organization and user == llm.organization.owner:
+                # Return the LLM details
+                return Response(
+                    LLMSerializer(llm).data,
+                    status=status.HTTP_200_OK,
+                )
 
-            # Return 200 OK with success message
+            # Send a 403 error if the user does not have permission to view the LLM
             return Response(
-                {"message": "Agent deleted successfully."},
-                status=status.HTTP_200_OK,
+                {"error": "You do not have permission to view this LLM configuration."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
-        except Agent.DoesNotExist:
-            # If the agent doesn't exist, return a 404 error
+        except LLM.DoesNotExist:
+            # Return a 404 error
             return Response(
-                {"error": "Agent not found."},
+                {"error": "LLM configuration not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
