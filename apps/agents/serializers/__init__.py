@@ -39,6 +39,13 @@ from apps.agents.serializers.llm_list import (
     LLMListNotFoundResponseSerializer,
     LLMListResponseSerializer,
 )
+from apps.agents.serializers.llm_update import (
+    LLMNotFoundResponseSerializer,
+    LLMPermissionDeniedResponseSerializer,
+    LLMUpdateErrorResponseSerializer,
+    LLMUpdateSerializer,
+    LLMUpdateSuccessResponseSerializer,
+)
 
 # Exports
 __all__ = [
@@ -68,6 +75,11 @@ __all__ = [
     "LLMHasAgentsResponseSerializer",
     "LLMListNotFoundResponseSerializer",
     "LLMListResponseSerializer",
+    "LLMNotFoundResponseSerializer",
+    "LLMPermissionDeniedResponseSerializer",
     "LLMResponseSchema",
     "LLMSerializer",
+    "LLMUpdateErrorResponseSerializer",
+    "LLMUpdateSerializer",
+    "LLMUpdateSuccessResponseSerializer",
 ]

@@ -12,6 +12,7 @@ from apps.agents.views import (
     LLMDeleteView,
     LLMDetailView,
     LLMListView,
+    LLMUpdateView,
 )
 
 # Set application namespace
@@ -35,6 +36,8 @@ urlpatterns = [
     path("llm/list/", LLMListView.as_view(), name="llm-list"),
     # LLM detail URL - get an LLM by ID
     path("llm/<str:llm_id>/", LLMDetailView.as_view(), name="llm-detail"),
+    # LLM update URL - update an LLM by ID
+    path("llm/<str:llm_id>/update/", LLMUpdateView.as_view(), name="llm-update"),
     # LLM delete URL - delete an LLM by ID
     path("llm/<str:llm_id>/delete/", LLMDeleteView.as_view(), name="llm-delete"),
 ]
