@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Local application imports
 from apps.common.models.timestamped import TimeStampedModel
+from apps.common.utils.vault import delete_api_key, get_api_key, store_api_key
 from apps.organization.models import Organization
 
 # Get the User model
@@ -87,7 +88,7 @@ class LLM(TimeStampedModel):
     Attributes:
         api_type (CharField): The API provider type (Ollama or Gemini).
         model (CharField): The specific model name.
-        api_key (CharField): API key for authentication.
+        api_key (CharField): Temporary field for API key input (not stored).
         max_tokens (PositiveIntegerField): Maximum tokens for generation.
         organization (ForeignKey): The organization this configuration belongs to.
         user (ForeignKey): The user who created this configuration.
@@ -113,12 +114,12 @@ class LLM(TimeStampedModel):
         help_text=_("The specific model name for the selected API type"),
     )
 
-    # API key for authentication
+    # API key for authentication - not stored in DB, temporary field for input
     api_key = models.CharField(
         verbose_name=_("API Key"),
         max_length=255,
         blank=True,
-        help_text=_("API key for authentication provided by the API provider."),
+        help_text=_("API key for authentication (stored securely in Vault)"),
     )
 
     # Maximum tokens for generation
@@ -182,8 +183,72 @@ class LLM(TimeStampedModel):
         # Return a formatted string with API type and model
         return f"{self.get_api_type_display()} - {self.model}"
 
+    # Save method to handle API key storage in Vault
+    def save(self, *args, **kwargs):
+        """Override the save method to handle API key storage in Vault.
+
+        Stores the API key in Vault if it's provided, then removes it from the model
+        before saving to the database.
+        """
+
+        # Save the API key to Vault if provided
+        is_new = self.pk is None
+
+        # Call the parent save method first if it's a new instance to get an ID
+        if is_new:
+            # Set api_key to empty temporarily for first save
+            temp_api_key = self.api_key
+            self.api_key = ""
+
+            # Save the model
+            super().save(*args, **kwargs)
+
+            # Restore api_key for Vault storage
+            self.api_key = temp_api_key
+
+        # Store API key in Vault if it's provided
+        if self.api_key:
+            # Store the API key in Vault
+            store_api_key("llm", str(self.pk), self.api_key)
+
+            # Clear the API key field before saving to the database
+            self.api_key = ""
+
+        # Call the parent save method for updates or after clearing the API key
+        if not is_new:
+            super().save(*args, **kwargs)
+
+    # Get the API key from Vault
+    def get_api_key(self) -> str:
+        """Retrieve the API key from Vault.
+
+        Returns:
+            str: The API key if found, empty string otherwise.
+        """
+
+        # Return the API key if found, empty string otherwise
+        if not self.pk:
+            return ""
+
+        # Return the API key if found, empty string otherwise
+        return get_api_key("llm", str(self.pk)) or ""
+
+    # Delete the API key from Vault
+    def delete(self, *args, **kwargs) -> None:
+        """Override the delete method to remove API key from Vault.
+
+        Deletes the API key from Vault when the model instance is deleted.
+        """
+
+        # Delete the API key from Vault
+        if self.pk:
+            delete_api_key("llm", str(self.pk))
+
+        # Call the parent delete method
+        super().delete(*args, **kwargs)
+
     # Clean method to validate model selection based on API type
-    def clean(self):
+    def clean(self) -> None:
         """Validate model selection based on API type.
 
         Ensures that the selected model is compatible with the selected API type.
@@ -220,9 +285,15 @@ class LLM(TimeStampedModel):
                     },
                 )
 
-            # Check if API key is provided for Gemini
-            if not self.api_key:
-                # Raise a validation error if API key is not provided
+            # Check if API key is provided for new Gemini instances or is available in Vault
+            if not self.pk and not self.api_key:
+                # Raise a validation error if API key is not provided for new instances
+                raise ValidationError(
+                    {"api_key": _("API key is required for Gemini API.")},
+                )
+
+            if self.pk and not self.api_key and not self.get_api_key():
+                # Raise a validation error if API key is not available for existing instances
                 raise ValidationError(
                     {"api_key": _("API key is required for Gemini API.")},
                 )

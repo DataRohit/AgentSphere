@@ -1,5 +1,6 @@
 # Third-party imports
 from django.contrib import admin
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # Local application imports
@@ -28,6 +29,7 @@ class LLMAdmin(admin.ModelAdmin):
         "api_type",
         "model",
         "max_tokens",
+        "has_api_key",
         "organization",
         "user",
         "created_at",
@@ -50,7 +52,7 @@ class LLMAdmin(admin.ModelAdmin):
         (
             _("Configuration"),
             {
-                "fields": ["api_key", "max_tokens"],
+                "fields": ["api_key", "api_key_status", "max_tokens"],
             },
         ),
         (
@@ -69,6 +71,79 @@ class LLMAdmin(admin.ModelAdmin):
     ]
 
     # Fields that are read-only and can't be edited
-    readonly_fields = ["created_at", "updated_at"]
+    readonly_fields = ["created_at", "updated_at", "api_key_status"]
 
-    # Enable search for this model in admin autocomplete widgets
+    # Check if an LLM instance has an API key stored in Vault
+    def has_api_key(self, obj):
+        """Check if an LLM instance has an API key stored in Vault.
+
+        Args:
+            obj (LLM): The LLM instance to check.
+
+        Returns:
+            str: HTML checkmark or cross icon indicating whether the API key exists.
+        """
+
+        # Not applicable for Ollama
+        if obj.api_type == "ollama":
+            # Return a dash icon
+            return format_html("➖")  # noqa: RUF001
+
+        # Check if the API key exists
+        api_key = obj.get_api_key()
+        if api_key:
+            # Return a checkmark
+            return format_html('<span style="color: green;">✓</span>')
+
+        # Return a cross icon
+        return format_html('<span style="color: red;">✗</span>')
+
+    # Short description for the has_api_key field
+    has_api_key.short_description = _("API Key")
+
+    # Display the status of the API key in Vault
+    def api_key_status(self, obj: LLM) -> str:
+        """Display the status of the API key in Vault.
+
+        Args:
+            obj (LLM): The LLM instance to check.
+
+        Returns:
+            str: HTML formatted status of the API key.
+        """
+
+        # Not required for Ollama
+        if obj.api_type == "ollama":
+            return format_html(
+                '<span style="color: gray;">Not required for Ollama</span>',
+            )
+
+        # Not saved yet
+        if not obj.pk:
+            return format_html(
+                '<span style="color: gray;">Save to store API key</span>',
+            )
+
+        # API key stored in Vault
+        api_key = obj.get_api_key()
+        if api_key:
+            # Mask the API key
+            masked_key = (
+                f"{api_key[:4]}{'*' * (len(api_key) - 8)}{api_key[-4:]}"
+                if len(api_key) > 8  # noqa: PLR2004
+                else "****"
+            )
+
+            # Return a checkmark
+            return format_html(
+                '<span style="color: green;">API key stored securely in Vault: {}</span>',
+                masked_key,
+            )
+
+        # No API key stored in Vault
+        return format_html(
+            '<span style="color: red;">No API key stored in Vault</span>',
+        )
+
+    # Short description for the api_key_status field
+    api_key_status.short_description = _("API Key Status")

@@ -8,8 +8,12 @@ This module provides utilities to interact with HashiCorp Vault for secure secre
 from typing import Any
 
 # Third-party imports
+import environ
 import hvac
 from django.conf import settings
+
+# Initialize environment
+env = environ.Env()
 
 
 # Vault client class
@@ -36,7 +40,7 @@ class VaultClient:
         self.client = None
 
         # Initialize the mount point
-        self.mount_point = getattr(settings, "VAULT_MOUNT_POINT", "secret")
+        self.mount_point = env.str("VAULT_MOUNT_POINT", "secret")
 
         # Initialize the initialized flag
         self.initialized = False
@@ -54,10 +58,10 @@ class VaultClient:
 
         try:
             # Get the vault URL
-            vault_url = getattr(settings, "VAULT_URL", "http://vault-service:8200")
+            vault_url = env.str("VAULT_URL", "http://vault-service:8200")
 
             # Get the vault token
-            vault_token = getattr(settings, "VAULT_TOKEN", "root")
+            vault_token = env.str("VAULT_TOKEN", "root")
 
             # Initialize the client
             self.client = hvac.Client(url=vault_url, token=vault_token)
