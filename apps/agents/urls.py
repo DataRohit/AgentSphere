@@ -1,5 +1,3 @@
-# Standard library imports
-
 # Third-party imports
 from django.urls import path
 
@@ -11,6 +9,7 @@ from apps.agents.views import (
     AgentListView,
     AgentUpdateView,
     LLMCreateView,
+    LLMDeleteView,
 )
 
 # Set application namespace
@@ -30,4 +29,6 @@ urlpatterns = [
     path("<str:agent_id>/delete/", AgentDeleteView.as_view(), name="agent-delete"),
     # LLM creation URL
     path("llm/", LLMCreateView.as_view(), name="llm-create"),
+    # LLM delete URL - delete an LLM by ID
+    path("llm/<str:llm_id>/delete/", LLMDeleteView.as_view(), name="llm-delete"),
 ]

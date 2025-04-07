@@ -5,6 +5,7 @@ from apps.agents.views.agent_detail import AgentDetailView
 from apps.agents.views.agent_list import AgentListView
 from apps.agents.views.agent_update import AgentUpdateView
 from apps.agents.views.llm_create import LLMCreateView
+from apps.agents.views.llm_delete import LLMDeleteView
 
 # Exports
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "AgentListView",
     "AgentUpdateView",
     "LLMCreateView",
+    "LLMDeleteView",
 ]
