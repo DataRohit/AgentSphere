@@ -43,7 +43,7 @@ class AgentDeleteView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Define the object label
-    object_label = "message"
+    object_label = "agent"
 
     # Override the handle_exception method to customize error responses
     def handle_exception(self, exc):

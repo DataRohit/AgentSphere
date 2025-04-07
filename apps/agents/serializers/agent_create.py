@@ -228,6 +228,7 @@ class AgentCreateSuccessResponseSerializer(GenericResponseSerializer):
     # Agent schema for swagger
     agent = serializers.SerializerMethodField(
         help_text=_("The newly created agent."),
+        read_only=True,
     )
 
     # Get the agent representation
@@ -264,6 +265,7 @@ class AgentCreateErrorResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_400_BAD_REQUEST,
         read_only=True,
+        help_text=_("HTTP status code for the response."),
     )
 
     # Nested serializer defining the structure of the actual errors
@@ -316,6 +318,7 @@ class AgentCreateErrorResponseSerializer(GenericResponseSerializer):
     # Define the 'errors' field containing the validation error details
     errors = AgentCreateErrorsDetailSerializer(
         help_text=_("Object containing validation errors."),
+        read_only=True,
     )
 
 
@@ -335,6 +338,7 @@ class AgentAuthErrorResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_401_UNAUTHORIZED,
         read_only=True,
+        help_text=_("HTTP status code for the response."),
     )
 
     # Error message

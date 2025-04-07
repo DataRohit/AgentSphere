@@ -82,6 +82,7 @@ class AgentUpdateSuccessResponseSerializer(GenericResponseSerializer):
         help_text=_("The updated agent."),
     )
 
+    # Get the agent representation
     @extend_schema_field(serializers.JSONField())
     def get_agent(self, obj) -> dict:
         """Get the agent representation.
@@ -115,6 +116,7 @@ class AgentUpdateErrorResponseSerializer(GenericResponseSerializer):
     status_code = serializers.IntegerField(
         default=status.HTTP_400_BAD_REQUEST,
         read_only=True,
+        help_text=_("HTTP status code for the response."),
     )
 
     # Nested serializer defining the structure of the actual errors
@@ -159,6 +161,7 @@ class AgentUpdateErrorResponseSerializer(GenericResponseSerializer):
     # Define the 'errors' field containing the validation error details
     errors = AgentUpdateErrorsDetailSerializer(
         help_text=_("Object containing validation errors."),
+        read_only=True,
     )
 
 

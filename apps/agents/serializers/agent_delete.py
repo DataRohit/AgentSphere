@@ -18,6 +18,21 @@ class AgentDeleteSuccessResponseSerializer(GenericResponseSerializer):
         message (str): A success message.
     """
 
+    # Agent delete success message response serializer
+    class AgentDeleteSuccessMessageResponseSerializer(serializers.Serializer):
+        """Agent delete success message response serializer.
+
+        Attributes:
+            message (str): A success message.
+        """
+
+        # Message
+        message = serializers.CharField(
+            default=_("Agent deleted successfully."),
+            read_only=True,
+            help_text=_("Success message confirming the agent was deleted."),
+        )
+
     # Status code
     status_code = serializers.IntegerField(
         default=status.HTTP_200_OK,
@@ -26,8 +41,7 @@ class AgentDeleteSuccessResponseSerializer(GenericResponseSerializer):
     )
 
     # Success message
-    message = serializers.CharField(
-        default=_("Agent deleted successfully."),
+    agent = AgentDeleteSuccessMessageResponseSerializer(
         read_only=True,
         help_text=_("Success message confirming the agent was deleted."),
     )
