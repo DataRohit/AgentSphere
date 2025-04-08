@@ -7,6 +7,86 @@ from rest_framework import serializers
 from apps.agents.models import Agent
 
 
+# Agent organization nested serializer for API documentation
+class AgentOrganizationSerializer(serializers.Serializer):
+    """Agent organization serializer for use in agent responses.
+
+    Attributes:
+        id (UUID): Organization's unique identifier.
+        name (str): Name of the organization.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the organization."),
+        read_only=True,
+    )
+
+    # Name field
+    name = serializers.CharField(
+        help_text=_("Name of the organization."),
+        read_only=True,
+    )
+
+
+# Agent user nested serializer for API documentation
+class AgentUserSerializer(serializers.Serializer):
+    """Agent user serializer for use in agent responses.
+
+    Attributes:
+        id (UUID): User's unique identifier.
+        username (str): Username of the user.
+        email (str): Email address of the user.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the user."),
+        read_only=True,
+    )
+
+    # Username field
+    username = serializers.CharField(
+        help_text=_("Username of the user."),
+        read_only=True,
+    )
+
+    # Email field
+    email = serializers.EmailField(
+        help_text=_("Email address of the user."),
+        read_only=True,
+    )
+
+
+# Agent LLM nested serializer for API documentation
+class AgentLLMSerializer(serializers.Serializer):
+    """Agent LLM serializer for use in agent responses.
+
+    Attributes:
+        id (UUID): LLM's unique identifier.
+        api_type (str): Type of API used for this LLM.
+        model (str): Model name for this LLM.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the LLM."),
+        read_only=True,
+    )
+
+    # API type field
+    api_type = serializers.CharField(
+        help_text=_("Type of API used for this LLM."),
+        read_only=True,
+    )
+
+    # Model field
+    model = serializers.CharField(
+        help_text=_("Model name for this LLM."),
+        read_only=True,
+    )
+
+
 # Agent serializer
 class AgentSerializer(serializers.ModelSerializer):
     """Agent serializer.
@@ -20,9 +100,9 @@ class AgentSerializer(serializers.ModelSerializer):
         system_prompt (str): The agent's system prompt.
         is_public (bool): Whether the agent is publicly visible.
         avatar_url (str): The URL to the agent's avatar.
-        organization_id (UUID): The ID of the organization the agent belongs to.
-        user_id (UUID): The ID of the user who created the agent.
-        llm_id (UUID): The ID of the LLM model associated with the agent.
+        organization (dict): Organization details including id and name.
+        user (dict): User details including id, username, and email.
+        llm (dict): LLM details including id, api_type, and model.
         created_at (datetime): The date and time the agent was created.
         updated_at (datetime): The date and time the agent was last updated.
 
@@ -37,25 +117,19 @@ class AgentSerializer(serializers.ModelSerializer):
         help_text=_("URL to the agent's avatar."),
     )
 
-    # Organization ID field
-    organization_id = serializers.UUIDField(
-        source="organization.id",
-        read_only=True,
-        help_text=_("ID of the organization the agent belongs to."),
+    # Organization details
+    organization = serializers.SerializerMethodField(
+        help_text=_("Organization details the agent belongs to."),
     )
 
-    # User ID field
-    user_id = serializers.UUIDField(
-        source="user.id",
-        read_only=True,
-        help_text=_("ID of the user who created the agent."),
+    # User details
+    user = serializers.SerializerMethodField(
+        help_text=_("User details who created the agent."),
     )
 
-    # LLM ID field
-    llm_id = serializers.UUIDField(
-        source="llm.id",
-        read_only=True,
-        help_text=_("ID of the LLM model associated with the agent."),
+    # LLM details
+    llm = serializers.SerializerMethodField(
+        help_text=_("LLM model details associated with the agent."),
     )
 
     # Meta class for AgentSerializer configuration
@@ -79,9 +153,9 @@ class AgentSerializer(serializers.ModelSerializer):
             "system_prompt",
             "is_public",
             "avatar_url",
-            "organization_id",
-            "user_id",
-            "llm_id",
+            "organization",
+            "user",
+            "llm",
             "created_at",
             "updated_at",
         ]
@@ -108,6 +182,77 @@ class AgentSerializer(serializers.ModelSerializer):
         # Call the avatar_url method to get the URL string
         return obj.avatar_url()
 
+    # Get organization details
+    @extend_schema_field(AgentOrganizationSerializer())
+    def get_organization(self, obj: Agent) -> dict:
+        """Get organization details for the agent.
+
+        Args:
+            obj (Agent): The agent instance.
+
+        Returns:
+            dict: The organization details including id and name.
+        """
+
+        # If the agent has an organization
+        if obj.organization:
+            # Return the organization details with string UUID
+            return {
+                "id": str(obj.organization.id),
+                "name": obj.organization.name,
+            }
+
+        # If the agent does not have an organization, return None
+        return None
+
+    # Get user details
+    @extend_schema_field(AgentUserSerializer())
+    def get_user(self, obj: Agent) -> dict:
+        """Get user details for the agent.
+
+        Args:
+            obj (Agent): The agent instance.
+
+        Returns:
+            dict: The user details including id, username, and email.
+        """
+
+        # If the agent has a user
+        if obj.user:
+            # Return the user details with string UUID
+            return {
+                "id": str(obj.user.id),
+                "username": obj.user.username,
+                "email": obj.user.email,
+            }
+
+        # If the agent does not have a user, return None
+        return None
+
+    # Get LLM details
+    @extend_schema_field(AgentLLMSerializer())
+    def get_llm(self, obj: Agent) -> dict:
+        """Get LLM details for the agent.
+
+        Args:
+            obj (Agent): The agent instance.
+
+        Returns:
+            dict: The LLM details including id, api_type, and model.
+        """
+
+        # If the agent has an LLM
+        if obj.llm:
+            # Return the LLM details with string UUID
+            return {
+                "id": str(obj.llm.id),
+                "api_type": obj.llm.api_type,
+                "model": obj.llm.model,
+            }
+
+        # If the agent does not have an LLM, return None
+        return None
+
 
 # Define explicit agent response schema for Swagger documentation
 class AgentResponseSchema(serializers.Serializer):
@@ -122,9 +267,9 @@ class AgentResponseSchema(serializers.Serializer):
         system_prompt (str): The agent's system prompt.
         is_public (bool): Whether the agent is publicly visible.
         avatar_url (str): The URL to the agent's avatar.
-        organization_id (UUID): The ID of the organization the agent belongs to.
-        user_id (UUID): The ID of the user who created the agent.
-        llm_id (UUID): The ID of the LLM model associated with the agent.
+        organization (AgentOrganizationSerializer): Organization details including id and name.
+        user (UserSerializer): User details including id, username, and email.
+        llm (LLMSerializer): LLM details including id, api_type, and model.
         created_at (datetime): The date and time the agent was created.
         updated_at (datetime): The date and time the agent was last updated.
     """
@@ -170,20 +315,23 @@ class AgentResponseSchema(serializers.Serializer):
         help_text=_("Timestamp when the agent was last updated."),
     )
 
-    # Organization ID field
-    organization_id = serializers.UUIDField(
-        help_text=_("ID of the organization the agent belongs to."),
-        source="organization.id",
+    # Organization field using the proper serializer
+    organization = AgentOrganizationSerializer(
+        help_text=_("Organization details the agent belongs to."),
+        required=False,
+        allow_null=True,
     )
 
-    # User ID field
-    user_id = serializers.UUIDField(
-        help_text=_("ID of the user who created the agent."),
-        source="user.id",
+    # User field using the proper serializer
+    user = AgentUserSerializer(
+        help_text=_("User details who created the agent."),
+        required=False,
+        allow_null=True,
     )
 
-    # LLM ID field
-    llm_id = serializers.UUIDField(
-        help_text=_("ID of the LLM model associated with the agent."),
-        source="llm.id",
+    # LLM field using the proper serializer
+    llm = AgentLLMSerializer(
+        help_text=_("LLM model details associated with the agent."),
+        required=False,
+        allow_null=True,
     )

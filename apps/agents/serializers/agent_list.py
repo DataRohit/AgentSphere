@@ -16,7 +16,7 @@ class AgentListResponseSerializer(GenericResponseSerializer):
 
     Attributes:
         status_code (int): The status code of the response.
-        agents (List[AgentSerializer]): List of agent serializers.
+        agents (List[AgentSerializer]): List of agent objects with detailed information.
     """
 
     # Status code
@@ -26,11 +26,13 @@ class AgentListResponseSerializer(GenericResponseSerializer):
         help_text=_("HTTP status code for the response."),
     )
 
-    # Agents serializer
+    # Agent list
     agents = AgentSerializer(
         many=True,
         read_only=True,
-        help_text=_("List of agents created by the user."),
+        help_text=_(
+            "List of agents with detailed information about organization, user, and LLM.",
+        ),
     )
 
 

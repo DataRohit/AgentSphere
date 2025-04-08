@@ -72,7 +72,7 @@ class LLMCreateView(APIView):
             status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
         )
 
-    # Define the schema
+    # Define the schema for the POST view
     @extend_schema(
         tags=["LLMs"],
         summary="Create a new LLM configuration.",
@@ -115,7 +115,7 @@ class LLMCreateView(APIView):
             # Serialize the created LLM for the response body
             response_serializer = LLMSerializer(llm)
 
-            # Return a successful response
+            # Return a successful response with the serialized LLM data
             return Response(
                 response_serializer.data,
                 status=status.HTTP_201_CREATED,

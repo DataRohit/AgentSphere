@@ -104,8 +104,8 @@ class LLMListView(APIView):
     def get(self, request: Request) -> Response:
         """List LLM configurations created by the user.
 
-        This method lists all LLM configurations created by the authenticated user,
-        with optional filtering by organization_id and api_type.
+        This method lists all LLM configurations created by the authenticated user.
+        It supports optional filtering by organization_id and api_type.
 
         Args:
             request (Request): The HTTP request object.
@@ -117,7 +117,7 @@ class LLMListView(APIView):
         # Get the authenticated user
         user = request.user
 
-        # Start with all LLM configurations created by the user
+        # Get only LLMs that belong to the user (since LLMs don't have public/private status)
         queryset = LLM.objects.filter(user=user)
 
         # Apply organization_id filter if provided
@@ -141,7 +141,7 @@ class LLMListView(APIView):
         # Serialize the LLM configurations
         serializer = LLMSerializer(queryset, many=True)
 
-        # Return the serialized LLM configurations
+        # Return the serialized LLM configurations directly
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,

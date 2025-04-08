@@ -1,6 +1,5 @@
 # Third-party imports
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, status
 
 # Project imports
@@ -182,7 +181,7 @@ class LLMUpdateSuccessResponseSerializer(GenericResponseSerializer):
 
     Attributes:
         status_code (int): The status code of the response.
-        llm (dict): The updated LLM data.
+        llm (LLMResponseSchema): The updated LLM with detailed organization and user information.
     """
 
     # Status code
@@ -192,27 +191,11 @@ class LLMUpdateSuccessResponseSerializer(GenericResponseSerializer):
         help_text=_("HTTP status code for the response."),
     )
 
-    # LLM serializer
-    llm = serializers.SerializerMethodField(
-        help_text=_("The updated LLM configuration."),
+    # LLM data
+    llm = LLMResponseSchema(
+        help_text=_("The updated LLM with detailed organization and user information."),
+        read_only=True,
     )
-
-    # Get the LLM representation
-    @extend_schema_field(serializers.JSONField())
-    def get_llm(self, obj: LLM) -> dict:
-        """Get the LLM representation.
-
-        For documentation purposes only, not used in actual response.
-
-        Args:
-            obj: The LLM object.
-
-        Returns:
-            dict: The LLM representation.
-        """
-
-        # Return the LLM representation
-        return LLMResponseSchema(obj).data
 
 
 # LLM update error response serializer

@@ -1,5 +1,6 @@
 # Third-party imports
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
@@ -27,7 +28,8 @@ User = get_user_model()
 class AgentListView(APIView):
     """Agent list view.
 
-    This view allows authenticated users to list all agents they have created.
+    This view allows authenticated users to list all agents they have created (both public
+    and private) as well as all public agents from the same organization.
     It supports filtering by organization_id, type, and is_public.
 
     Attributes:
@@ -75,9 +77,10 @@ class AgentListView(APIView):
     # Define the schema for the list view
     @extend_schema(
         tags=["Agents"],
-        summary="List agents created by the user.",
+        summary="List agents created by the user and public agents from the same organization.",
         description="""
-        Lists all agents created by the authenticated user.
+        Lists all agents created by the authenticated user (both public and private)
+        as well as all public agents from the same organization.
         Supports filtering by organization_id, type, and is_public.
         Returns 404 if no agents are found matching the criteria.
         """,
@@ -108,10 +111,13 @@ class AgentListView(APIView):
         },
     )
     def get(self, request: Request) -> Response:
-        """List agents created by the user.
+        """List agents created by the user and public agents from the same organization.
 
-        This method lists all agents created by the authenticated user,
-        with optional filtering by organization_id, type, and is_public.
+        This method lists:
+        1. All agents created by the authenticated user (both public and private)
+        2. All public agents from the same organization(s) as the user
+
+        It supports optional filtering by organization_id, type, and is_public.
 
         Args:
             request (Request): The HTTP request object.
@@ -123,8 +129,19 @@ class AgentListView(APIView):
         # Get the authenticated user
         user = request.user
 
-        # Start with all agents created by the user
-        queryset = Agent.objects.filter(user=user)
+        # Get the user's organizations
+        user_organizations = user.organizations.all()
+
+        # Build query:
+        # - User's agents (both public and private)
+        # - Public agents from the user's organizations
+        queryset = Agent.objects.filter(
+            Q(user=user)  # User's own agents (public or private)
+            | Q(
+                organization__in=user_organizations,
+                is_public=True,
+            ),  # Public agents from user's orgs
+        ).distinct()
 
         # Apply organization_id filter if provided
         organization_id = request.query_params.get("organization_id")
@@ -142,8 +159,13 @@ class AgentListView(APIView):
             # Convert the string value to boolean
             is_public_bool = is_public.lower() == "true"
 
-            # Filter the queryset by is_public
-            queryset = queryset.filter(is_public=is_public_bool)
+            # For is_public=false, only show the user's private agents
+            if is_public_bool is False:
+                queryset = queryset.filter(user=user, is_public=False)
+
+            # For is_public=true, only show the public agents
+            else:
+                queryset = queryset.filter(is_public=True)
 
         # Check if any agents were found
         if not queryset.exists():
@@ -156,7 +178,7 @@ class AgentListView(APIView):
         # Serialize the agents
         serializer = AgentSerializer(queryset, many=True)
 
-        # Return the serialized agents
+        # Return the serialized agents directly
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,

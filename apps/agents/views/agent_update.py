@@ -151,7 +151,7 @@ class AgentUpdateView(APIView):
                 # Serialize the updated agent for response
                 response_serializer = AgentSerializer(updated_agent)
 
-                # Return 200 OK with the updated agent data
+                # Return 200 OK with the updated agent data directly
                 return Response(
                     response_serializer.data,
                     status=status.HTTP_200_OK,

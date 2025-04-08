@@ -11,6 +11,11 @@ from apps.agents.serializers.agent_delete import (
     AgentDeletePermissionDeniedResponseSerializer,
     AgentDeleteSuccessResponseSerializer,
 )
+from apps.agents.serializers.agent_detail import (
+    AgentDetailNotFoundResponseSerializer,
+    AgentDetailPermissionDeniedResponseSerializer,
+    AgentDetailSuccessResponseSerializer,
+)
 from apps.agents.serializers.agent_list import (
     AgentListNotFoundResponseSerializer,
     AgentListResponseSerializer,
@@ -35,6 +40,11 @@ from apps.agents.serializers.llm_delete import (
     LLMDeleteSuccessResponseSerializer,
     LLMHasAgentsResponseSerializer,
 )
+from apps.agents.serializers.llm_detail import (
+    LLMDetailNotFoundResponseSerializer,
+    LLMDetailPermissionDeniedResponseSerializer,
+    LLMDetailSuccessResponseSerializer,
+)
 from apps.agents.serializers.llm_list import (
     LLMListNotFoundResponseSerializer,
     LLMListResponseSerializer,
@@ -56,6 +66,9 @@ __all__ = [
     "AgentDeleteNotFoundResponseSerializer",
     "AgentDeletePermissionDeniedResponseSerializer",
     "AgentDeleteSuccessResponseSerializer",
+    "AgentDetailNotFoundResponseSerializer",
+    "AgentDetailPermissionDeniedResponseSerializer",
+    "AgentDetailSuccessResponseSerializer",
     "AgentListNotFoundResponseSerializer",
     "AgentListResponseSerializer",
     "AgentNotFoundResponseSerializer",
@@ -72,6 +85,9 @@ __all__ = [
     "LLMDeleteNotFoundResponseSerializer",
     "LLMDeletePermissionDeniedResponseSerializer",
     "LLMDeleteSuccessResponseSerializer",
+    "LLMDetailNotFoundResponseSerializer",
+    "LLMDetailPermissionDeniedResponseSerializer",
+    "LLMDetailSuccessResponseSerializer",
     "LLMHasAgentsResponseSerializer",
     "LLMListNotFoundResponseSerializer",
     "LLMListResponseSerializer",

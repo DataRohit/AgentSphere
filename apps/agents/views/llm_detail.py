@@ -13,7 +13,9 @@ from rest_framework_simplejwt.exceptions import TokenError
 from apps.agents.models import LLM
 from apps.agents.serializers import (
     LLMAuthErrorResponseSerializer,
-    LLMResponseSchema,
+    LLMDetailNotFoundResponseSerializer,
+    LLMDetailPermissionDeniedResponseSerializer,
+    LLMDetailSuccessResponseSerializer,
     LLMSerializer,
 )
 from apps.common.renderers import GenericJSONRenderer
@@ -27,7 +29,7 @@ class LLMDetailView(APIView):
     """LLM detail view.
 
     This view allows authenticated users to retrieve LLM configuration details by ID.
-    Users can only view LLM configurations they created or LLMs from organizations they own.
+    Users can only view LLM configurations they created/own.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -93,21 +95,21 @@ class LLMDetailView(APIView):
         summary="Get LLM configuration details by ID.",
         description="""
         Retrieves the details of a specific LLM configuration by its ID.
-        Users can only view:
-        - LLM configurations they created
-        - LLM configurations from organizations they own
+        Users can only view LLM configurations they created/own.
         """,
         responses={
-            status.HTTP_200_OK: LLMResponseSchema,
+            status.HTTP_200_OK: LLMDetailSuccessResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: LLMAuthErrorResponseSerializer,
-            status.HTTP_403_FORBIDDEN: LLMAuthErrorResponseSerializer,
-            status.HTTP_404_NOT_FOUND: LLMAuthErrorResponseSerializer,
+            status.HTTP_403_FORBIDDEN: LLMDetailPermissionDeniedResponseSerializer,
+            status.HTTP_404_NOT_FOUND: LLMDetailNotFoundResponseSerializer,
         },
     )
     def get(self, request: Request, llm_id: str) -> Response:
         """Get LLM configuration details by ID.
 
         This method retrieves the details of a specific LLM configuration by its ID.
+        Access is granted if:
+        - The LLM is owned/created by the user
 
         Args:
             request (Request): The HTTP request object.
@@ -128,7 +130,7 @@ class LLMDetailView(APIView):
             # Try to get the LLM
             llm = LLM.objects.get(id=llm_id)
 
-            # Check if the user is the creator of the LLM
+            # The LLM is owned/created by the user
             if user == llm.user:
                 # Return the LLM details
                 return Response(
@@ -136,15 +138,7 @@ class LLMDetailView(APIView):
                     status=status.HTTP_200_OK,
                 )
 
-            # Check if the user is the organization owner
-            if llm.organization and user == llm.organization.owner:
-                # Return the LLM details
-                return Response(
-                    LLMSerializer(llm).data,
-                    status=status.HTTP_200_OK,
-                )
-
-            # Send a 403 error if the user does not have permission to view the LLM
+            # If the access condition is not met, deny access
             return Response(
                 {"error": "You do not have permission to view this LLM configuration."},
                 status=status.HTTP_403_FORBIDDEN,

@@ -1,6 +1,5 @@
 # Third-party imports
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, status
 
 # Project imports
@@ -276,7 +275,7 @@ class AgentCreateSuccessResponseSerializer(GenericResponseSerializer):
 
     Attributes:
         status_code (int): The status code of the response.
-        agent (AgentResponseSchema): The newly created agent.
+        agent (AgentResponseSchema): The newly created agent with detailed organization, user, and LLM information.
     """
 
     # Status code
@@ -286,28 +285,13 @@ class AgentCreateSuccessResponseSerializer(GenericResponseSerializer):
         help_text=_("HTTP status code for the response."),
     )
 
-    # Agent schema for swagger
-    agent = serializers.SerializerMethodField(
-        help_text=_("The newly created agent."),
+    # Agent data
+    agent = AgentResponseSchema(
+        help_text=_(
+            "The newly created agent with detailed organization, user, and LLM information.",
+        ),
         read_only=True,
     )
-
-    # Get the agent representation
-    @extend_schema_field(serializers.JSONField())
-    def get_agent(self, obj) -> dict:
-        """Get the agent representation.
-
-        For documentation purposes only, not used in actual response.
-
-        Args:
-            obj: The agent object.
-
-        Returns:
-            dict: The agent representation.
-        """
-
-        # Return the agent representation
-        return AgentResponseSchema(obj).data
 
 
 # Agent creation error response serializer

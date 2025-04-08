@@ -73,7 +73,7 @@ class AgentCreateView(APIView):
             status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
         )
 
-    # Define the schema
+    # Define the schema for the POST view
     @extend_schema(
         tags=["Agents"],
         summary="Create a new agent.",
@@ -92,8 +92,8 @@ class AgentCreateView(APIView):
     def post(self, request: Request) -> Response:
         """Create a new agent.
 
-        This method creates a new agent with the authenticated user as the creator
-        within the specified organization.
+        This method creates a new agent within an organization with the
+        authenticated user as the creator.
 
         Args:
             request (Request): The HTTP request object.
@@ -116,7 +116,7 @@ class AgentCreateView(APIView):
             # Serialize the created agent for the response body
             response_serializer = AgentSerializer(agent)
 
-            # Return 201 Created with the serialized agent data
+            # Return 201 Created with the serialized agent data directly
             return Response(
                 response_serializer.data,
                 status=status.HTTP_201_CREATED,

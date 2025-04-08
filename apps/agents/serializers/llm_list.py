@@ -16,7 +16,7 @@ class LLMListResponseSerializer(GenericResponseSerializer):
 
     Attributes:
         status_code (int): The status code of the response.
-        llms (List[LLMSerializer]): List of LLM serializers.
+        llms (List[LLMSerializer]): List of LLM objects with detailed information.
     """
 
     # Status code
@@ -26,11 +26,13 @@ class LLMListResponseSerializer(GenericResponseSerializer):
         help_text=_("HTTP status code for the response."),
     )
 
-    # LLMs serializer
+    # LLM list
     llms = LLMSerializer(
         many=True,
         read_only=True,
-        help_text=_("List of LLM configurations created by the user."),
+        help_text=_(
+            "List of LLM configurations with detailed information about organization and user.",
+        ),
     )
 
 

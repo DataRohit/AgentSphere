@@ -13,7 +13,9 @@ from rest_framework_simplejwt.exceptions import TokenError
 from apps.agents.models import Agent
 from apps.agents.serializers import (
     AgentAuthErrorResponseSerializer,
-    AgentResponseSchema,
+    AgentDetailNotFoundResponseSerializer,
+    AgentDetailPermissionDeniedResponseSerializer,
+    AgentDetailSuccessResponseSerializer,
     AgentSerializer,
 )
 from apps.common.renderers import GenericJSONRenderer
@@ -28,9 +30,8 @@ class AgentDetailView(APIView):
 
     This view allows authenticated users to retrieve agent details by ID.
     Users can view:
-    - Public agents from any organization they are a member of
-    - Their own private agents
-    - Private agents from organizations they own
+    - Agents they own (both public and private)
+    - Public agents from organizations they belong to
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -97,21 +98,23 @@ class AgentDetailView(APIView):
         description="""
         Retrieves the details of a specific agent by its ID.
         Users can only view:
-        - Public agents from organizations they are a member of
-        - Their own private agents
-        - Private agents from organizations they own
+        - Agents they own (both public and private)
+        - Public agents from organizations they belong to
         """,
         responses={
-            status.HTTP_200_OK: AgentResponseSchema,
+            status.HTTP_200_OK: AgentDetailSuccessResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: AgentAuthErrorResponseSerializer,
-            status.HTTP_403_FORBIDDEN: AgentAuthErrorResponseSerializer,
-            status.HTTP_404_NOT_FOUND: AgentAuthErrorResponseSerializer,
+            status.HTTP_403_FORBIDDEN: AgentDetailPermissionDeniedResponseSerializer,
+            status.HTTP_404_NOT_FOUND: AgentDetailNotFoundResponseSerializer,
         },
     )
     def get(self, request: Request, agent_id: str) -> Response:
         """Get agent details by ID.
 
         This method retrieves the details of a specific agent by its ID.
+        Access is granted if:
+        - The agent is owned by the user (regardless of is_public status)
+        - The agent belongs to the user's organization AND is_public is true
 
         Args:
             request (Request): The HTTP request object.
@@ -132,10 +135,21 @@ class AgentDetailView(APIView):
             # Try to get the agent
             agent = Agent.objects.get(id=agent_id)
 
-            # Check if the agent is public and the user is a member of the organization
-            if agent.is_public and (
-                user in agent.organization.members.all()
-                or user == agent.organization.owner
+            # 1. The agent is owned by the user (regardless of is_public status)
+            if agent.user == user:
+                return Response(
+                    AgentSerializer(agent).data,
+                    status=status.HTTP_200_OK,
+                )
+
+            # 2. The agent belongs to the user's organization AND is_public is true
+            if (
+                agent.organization
+                and (
+                    user in agent.organization.members.all()
+                    or user == agent.organization.owner
+                )
+                and agent.is_public
             ):
                 # Return the agent details
                 return Response(
@@ -143,23 +157,7 @@ class AgentDetailView(APIView):
                     status=status.HTTP_200_OK,
                 )
 
-            # Check if the agent is private and the user is the creator
-            if not agent.is_public and user == agent.user:
-                # Return the agent details
-                return Response(
-                    AgentSerializer(agent).data,
-                    status=status.HTTP_200_OK,
-                )
-
-            # Check if the agent is private and the user is the organization owner
-            if not agent.is_public and user == agent.organization.owner:
-                # Return the agent details
-                return Response(
-                    AgentSerializer(agent).data,
-                    status=status.HTTP_200_OK,
-                )
-
-            # Send a 403 error if the user does not have permission to view the agent
+            # If none of the access conditions are met, deny access
             return Response(
                 {"error": "You do not have permission to view this agent."},
                 status=status.HTTP_403_FORBIDDEN,
