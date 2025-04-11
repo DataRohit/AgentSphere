@@ -29,6 +29,9 @@ volumes:
     vault-files:
         name: vault-files
         driver: local
+    dicebear-data:
+        name: dicebear-data
+        driver: local
 
 services:
     nginx-service:
@@ -214,6 +217,20 @@ services:
             - IPC_LOCK
         healthcheck:
             test: ["CMD", "vault", "status"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        networks:
+            - agentsphere-network
+
+    dicebear-service:
+        image: dicebear/api:2
+        container_name: dicebear-service
+        volumes:
+            - dicebear-data:/data
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
             interval: 30s
             timeout: 10s
             retries: 3

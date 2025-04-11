@@ -2,6 +2,7 @@
 from urllib.parse import quote
 
 # Third-party imports
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -139,7 +140,7 @@ class Agent(TimeStampedModel):
         """
 
         # Generate the avatar URL
-        base_url = "https://api.dicebear.com/9.x/avataaars/png"
+        base_url = f"{settings.DICEBEAR_SERVICE_URL}/9.x/avataaars/png"
 
         # Encode the agent's name
         encoded_name = quote(self.name)

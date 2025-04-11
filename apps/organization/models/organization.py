@@ -1,4 +1,5 @@
 # Third-party imports
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.text import slugify
@@ -182,4 +183,4 @@ class Organization(TimeStampedModel):
         seed = slugify(self.name)
 
         # Return the logo URL
-        return f"https://api.dicebear.com/9.x/shapes/png?seed={seed}"
+        return f"{settings.DICEBEAR_SERVICE_URL}/9.x/shapes/png?seed={seed}"

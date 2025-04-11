@@ -263,6 +263,14 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # -----------------------------------------
+# DiceBear Settings
+# -----------------------------------------
+
+# DiceBear service URL
+DICEBEAR_SERVICE_URL = env.str("DICEBEAR_SERVICE_URL", default="http://localhost:3000")
+
+
+# -----------------------------------------
 # Fixture settings
 # -----------------------------------------
 

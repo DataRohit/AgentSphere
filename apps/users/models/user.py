@@ -1,4 +1,5 @@
 # Third-party imports
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -131,7 +132,7 @@ class User(AbstractUser, TimeStampedModel):
             return self.avatar.url
 
         # Generate the default avatar URL
-        base_url = "https://api.dicebear.com/9.x/avataaars/png"
+        base_url = f"{settings.DICEBEAR_SERVICE_URL}/9.x/avataaars/png"
         params = (
             f"seed={self.username}&eyes=happy,wink&facialHair[]&"
             f"facialHairProbability=0&mouth=smile&eyebrows=default"
