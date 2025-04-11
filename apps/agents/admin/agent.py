@@ -27,7 +27,6 @@ class AgentAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "name",
-        "is_public",
         "llm",
         "organization",
         "user",
@@ -35,7 +34,7 @@ class AgentAdmin(admin.ModelAdmin):
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["is_public", "created_at", "organization", "llm__api_type"]
+    list_filter = ["created_at", "organization", "llm__api_type"]
 
     # Fields that can be searched
     search_fields = [
@@ -57,7 +56,7 @@ class AgentAdmin(admin.ModelAdmin):
         (
             _("Configuration"),
             {
-                "fields": ["system_prompt", "is_public", "llm"],
+                "fields": ["system_prompt", "llm"],
             },
         ),
         (

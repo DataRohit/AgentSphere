@@ -112,9 +112,6 @@ class AgentDetailView(APIView):
         """Get agent details by ID.
 
         This method retrieves the details of a specific agent by its ID.
-        Access is granted if:
-        - The agent is owned by the user (regardless of is_public status)
-        - The agent belongs to the user's organization AND is_public is true
 
         Args:
             request (Request): The HTTP request object.
@@ -144,14 +141,7 @@ class AgentDetailView(APIView):
                 )
 
             # If the agent belongs to the user's organization and is public
-            if (
-                agent.organization
-                and (
-                    user in agent.organization.members.all()
-                    or user == agent.organization.owner
-                )
-                and agent.is_public
-            ):
+            if agent.organization and user == agent.organization.owner:
                 # Return the agent details
                 return Response(
                     AgentSerializer(agent).data,

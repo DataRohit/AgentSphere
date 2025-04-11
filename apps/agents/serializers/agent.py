@@ -98,7 +98,6 @@ class AgentSerializer(serializers.ModelSerializer):
         name (str): The agent's name.
         description (str): The agent's description.
         system_prompt (str): The agent's system prompt.
-        is_public (bool): Whether the agent is publicly visible.
         avatar_url (str): The URL to the agent's avatar.
         organization (dict): Organization details including id and name.
         user (dict): User details including id, username, and email.
@@ -151,7 +150,6 @@ class AgentSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "system_prompt",
-            "is_public",
             "avatar_url",
             "organization",
             "user",
@@ -202,7 +200,7 @@ class AgentSerializer(serializers.ModelSerializer):
                 "name": obj.organization.name,
             }
 
-        # If the agent does not have an organization, return None
+        # Return None if the agent has no organization
         return None
 
     # Get user details
@@ -226,7 +224,7 @@ class AgentSerializer(serializers.ModelSerializer):
                 "email": obj.user.email,
             }
 
-        # If the agent does not have a user, return None
+        # Return None if the agent has no user
         return None
 
     # Get LLM details
@@ -250,11 +248,11 @@ class AgentSerializer(serializers.ModelSerializer):
                 "model": obj.llm.model,
             }
 
-        # If the agent does not have an LLM, return None
+        # Return None if the agent has no LLM
         return None
 
 
-# Define explicit agent response schema for Swagger documentation
+# Agent response schema for Swagger documentation
 class AgentResponseSchema(serializers.Serializer):
     """Agent response schema for Swagger documentation.
 
@@ -265,7 +263,6 @@ class AgentResponseSchema(serializers.Serializer):
         name (str): The agent's name.
         description (str): The agent's description.
         system_prompt (str): The agent's system prompt.
-        is_public (bool): Whether the agent is publicly visible.
         avatar_url (str): The URL to the agent's avatar.
         organization (AgentOrganizationSerializer): Organization details including id and name.
         user (UserSerializer): User details including id, username, and email.
@@ -293,11 +290,6 @@ class AgentResponseSchema(serializers.Serializer):
     # System prompt field
     system_prompt = serializers.CharField(
         help_text=_("System prompt used to define agent behavior."),
-    )
-
-    # Is public field
-    is_public = serializers.BooleanField(
-        help_text=_("Whether the agent is publicly visible."),
     )
 
     # Avatar URL field

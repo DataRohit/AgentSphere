@@ -28,9 +28,9 @@ User = get_user_model()
 class AgentListView(APIView):
     """Agent list view.
 
-    This view allows authenticated users to list all agents they have created (both public
-    and private) as well as all public agents from the same organization.
-    It supports filtering by organization_id, type, and is_public.
+    This view allows authenticated users to list all agents they have created
+    as well as all agents from the same organization.
+    It supports filtering by organization_id and type.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -77,11 +77,11 @@ class AgentListView(APIView):
     # Define the schema for the list view
     @extend_schema(
         tags=["Agents"],
-        summary="List agents created by the user and public agents from the same organization.",
+        summary="List agents created by the user and agents from the same organization.",
         description="""
-        Lists all agents created by the authenticated user (both public and private)
-        as well as all public agents from the same organization.
-        Supports filtering by organization_id, type, and is_public.
+        Lists all agents created by the authenticated user
+        as well as all agents from the same organization.
+        Supports filtering by organization_id and type.
         Returns 404 if no agents are found matching the criteria.
         """,
         parameters=[
@@ -97,12 +97,6 @@ class AgentListView(APIView):
                 required=False,
                 type=str,
             ),
-            OpenApiParameter(
-                name="is_public",
-                description="Filter by public/private status (true/false)",
-                required=False,
-                type=bool,
-            ),
         ],
         responses={
             status.HTTP_200_OK: AgentListResponseSerializer,
@@ -111,13 +105,13 @@ class AgentListView(APIView):
         },
     )
     def get(self, request: Request) -> Response:
-        """List agents created by the user and public agents from the same organization.
+        """List agents created by the user and agents from the same organization.
 
         This method lists:
-        1. All agents created by the authenticated user (both public and private)
-        2. All public agents from the same organization(s) as the user
+        1. All agents created by the authenticated user
+        2. All agents from the same organization(s) as the user
 
-        It supports optional filtering by organization_id, type, and is_public.
+        It supports optional filtering by organization_id and type.
 
         Args:
             request (Request): The HTTP request object.
@@ -133,14 +127,13 @@ class AgentListView(APIView):
         user_organizations = user.organizations.all()
 
         # Build query:
-        # - User's agents (both public and private)
-        # - Public agents from the user's organizations
+        # - User's agents
+        # - Agents from the user's organizations
         queryset = Agent.objects.filter(
-            Q(user=user)  # User's own agents (public or private)
+            Q(user=user)  # User's own agents
             | Q(
                 organization__in=user_organizations,
-                is_public=True,
-            ),  # Public agents from user's orgs
+            ),  # Agents from user's orgs
         ).distinct()
 
         # Apply organization_id filter if provided
@@ -152,20 +145,6 @@ class AgentListView(APIView):
         agent_type = request.query_params.get("type")
         if agent_type:
             queryset = queryset.filter(type=agent_type)
-
-        # Apply is_public filter if provided
-        is_public = request.query_params.get("is_public")
-        if is_public is not None:
-            # Convert the string value to boolean
-            is_public_bool = is_public.lower() == "true"
-
-            # For is_public=false, only show the user's private agents
-            if is_public_bool is False:
-                queryset = queryset.filter(user=user, is_public=False)
-
-            # For is_public=true, only show the public agents
-            else:
-                queryset = queryset.filter(is_public=True)
 
         # Check if any agents were found
         if not queryset.exists():

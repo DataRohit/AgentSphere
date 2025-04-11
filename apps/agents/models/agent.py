@@ -27,7 +27,6 @@ class Agent(TimeStampedModel):
         name (CharField): The name of the AI agent.
         description (TextField): A detailed description of the agent.
         system_prompt (TextField): The system prompt used to define agent behavior.
-        is_public (BooleanField): Whether the agent is publicly visible.
         organization (ForeignKey): The organization this agent belongs to.
         user (ForeignKey): The user who created this agent.
         llm (ForeignKey): The LLM model this agent is connected to.
@@ -55,13 +54,6 @@ class Agent(TimeStampedModel):
     # Agent system prompt
     system_prompt = models.TextField(
         verbose_name=_("System Prompt"),
-    )
-
-    # Agent visibility
-    is_public = models.BooleanField(
-        verbose_name=_("Is Public"),
-        default=False,
-        help_text=_("Whether this agent is publicly visible"),
     )
 
     # Organization the agent belongs to

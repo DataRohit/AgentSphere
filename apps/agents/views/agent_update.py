@@ -13,7 +13,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from apps.agents.models import Agent
 from apps.agents.serializers import (
     AgentAuthErrorResponseSerializer,
-    AgentNotFoundResponseSerializer,
+    AgentNotFoundErrorResponseSerializer,
     AgentPermissionDeniedResponseSerializer,
     AgentSerializer,
     AgentUpdateErrorResponseSerializer,
@@ -105,7 +105,7 @@ class AgentUpdateView(APIView):
             status.HTTP_400_BAD_REQUEST: AgentUpdateErrorResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: AgentAuthErrorResponseSerializer,
             status.HTTP_403_FORBIDDEN: AgentPermissionDeniedResponseSerializer,
-            status.HTTP_404_NOT_FOUND: AgentNotFoundResponseSerializer,
+            status.HTTP_404_NOT_FOUND: AgentNotFoundErrorResponseSerializer,
         },
     )
     def patch(self, request: Request, agent_id: str) -> Response:
