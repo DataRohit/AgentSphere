@@ -149,6 +149,7 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
 
                 # If API type is Gemini and api_key is not provided check if there's an existing API key
                 if not api_key and not self.instance.get_api_key():
+                    # Raise a validation error
                     raise serializers.ValidationError(
                         {
                             "api_key": [_("API key is required for Gemini API.")],

@@ -261,6 +261,7 @@ class LLM(TimeStampedModel):
         if self.api_type == ApiType.OLLAMA:
             # Check if the model is in the Ollama model choices
             if self.model not in [choice[0] for choice in OllamaModel.choices]:
+                # Raise a validation error
                 raise ValidationError(
                     {
                         "model": _(
@@ -275,6 +276,7 @@ class LLM(TimeStampedModel):
         elif self.api_type == ApiType.GEMINI:
             # Check if the model is in the Gemini model choices
             if self.model not in [choice[0] for choice in GeminiModel.choices]:
+                # Raise a validation error
                 raise ValidationError(
                     {
                         "model": _(

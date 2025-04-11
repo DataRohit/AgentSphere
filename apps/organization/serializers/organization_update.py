@@ -113,6 +113,8 @@ class OrganizationUpdateSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get("name", instance.name)
         instance.description = validated_data.get("description", instance.description)
         instance.website = validated_data.get("website", instance.website)
+
+        # Save the organization
         instance.save()
 
         # Return the updated organization

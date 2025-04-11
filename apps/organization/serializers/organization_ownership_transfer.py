@@ -166,6 +166,7 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
         # If the current user is not found
         if not current_user:
+            # Raise a validation error
             raise serializers.ValidationError(
                 {"non_field_errors": ["User not authenticated."]},
             ) from None
@@ -254,6 +255,7 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
         # If the new owner is the current user
         if self._new_owner == current_user:
+            # Raise a validation error
             raise serializers.ValidationError(
                 {"non_field_errors": ["You cannot transfer ownership to yourself."]},
             ) from None
@@ -271,6 +273,7 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
         # If the new owner is not a member of the organization
         if self._new_owner not in organization.members.all():
+            # Raise a validation error
             raise serializers.ValidationError(
                 {
                     "non_field_errors": [

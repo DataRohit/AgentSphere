@@ -62,6 +62,7 @@ class LLMDeleteView(APIView):
 
         # Return custom format for authentication errors
         if isinstance(exc, (AuthenticationFailed, TokenError)):
+            # Return the error response
             return Response(
                 {"error": str(exc)},
                 status=status.HTTP_401_UNAUTHORIZED,
@@ -69,6 +70,7 @@ class LLMDeleteView(APIView):
 
         # Return custom format for permission errors
         if isinstance(exc, PermissionDenied):
+            # Return the error response
             return Response(
                 {"error": str(exc)},
                 status=status.HTTP_403_FORBIDDEN,
@@ -76,6 +78,7 @@ class LLMDeleteView(APIView):
 
         # Return custom format for not found errors
         if isinstance(exc, NotFound):
+            # Return the error response
             return Response(
                 {"error": str(exc)},
                 status=status.HTTP_404_NOT_FOUND,

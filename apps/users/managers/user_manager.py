@@ -24,6 +24,7 @@ class UserManager(DjangoUserManager["User"]):
         _db: The database alias to use for queries
     """
 
+    # Create a user
     def _create_user(
         self,
         email: str,
@@ -65,6 +66,7 @@ class UserManager(DjangoUserManager["User"]):
 
         return user
 
+    # Create a regular user
     def create_user(
         self,
         email: str,
@@ -90,6 +92,7 @@ class UserManager(DjangoUserManager["User"]):
         # Create the user using base method
         return self._create_user(email, password, **extra_fields)
 
+    # Create a superuser
     def create_superuser(
         self,
         email: str,
@@ -117,13 +120,18 @@ class UserManager(DjangoUserManager["User"]):
 
         # Validate superuser has required permissions
         if extra_fields.get("is_staff") is not True:
-            # Raise a more descriptive error message
+            # Set the error message
             msg = "Superuser must have is_staff=True."
+
+            # Raise a ValueError
             raise ValueError(msg) from None
 
+        # Validate superuser has required permissions
         if extra_fields.get("is_superuser") is not True:
-            # Raise a more descriptive error message
+            # Set the error message
             msg = "Superuser must have is_superuser=True."
+
+            # Raise a ValueError
             raise ValueError(msg) from None
 
         # Create the superuser using base method

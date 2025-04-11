@@ -1,5 +1,3 @@
-# Standard library imports
-
 # Third-party imports
 from django.contrib import admin
 from django.utils.html import format_html
@@ -111,6 +109,8 @@ class AgentAdmin(admin.ModelAdmin):
                 '<img src="{}" width="100" height="100" style="border-radius: 50%;" />',
                 avatar_url,
             )
+
+        # Return a placeholder if the avatar is not set
         return _("Avatar will be available after saving")
 
     # Short description for the avatar preview

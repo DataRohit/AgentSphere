@@ -1,10 +1,9 @@
 # Standard library imports
 from urllib.parse import quote
 
+# Third-party imports
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-
-# Third-party imports
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -164,6 +163,8 @@ class Agent(TimeStampedModel):
         Raises:
             ValidationError: If the organization or user doesn't match.
         """
+
+        # Call the parent clean method
         super().clean()
 
         # Check if both agent and LLM have been assigned
@@ -174,6 +175,7 @@ class Agent(TimeStampedModel):
                 and self.llm.organization
                 and self.organization != self.llm.organization
             ):
+                # Raise a validation error
                 raise ValidationError(
                     {
                         "llm": _(
@@ -184,16 +186,23 @@ class Agent(TimeStampedModel):
 
             # Validate user consistency
             if self.user and self.llm.user and self.user != self.llm.user:
+                # Raise a validation error
                 raise ValidationError(
                     {"llm": _("The agent and LLM must be created by the same user.")},
                 )
 
             # If agent has organization but LLM doesn't, assign agent's organization to LLM
             if self.organization and not self.llm.organization:
+                # Assign the organization to the LLM
                 self.llm.organization = self.organization
+
+                # Save the LLM
                 self.llm.save(update_fields=["organization"])
 
             # If agent has user but LLM doesn't, assign agent's user to LLM
             if self.user and not self.llm.user:
+                # Assign the user to the LLM
                 self.llm.user = self.user
+
+                # Save the LLM
                 self.llm.save(update_fields=["user"])

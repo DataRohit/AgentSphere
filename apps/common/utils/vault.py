@@ -1,16 +1,9 @@
-"""
-Vault utility module for handling API keys.
-
-This module provides utilities to interact with HashiCorp Vault for secure secrets management.
-"""
-
 # Standard library imports
 from typing import Any
 
 # Third-party imports
 import environ
 import hvac
-from django.conf import settings
 
 # Initialize environment
 env = environ.Env()
@@ -185,8 +178,10 @@ def store_api_key(entity_type: str, entity_id: str, api_key: str) -> bool:
         bool: True if the API key was stored successfully, False otherwise.
     """
 
-    # Store the secret
+    # Set the path to store the secret
     path = f"{entity_type}/{entity_id}"
+
+    # Store the secret
     return vault_client.store_secret(path, {"api_key": api_key})
 
 
@@ -202,8 +197,10 @@ def get_api_key(entity_type: str, entity_id: str) -> str | None:
         Optional[str]: The API key if successful, None otherwise.
     """
 
-    # Get the secret
+    # Set the path to get the secret
     path = f"{entity_type}/{entity_id}"
+
+    # Get the secret
     secret = vault_client.get_secret(path)
 
     # Return the API key
@@ -222,5 +219,8 @@ def delete_api_key(entity_type: str, entity_id: str) -> bool:
         bool: True if the API key was deleted successfully, False otherwise.
     """
 
+    # Set the path to delete the secret
     path = f"{entity_type}/{entity_id}"
+
+    # Delete the secret
     return vault_client.delete_secret(path)

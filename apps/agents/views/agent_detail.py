@@ -135,14 +135,15 @@ class AgentDetailView(APIView):
             # Try to get the agent
             agent = Agent.objects.get(id=agent_id)
 
-            # 1. The agent is owned by the user (regardless of is_public status)
+            # If the agent is owned by the user
             if agent.user == user:
+                # Return the agent details
                 return Response(
                     AgentSerializer(agent).data,
                     status=status.HTTP_200_OK,
                 )
 
-            # 2. The agent belongs to the user's organization AND is_public is true
+            # If the agent belongs to the user's organization and is public
             if (
                 agent.organization
                 and (

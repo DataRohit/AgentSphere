@@ -17,6 +17,9 @@ class UserLoginSerializer(TokenObtainPairSerializer):
     Attributes:
         email (str): The user's email address for authentication.
         password (str): The user's password for authentication.
+
+    Meta:
+        fields (list): The fields to include in the serializer.
     """
 
     # Email field for authentication
@@ -36,8 +39,16 @@ class UserLoginSerializer(TokenObtainPairSerializer):
     # No username field as we use email authentication
     username = None
 
-    # Meta class
+    # Meta class for the UserLoginSerializer
     class Meta:
+        """Meta class for the UserLoginSerializer.
+
+        This class defines the fields to include in the serializer.
+
+        Attributes:
+            fields (list): The fields to include in the serializer.
+        """
+
         # Fields to include in the serializer
         fields = ["email", "password"]
 

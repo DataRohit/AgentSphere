@@ -166,6 +166,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
                 attrs["llm"] = llm
 
             except LLM.DoesNotExist:
+                # Raise a validation error
                 raise serializers.ValidationError(
                     {
                         "llm_id": [

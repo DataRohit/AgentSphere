@@ -65,6 +65,7 @@ class GenericJSONRenderer(JSONRenderer):
 
         # Validate response object exists
         if not response:
+            # Raise a validation error
             raise ValueError(
                 _("Renderer context does not contain a response object"),
             ) from None
@@ -74,12 +75,14 @@ class GenericJSONRenderer(JSONRenderer):
 
         # If error in data
         if "error" in data:
+            # Return the error response
             return json.dumps(
                 {"status_code": status_code, "error": data["error"]},
             ).encode(self.charset)
 
         # If errors in data
         if "errors" in data:
+            # Return the error response
             return json.dumps(
                 {"status_code": status_code, "errors": data["errors"]},
             ).encode(self.charset)

@@ -103,6 +103,8 @@ class LLMCreateSerializer(serializers.ModelSerializer):
         # Get the API type and model
         api_type = attrs.get("api_type")
         model = attrs.get("model")
+
+        # Get the API key
         api_key = attrs.get("api_key", "")
 
         try:
@@ -124,6 +126,7 @@ class LLMCreateSerializer(serializers.ModelSerializer):
             if api_type == ApiType.OLLAMA:
                 # Check if the model is in the Ollama model choices
                 if model not in [choice[0] for choice in OllamaModel.choices]:
+                    # Raise a validation error
                     raise serializers.ValidationError(
                         {
                             "model": [
@@ -142,6 +145,7 @@ class LLMCreateSerializer(serializers.ModelSerializer):
             elif api_type == ApiType.GEMINI:
                 # Check if the model is in the Gemini model choices
                 if model not in [choice[0] for choice in GeminiModel.choices]:
+                    # Raise a validation error
                     raise serializers.ValidationError(
                         {
                             "model": [
@@ -158,6 +162,7 @@ class LLMCreateSerializer(serializers.ModelSerializer):
 
                 # Check if API key is provided for Gemini
                 if not api_key:
+                    # Raise a validation error
                     raise serializers.ValidationError(
                         {"api_key": [_("API key is required for Gemini API.")]},
                     ) from None
