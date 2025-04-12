@@ -1,11 +1,14 @@
 # Standard library imports
+from concurrent.futures import ThreadPoolExecutor
 from uuid import UUID
 
 # Third-party imports
 from celery import shared_task
+from django.db import transaction
 
 # Project imports
 from apps.agents.models import LLM
+from apps.common.utils.vault import delete_api_key
 
 
 # Delete user LLMs in organization task
@@ -24,11 +27,44 @@ def delete_user_llms_in_organization(user_id: UUID, organization_id: UUID) -> in
         int: The number of LLM configurations deleted.
     """
 
-    # Delete LLM configurations created by the user in the specified organization
-    deleted_count, _ = LLM.objects.filter(
+    # Get LLM configurations created by the user in the specified organization
+    llms = LLM.objects.filter(
         user_id=user_id,
         organization_id=organization_id,
-    ).delete()
+    )
+
+    # Get the count of LLMs to be deleted
+    deleted_count = llms.count()
+
+    # If there are no LLMs to delete
+    if deleted_count == 0:
+        # Return early
+        return 0
+
+    # Get the IDs of LLMs that need API key deletion from Vault
+    llm_ids_with_api_keys = list(
+        llms.exclude(api_type="ollama").values_list("id", flat=True),
+    )
+
+    # Function to delete API keys in parallel
+    def delete_api_keys_in_parallel(llm_ids):
+        # If no LLM IDs are provided
+        if not llm_ids:
+            # Return early
+            return
+
+        # Use ThreadPoolExecutor to delete API keys in parallel without a for loop
+        with ThreadPoolExecutor(max_workers=min(8, len(llm_ids))) as executor:
+            # Map the delete_api_key function to each LLM ID
+            executor.map(lambda llm_id: delete_api_key("llm", str(llm_id)), llm_ids)
+
+    # Delete LLMs and API keys in a transaction
+    with transaction.atomic():
+        # Delete all LLMs in a single bulk operation for efficiency
+        llms.delete()
+
+        # Delete API keys from Vault for Gemini LLMs in parallel
+        delete_api_keys_in_parallel(llm_ids_with_api_keys)
 
     # Return the number of LLM configurations deleted
     return deleted_count
