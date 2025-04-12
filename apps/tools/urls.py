@@ -4,6 +4,7 @@ from django.urls import path
 # Project imports
 from apps.tools.views import (
     MCPServerCreateView,
+    MCPServerDeleteView,
     MCPServerDetailView,
     MCPServerListView,
     MCPServerUpdateView,
@@ -29,5 +30,11 @@ urlpatterns = [
         "mcpserver/<str:mcpserver_id>/update/",
         MCPServerUpdateView.as_view(),
         name="mcpserver-update",
+    ),
+    # MCP Server delete URL - delete an MCP server by ID
+    path(
+        "mcpserver/<str:mcpserver_id>/delete/",
+        MCPServerDeleteView.as_view(),
+        name="mcpserver-delete",
     ),
 ]
