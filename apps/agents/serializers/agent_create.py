@@ -14,8 +14,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
     """Agent creation serializer.
 
     This serializer handles the creation of new AI agents. It validates that
-    the user is a member of the specified organization and has not exceeded
-    the maximum number of agents they can create (10 total).
+    the user is a member of the specified organization.
 
     Attributes:
         organization_id (UUIDField): The ID of the organization to associate the agent with.
@@ -31,15 +30,11 @@ class AgentCreateSerializer(serializers.ModelSerializer):
 
     Raises:
         serializers.ValidationError: If user is not a member of the organization.
-        serializers.ValidationError: If user has already created maximum agents.
         serializers.ValidationError: If LLM doesn't exist or user doesn't have access.
 
     Returns:
         Agent: The newly created agent instance.
     """
-
-    # Maximum number of agents per organization
-    MAX_AGENTS_PER_ORGANIZATION = 10
 
     # Organization ID field
     organization_id = serializers.UUIDField(
@@ -88,10 +83,8 @@ class AgentCreateSerializer(serializers.ModelSerializer):
 
         This method validates that:
         1. The user is a member of the specified organization.
-        2. The user has not exceeded the maximum number of agents they can create.
-           - Maximum 10 agents total per user
-        3. The specified LLM exists and user has access to it.
-        4. The LLM and agent must belong to the same organization and user.
+        2. The specified LLM exists and user has access to it.
+        3. The LLM and agent must belong to the same organization and user.
 
         Args:
             attrs (dict): The attributes to validate.
@@ -177,22 +170,6 @@ class AgentCreateSerializer(serializers.ModelSerializer):
             # Remove the organization_id and llm_id from attrs as they're not fields in the Agent model
             del attrs["organization_id"]
             del attrs["llm_id"]
-
-            # Check if the user has already created the maximum number of total agents
-            total_agent_count = Agent.objects.filter(
-                user=user,
-            ).count()
-
-            # Check if the user has reached the overall limit of 10 agents
-            if total_agent_count >= self.MAX_AGENTS_PER_ORGANIZATION:
-                # Raise a validation error
-                raise serializers.ValidationError(
-                    {
-                        "non_field_errors": [
-                            _("You can only create a maximum of 10 agents in total."),
-                        ],
-                    },
-                )
 
         except Organization.DoesNotExist:
             # Raise a validation error

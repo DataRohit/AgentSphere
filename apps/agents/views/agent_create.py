@@ -28,7 +28,6 @@ class AgentCreateView(APIView):
     """Agent creation view.
 
     This view allows authenticated users to create new agents within an organization.
-    A user is limited to creating a maximum of 10 agents in total, of which at most 5 can be public.
     The user must be a member of the organization to create agents within it.
 
     Attributes:
@@ -79,7 +78,6 @@ class AgentCreateView(APIView):
         summary="Create a new agent.",
         description="""
         Creates a new agent within an organization with the authenticated user as the creator.
-        A user can create a maximum of 10 agents in total, with a maximum of 5 being public.
         The user must be a member of the specified organization.
         """,
         request=AgentCreateSerializer,
