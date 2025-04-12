@@ -58,7 +58,15 @@ class OrganizationAdmin(admin.ModelAdmin):
         ),
         (_("Ownership and Status"), {"fields": ("owner", "is_active")}),
         (_("Members"), {"fields": ("members",)}),
-        (_("Important Dates"), {"fields": ("updated_at",)}),
+        (
+            _("Important Dates"),
+            {
+                "fields": (
+                    "created_at",
+                    "updated_at",
+                ),
+            },
+        ),
     )
 
     # Get the number of members in the organization
