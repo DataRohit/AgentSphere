@@ -29,9 +29,9 @@ User = get_user_model()
 class MCPServerListView(APIView):
     """MCPServer list view.
 
-    This view allows authenticated users to list all MCP servers they have created
-    within a specific organization. The user must be a member of the organization
-    to view MCP servers within it.
+    This view allows authenticated users to list all MCP servers they have created.
+    If organization_id is provided as a query parameter, filters servers by the specified organization.
+    The user must be a member of the organization to view MCP servers within it.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -78,14 +78,20 @@ class MCPServerListView(APIView):
     # Define the schema for the list view
     @extend_schema(
         tags=["MCP Servers"],
-        summary="List MCP servers created by the user in the specified organization.",
+        summary="List MCP servers created by the user.",
         description="""
-        Lists all MCP servers created by the authenticated user within the specified organization.
+        Lists all MCP servers created by the authenticated user.
+        If organization_id is provided, filters servers by the specified organization.
         The user must be a member of the organization to view MCP servers within it.
         Returns 404 if no MCP servers are found matching the criteria.
-        The organization ID is specified in the URL path.
         """,
         parameters=[
+            OpenApiParameter(
+                name="organization_id",
+                description="Filter by organization ID",
+                required=False,
+                type=str,
+            ),
             OpenApiParameter(
                 name="tags",
                 description="Filter by comma-separated tags",
@@ -99,15 +105,15 @@ class MCPServerListView(APIView):
             status.HTTP_404_NOT_FOUND: MCPServerListNotFoundResponseSerializer,
         },
     )
-    def get(self, request: Request, organization_id: str) -> Response:
-        """List MCP servers created by the user in the specified organization.
+    def get(self, request: Request) -> Response:
+        """List MCP servers created by the user.
 
-        This method lists all MCP servers created by the authenticated user
-        within the specified organization. The organization ID is specified in the URL path.
+        This method lists all MCP servers created by the authenticated user.
+        If organization_id is provided as a query parameter, filters servers by the specified organization.
+        The user must be a member of the organization to view MCP servers within it.
 
         Args:
             request (Request): The HTTP request object.
-            organization_id (str): The ID of the organization to list MCP servers from.
 
         Returns:
             Response: The HTTP response object with the list of MCP servers.
@@ -116,60 +122,67 @@ class MCPServerListView(APIView):
         # Get the authenticated user
         user = request.user
 
-        try:
-            # Try to get the organization
-            organization = Organization.objects.get(id=organization_id)
+        # Initialize queryset with all MCP servers created by the user
+        queryset = MCPServer.objects.filter(user=user)
 
-            # Check if the user is the owner or a member of the organization
-            if user != organization.owner and user not in organization.members.all():
-                # Return 403 Forbidden if the user is not a member of the organization
+        # Apply organization_id filter if provided
+        organization_id = request.query_params.get("organization_id")
+        if organization_id:
+            try:
+                # Try to get the organization
+                organization = Organization.objects.get(id=organization_id)
+
+                # Check if the user is the owner or a member of the organization
+                if (
+                    user != organization.owner
+                    and user not in organization.members.all()
+                ):
+                    # Return 403 Forbidden if the user is not a member of the organization
+                    return Response(
+                        {"error": "You are not a member of this organization."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+
+                # Filter queryset by the specified organization
+                queryset = queryset.filter(organization=organization)
+
+            except Organization.DoesNotExist:
+                # Return 404 Not Found if the organization doesn't exist
                 return Response(
-                    {"error": "You are not a member of this organization."},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-
-            # Get MCP servers created by the user in the specified organization
-            queryset = MCPServer.objects.filter(
-                user=user,
-                organization=organization,
-            )
-
-            # Apply tags filter if provided
-            tags = request.query_params.get("tags")
-            if tags:
-                # Split the tags string by comma and filter by any of the tags
-                tag_list = [tag.strip() for tag in tags.split(",")]
-                # Initialize the tag query
-                tag_query = Q()
-
-                # Traverse the tag list
-                for tag in tag_list:
-                    # Build the tag query
-                    tag_query |= Q(tags__icontains=tag)
-
-                # Filter the queryset by the tag query
-                queryset = queryset.filter(tag_query)
-
-            # Check if any MCP servers were found
-            if not queryset.exists():
-                # Return 404 Not Found if no MCP servers match the criteria
-                return Response(
-                    {"error": "No MCP servers found matching the criteria."},
+                    {"error": "Organization not found."},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
-            # Serialize the MCP servers
-            serializer = MCPServerSerializer(queryset, many=True)
+        # Apply tags filter if provided
+        tags = request.query_params.get("tags")
+        if tags:
+            # Split the tags string by comma and filter by any of the tags
+            tag_list = [tag.strip() for tag in tags.split(",")]
 
-            # Return the serialized MCP servers directly
-            return Response(
-                serializer.data,
-                status=status.HTTP_200_OK,
-            )
+            # Initialize the tag query
+            tag_query = Q()
 
-        except Organization.DoesNotExist:
-            # Return 404 Not Found if the organization doesn't exist
+            # Traverse the tag list
+            for tag in tag_list:
+                # Build the tag query
+                tag_query |= Q(tags__icontains=tag)
+
+            # Filter the queryset by the tag query
+            queryset = queryset.filter(tag_query)
+
+        # Check if any MCP servers were found
+        if not queryset.exists():
+            # Return 404 Not Found if no MCP servers match the criteria
             return Response(
-                {"error": "Organization not found."},
+                {"error": "No MCP servers found matching the criteria."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+        # Serialize the MCP servers
+        serializer = MCPServerSerializer(queryset, many=True)
+
+        # Return the serialized MCP servers directly
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )

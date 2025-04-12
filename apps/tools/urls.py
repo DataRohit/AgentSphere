@@ -11,12 +11,8 @@ app_name = "org_tools"
 urlpatterns = [
     # MCP Server creation URL
     path("mcpserver/", MCPServerCreateView.as_view(), name="mcpserver-create"),
-    # MCP Server list URL - organization ID is in the request body
-    path(
-        "mcpserver/list/<str:organization_id>/",
-        MCPServerListView.as_view(),
-        name="mcpserver-list",
-    ),
+    # MCP Server list URL - organization ID is in the query parameters
+    path("mcpserver/list/", MCPServerListView.as_view(), name="mcpserver-list"),
     # MCP Server detail URL - organization ID is in the request body
     path(
         "mcpserver/<str:organization_id>/<str:mcpserver_id>/",
