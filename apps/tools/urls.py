@@ -2,7 +2,12 @@
 from django.urls import path
 
 # Project imports
-from apps.tools.views import MCPServerCreateView, MCPServerDetailView, MCPServerListView
+from apps.tools.views import (
+    MCPServerCreateView,
+    MCPServerDetailView,
+    MCPServerListView,
+    MCPServerUpdateView,
+)
 
 # Set application namespace
 app_name = "org_tools"
@@ -18,5 +23,11 @@ urlpatterns = [
         "mcpserver/<str:mcpserver_id>/",
         MCPServerDetailView.as_view(),
         name="mcpserver-detail",
+    ),
+    # MCP Server update URL - update an MCP server by ID
+    path(
+        "mcpserver/<str:mcpserver_id>/update/",
+        MCPServerUpdateView.as_view(),
+        name="mcpserver-update",
     ),
 ]
