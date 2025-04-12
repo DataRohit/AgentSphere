@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
 # Project imports
+from apps.agents.models import Agent
 from apps.agents.serializers import (
     AgentAuthErrorResponseSerializer,
     AgentCreateErrorResponseSerializer,
@@ -76,9 +77,10 @@ class AgentCreateView(APIView):
     @extend_schema(
         tags=["Agents"],
         summary="Create a new agent.",
-        description="""
+        description=f"""
         Creates a new agent within an organization with the authenticated user as the creator.
         The user must be a member of the specified organization.
+        A user can create a maximum of {Agent.MAX_AGENTS_PER_USER_PER_ORGANIZATION} agents per organization.
         """,
         request=AgentCreateSerializer,
         responses={

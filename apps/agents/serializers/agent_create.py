@@ -14,7 +14,8 @@ class AgentCreateSerializer(serializers.ModelSerializer):
     """Agent creation serializer.
 
     This serializer handles the creation of new AI agents. It validates that
-    the user is a member of the specified organization.
+    the user is a member of the specified organization and has not exceeded
+    the maximum number of agents they can create per organization.
 
     Attributes:
         organization_id (UUIDField): The ID of the organization to associate the agent with.
@@ -30,6 +31,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
 
     Raises:
         serializers.ValidationError: If user is not a member of the organization.
+        serializers.ValidationError: If user has exceeded the maximum number of agents per organization.
         serializers.ValidationError: If LLM doesn't exist or user doesn't have access.
 
     Returns:
@@ -83,8 +85,9 @@ class AgentCreateSerializer(serializers.ModelSerializer):
 
         This method validates that:
         1. The user is a member of the specified organization.
-        2. The specified LLM exists and user has access to it.
-        3. The LLM and agent must belong to the same organization and user.
+        2. The user has not exceeded the maximum number of agents they can create per organization.
+        3. The specified LLM exists and user has access to it.
+        4. The LLM and agent must belong to the same organization and user.
 
         Args:
             attrs (dict): The attributes to validate.
@@ -116,6 +119,25 @@ class AgentCreateSerializer(serializers.ModelSerializer):
                     {
                         "organization_id": [
                             _("You are not a member of this organization."),
+                        ],
+                    },
+                ) from None
+
+            # Check if the user has exceeded the maximum number of agents per organization
+            user_agents_count = Agent.objects.filter(
+                organization=organization,
+                user=user,
+            ).count()
+
+            if user_agents_count >= Agent.MAX_AGENTS_PER_USER_PER_ORGANIZATION:
+                # Set the error message
+                error_message = f"You can only create a maximum of {Agent.MAX_AGENTS_PER_USER_PER_ORGANIZATION} agents per organization."  # noqa: E501
+
+                # Raise a validation error
+                raise serializers.ValidationError(
+                    {
+                        "non_field_errors": [
+                            error_message,
                         ],
                     },
                 ) from None

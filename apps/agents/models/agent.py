@@ -21,7 +21,8 @@ class Agent(TimeStampedModel):
     """Model for AI agents in the system.
 
     This model stores AI agent information including name, description,
-    system prompt, and visibility settings.
+    system prompt, and visibility settings. A user can create a maximum of 5 agents
+    per organization.
 
     Attributes:
         name (CharField): The name of the AI agent.
@@ -38,6 +39,9 @@ class Agent(TimeStampedModel):
         ordering (list): Default ordering for model instances.
         db_table (str): The database table name.
     """
+
+    # Maximum number of agents a user can create per organization
+    MAX_AGENTS_PER_USER_PER_ORGANIZATION = 5
 
     # Agent name
     name = models.CharField(
