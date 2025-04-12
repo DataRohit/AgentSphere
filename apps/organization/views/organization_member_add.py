@@ -31,6 +31,7 @@ class OrganizationMemberAddView(APIView):
 
     Allows organization owners to add a member using the user's ID, email, or username.
     Exactly one identifier must be provided in the request body.
+    An organization can have a maximum of 8 members (including the owner).
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -78,10 +79,11 @@ class OrganizationMemberAddView(APIView):
     @extend_schema(
         tags=["Organizations"],
         summary="Add a member to an organization.",
-        description="""
+        description=f"""
         Adds a user to an organization as a member using the user's ID, email, or username.
         Exactly one identifier (user_id, email, or username) must be provided.
         The authenticated user must be the owner of the organization.
+        An organization can have a maximum of {Organization.MAX_MEMBERS_PER_ORGANIZATION} members (including the owner).
         """,
         request=OrganizationMemberAddSerializer,
         responses={
@@ -95,6 +97,7 @@ class OrganizationMemberAddView(APIView):
         """Add a member to an organization.
 
         This method adds a user to an organization as a member using the user's ID, email, or username.
+        An organization can have a maximum of 8 members (including the owner).
 
         Args:
             request (Request): The HTTP request object.
@@ -128,20 +131,28 @@ class OrganizationMemberAddView(APIView):
 
         # Validate the serializer
         if serializer.is_valid():
-            # Get the validated user from the serializer
-            user_to_add = serializer.get_user()
+            try:
+                # Get the validated user from the serializer
+                user_to_add = serializer.get_user()
 
-            # Add the user to the organization
-            organization.add_member(user_to_add)
+                # Add the user to the organization
+                organization.add_member(user_to_add)
 
-            # Serialize the updated organization for the response body
-            response_serializer = OrganizationSerializer(organization)
+                # Serialize the updated organization for the response body
+                response_serializer = OrganizationSerializer(organization)
 
-            # Return 200 OK with the serialized organization data
-            return Response(
-                response_serializer.data,
-                status=status.HTTP_200_OK,
-            )
+                # Return 200 OK with the serialized organization data
+                return Response(
+                    response_serializer.data,
+                    status=status.HTTP_200_OK,
+                )
+
+            except ValueError as e:
+                # Return 400 Bad Request with member limit error
+                return Response(
+                    {"errors": {"non_field_errors": [str(e)]}},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         # Return 400 Bad Request with validation errors
         return Response(

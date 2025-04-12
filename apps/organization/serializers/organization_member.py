@@ -14,6 +14,7 @@ class OrganizationMemberAddSerializer(serializers.Serializer):
 
     Handles adding a new member to an organization using user's ID, email, or username.
     Exactly one identifier (user_id, email, or username) must be provided.
+    An organization can have a maximum of 8 members (including the owner).
 
     Attributes:
         user_id (UUID, optional): The ID of the user to add.
@@ -211,7 +212,7 @@ class OrganizationMemberAddErrorResponseSerializer(GenericResponseSerializer):
             user_id (list): Errors related to the user_id field.
             email (list): Errors related to the email field.
             username (list): Errors related to the username field.
-            non_field_errors (list): Non-field specific errors (e.g., multiple identifiers provided).
+            non_field_errors (list): Non-field specific errors.
         """
 
         # User ID field errors
@@ -240,7 +241,7 @@ class OrganizationMemberAddErrorResponseSerializer(GenericResponseSerializer):
             child=serializers.CharField(),
             required=False,
             help_text=_(
-                "Non-field specific errors (e.g., provide exactly one identifier).",
+                "Non-field specific errors.",
             ),
         )
 

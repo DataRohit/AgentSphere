@@ -18,7 +18,7 @@ class Organization(TimeStampedModel):
 
     This model stores information about organizations that users can create and join.
     One user can create a maximum of 3 organizations, and each organization has an
-    owner and members.
+    owner and members. An organization can have a maximum of 8 members (including the owner).
 
     Attributes:
         name (CharField): The name of the organization.
@@ -38,6 +38,9 @@ class Organization(TimeStampedModel):
 
     # Maximum number of organizations a user can create
     MAX_ORGANIZATIONS_PER_USER = 3
+
+    # Maximum number of members an organization can have
+    MAX_MEMBERS_PER_ORGANIZATION = 8
 
     # Organization name field
     name = models.CharField(
@@ -131,7 +134,17 @@ class Organization(TimeStampedModel):
 
         Args:
             user (User): The user to add as a member.
+
+        Raises:
+            ValueError: If the organization has reached the maximum number of members.
         """
+        # Check if the organization has reached the maximum number of members
+        if self.member_count >= self.MAX_MEMBERS_PER_ORGANIZATION:
+            # Set the error message
+            error_message = f"The organization has reached the maximum number of {self.MAX_MEMBERS_PER_ORGANIZATION} members."  # noqa: E501
+
+            # Raise the error
+            raise ValueError(error_message)
 
         # If the user is not already a member
         if user not in self.members.all():
