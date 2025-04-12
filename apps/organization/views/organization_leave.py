@@ -19,6 +19,10 @@ from apps.organization.serializers import (
     OrganizationNotFoundResponseSerializer,
     OrganizationNotMemberResponseSerializer,
 )
+from apps.organization.tasks import (
+    delete_user_agents_in_organization,
+    delete_user_llms_in_organization,
+)
 
 # Get the User model
 User = get_user_model()
@@ -145,6 +149,18 @@ class OrganizationLeaveView(APIView):
 
         # Remove the user from the organization
         organization.remove_member(user)
+
+        # Delete the user's agents in the organization using Celery task
+        delete_user_agents_in_organization.delay(
+            user_id=str(user.id),
+            organization_id=str(organization.id),
+        )
+
+        # Delete the user's LLMs in the organization using Celery task
+        delete_user_llms_in_organization.delay(
+            user_id=str(user.id),
+            organization_id=str(organization.id),
+        )
 
         # Return 200 OK with a success message
         return Response(

@@ -418,6 +418,27 @@ class OrganizationMemberRemoveSuccessResponseSerializer(GenericResponseSerialize
         organization (OrganizationSerializer): The organization detail serializer.
     """
 
+    # Organization member remove success message response serializer
+    class OrganizationMemberRemoveSuccessMessageResponseSerializer(
+        serializers.Serializer,
+    ):
+        """Organization member remove success message response serializer.
+
+        Attributes:
+            message (str): A success message.
+        """
+
+        # Message
+        message = serializers.CharField(
+            default=_(
+                "You have successfully removed the member from the organization.",
+            ),
+            read_only=True,
+            help_text=_(
+                "Success message confirming the user has removed the member from the organization.",
+            ),
+        )
+
     # Status code
     status_code = serializers.IntegerField(
         default=status.HTTP_200_OK,
@@ -425,10 +446,12 @@ class OrganizationMemberRemoveSuccessResponseSerializer(GenericResponseSerialize
         help_text=_("HTTP status code indicating a successful request."),
     )
 
-    # Organization serializer
-    organization = OrganizationSerializer(
+    # Success message
+    organization = OrganizationMemberRemoveSuccessMessageResponseSerializer(
         read_only=True,
-        help_text=_("The updated organization with the member removed."),
+        help_text=_(
+            "Success message confirming the user has removed the member from the organization.",
+        ),
     )
 
 

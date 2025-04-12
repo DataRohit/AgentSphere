@@ -18,7 +18,10 @@ from apps.organization.serializers import (
     OrganizationMemberRemoveSerializer,
     OrganizationMemberRemoveSuccessResponseSerializer,
     OrganizationNotFoundResponseSerializer,
-    OrganizationSerializer,
+)
+from apps.organization.tasks import (
+    delete_user_agents_in_organization,
+    delete_user_llms_in_organization,
 )
 
 # Get the User model
@@ -134,12 +137,23 @@ class OrganizationMemberRemoveView(APIView):
             # Remove the user from the organization
             organization.remove_member(user_to_remove)
 
-            # Serialize the updated organization for the response body
-            response_serializer = OrganizationSerializer(organization)
+            # Delete the user's agents in the organization using Celery task
+            delete_user_agents_in_organization.delay(
+                user_id=str(user_to_remove.id),
+                organization_id=str(organization.id),
+            )
+
+            # Delete the user's LLMs in the organization using Celery task
+            delete_user_llms_in_organization.delay(
+                user_id=str(user_to_remove.id),
+                organization_id=str(organization.id),
+            )
 
             # Return 200 OK with the serialized organization data
             return Response(
-                response_serializer.data,
+                {
+                    "message": "Member removed successfully.",
+                },
                 status=status.HTTP_200_OK,
             )
 
