@@ -16,9 +16,10 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
     This serializer handles the creation of new MCP servers. It validates that
     the user is a member of the specified organization and has not exceeded
     the maximum number of MCP servers they can create per organization.
-    The organization_id is passed from the URL path parameter via the context.
+    The organization_id is provided in the request body.
 
     Attributes:
+        organization_id (UUIDField): The ID of the organization to create the server in.
         name (CharField): The name of the server.
         description (TextField): A description of the server.
         url (URLField): The URL of the server.
@@ -37,6 +38,12 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
         MCPServer: The newly created MCP server instance.
     """
 
+    # Organization ID field
+    organization_id = serializers.UUIDField(
+        help_text=_("The ID of the organization to create the server in."),
+        required=True,
+    )
+
     # Meta class for MCPServerCreateSerializer configuration
     class Meta:
         """Meta class for MCPServerCreateSerializer configuration.
@@ -52,6 +59,7 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
 
         # Fields to include in the serializer
         fields = [
+            "organization_id",
             "name",
             "description",
             "url",
@@ -87,8 +95,8 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
         # Get the user from the context
         user = self.context["request"].user
 
-        # Get the organization ID from the context
-        organization_id = self.context["organization_id"]
+        # Get the organization ID from the request data
+        organization_id = attrs.pop("organization_id")
 
         try:
             # Try to get the organization
@@ -217,10 +225,18 @@ class MCPServerCreateErrorResponseSerializer(GenericResponseSerializer):
         """MCPServer Creation Errors detail serializer.
 
         Attributes:
+            organization_id (list): Errors related to the organization_id field.
             name (list): Errors related to the name field.
             url (list): Errors related to the URL field.
             non_field_errors (list): Non-field specific errors.
         """
+
+        # Organization ID field
+        organization_id = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the organization_id field."),
+        )
 
         # Name field
         name = serializers.ListField(

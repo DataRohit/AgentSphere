@@ -52,7 +52,6 @@ class MCPServerCreateView(APIView):
         Creates a new MCP server within the specified organization with the authenticated user as the creator.
         The user must be a member of the specified organization.
         A user can create a maximum of {MCPServer.MAX_MCPSERVERS_PER_USER_PER_ORGANIZATION} MCP servers per organization.
-        The organization ID is specified in the URL path.
         """,  # noqa: E501
         request=MCPServerCreateSerializer,
         responses={
@@ -61,15 +60,14 @@ class MCPServerCreateView(APIView):
             status.HTTP_401_UNAUTHORIZED: MCPServerAuthErrorResponseSerializer,
         },
     )
-    def post(self, request: Request, organization_id: str) -> Response:
+    def post(self, request: Request) -> Response:
         """Create a new MCP server in the specified organization.
 
         This method creates a new MCP server within the specified organization with the
-        authenticated user as the creator. The organization ID is specified in the URL path.
+        authenticated user as the creator. The organization ID is specified in the request body.
 
         Args:
             request (Request): The HTTP request object.
-            organization_id (str): The ID of the organization to create the MCP server in.
 
         Returns:
             Response: The HTTP response object.
@@ -80,7 +78,6 @@ class MCPServerCreateView(APIView):
             data=request.data,
             context={
                 "request": request,
-                "organization_id": organization_id,
             },
         )
 

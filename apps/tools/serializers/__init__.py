@@ -18,7 +18,6 @@ from apps.tools.serializers.mcpserver_list import (
 
 # Exports
 __all__ = [
-    "MCPServerSerializer",
     "MCPServerAuthErrorResponseSerializer",
     "MCPServerCreateErrorResponseSerializer",
     "MCPServerCreateSerializer",
@@ -28,4 +27,5 @@ __all__ = [
     "MCPServerDetailSuccessResponseSerializer",
     "MCPServerListNotFoundResponseSerializer",
     "MCPServerListResponseSerializer",
+    "MCPServerSerializer",
 ]
