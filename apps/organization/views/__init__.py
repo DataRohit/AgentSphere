@@ -1,6 +1,7 @@
 # Project imports
 from apps.organization.views.organization_create import OrganizationCreateView
 from apps.organization.views.organization_detail import OrganizationDetailView
+from apps.organization.views.organization_leave import OrganizationLeaveView
 from apps.organization.views.organization_list import OrganizationListView
 from apps.organization.views.organization_logo_upload import OrganizationLogoUploadView
 from apps.organization.views.organization_member_add import OrganizationMemberAddView
@@ -25,6 +26,7 @@ from apps.organization.views.organization_ownership_transfer_reject import (
 __all__ = [
     "OrganizationCreateView",
     "OrganizationDetailView",
+    "OrganizationLeaveView",
     "OrganizationListView",
     "OrganizationLogoUploadView",
     "OrganizationMemberAddView",

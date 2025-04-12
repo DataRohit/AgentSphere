@@ -5,6 +5,7 @@ from django.urls import path
 from apps.organization.views import (
     OrganizationCreateView,
     OrganizationDetailView,
+    OrganizationLeaveView,
     OrganizationListView,
     OrganizationLogoUploadView,
     OrganizationMemberAddView,
@@ -36,6 +37,12 @@ urlpatterns = [
         "<str:organization_id>/",
         OrganizationDetailView.as_view(),
         name="organization-detail",
+    ),
+    # Organization leave URL
+    path(
+        "<str:organization_id>/leave/",
+        OrganizationLeaveView.as_view(),
+        name="organization-leave",
     ),
     # Organization logo upload URL
     path(
