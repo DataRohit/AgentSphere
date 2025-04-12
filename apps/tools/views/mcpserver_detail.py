@@ -11,7 +11,6 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 # Project imports
 from apps.common.renderers import GenericJSONRenderer
-from apps.organization.models import Organization
 from apps.tools.models import MCPServer
 from apps.tools.serializers import (
     MCPServerAuthErrorResponseSerializer,
@@ -30,7 +29,7 @@ class MCPServerDetailView(APIView):
     """MCPServer detail view.
 
     This view allows authenticated users to retrieve MCP server details by ID.
-    The user must be a member of the organization that the MCP server belongs to.
+    Users can only view MCP servers they have created.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -80,10 +79,9 @@ class MCPServerDetailView(APIView):
         summary="Get details of an MCP server by ID.",
         description="""
         Retrieves the details of an MCP server by its ID.
-        The user must be a member of the organization that the MCP server belongs to.
+        Users can only view MCP servers they have created.
         Returns 404 if the MCP server is not found.
         Returns 403 if the user does not have permission to view the MCP server.
-        The organization ID is specified in the URL path.
         """,
         responses={
             status.HTTP_200_OK: MCPServerDetailSuccessResponseSerializer,
@@ -92,15 +90,14 @@ class MCPServerDetailView(APIView):
             status.HTTP_404_NOT_FOUND: MCPServerDetailNotFoundResponseSerializer,
         },
     )
-    def get(self, request: Request, organization_id: str, mcpserver_id: str) -> Response:
+    def get(self, request: Request, mcpserver_id: str) -> Response:
         """Get details of an MCP server by ID.
 
         This method retrieves the details of an MCP server by its ID.
-        The user must be a member of the organization that the MCP server belongs to.
+        Users can only view MCP servers they have created.
 
         Args:
             request (Request): The HTTP request object.
-            organization_id (str): The ID of the organization the MCP server belongs to.
             mcpserver_id (str): The ID of the MCP server to retrieve.
 
         Returns:
@@ -111,48 +108,26 @@ class MCPServerDetailView(APIView):
         user = request.user
 
         try:
-            # Try to get the organization
-            organization = Organization.objects.get(id=organization_id)
+            # Try to get the MCP server
+            mcpserver = MCPServer.objects.get(id=mcpserver_id)
 
-            # Check if the user is the owner or a member of the organization
-            if user != organization.owner and user not in organization.members.all():
-                # Return 403 Forbidden if the user is not a member of the organization
+            # Check if the user created the MCP server
+            if user == mcpserver.user:
+                # Return the MCP server details
                 return Response(
-                    {"error": "You are not a member of this organization."},
-                    status=status.HTTP_403_FORBIDDEN,
+                    MCPServerSerializer(mcpserver).data,
+                    status=status.HTTP_200_OK,
                 )
 
-            try:
-                # Try to get the MCP server
-                mcpserver = MCPServer.objects.get(
-                    id=mcpserver_id,
-                    organization=organization,
-                )
-
-                # Check if the user created the MCP server
-                if user == mcpserver.user:
-                    # Return the MCP server details
-                    return Response(
-                        MCPServerSerializer(mcpserver).data,
-                        status=status.HTTP_200_OK,
-                    )
-
-                # If the user did not create the MCP server, deny access
-                return Response(
-                    {"error": "You do not have permission to view this MCP server."},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-
-            except MCPServer.DoesNotExist:
-                # Return 404 Not Found if the MCP server doesn't exist
-                return Response(
-                    {"error": "MCP server not found."},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-
-        except Organization.DoesNotExist:
-            # Return 404 Not Found if the organization doesn't exist
+            # If the user did not create the MCP server, deny access
             return Response(
-                {"error": "Organization not found."},
+                {"error": "You do not have permission to view this MCP server."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        except MCPServer.DoesNotExist:
+            # Return 404 Not Found if the MCP server doesn't exist
+            return Response(
+                {"error": "MCP server not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )

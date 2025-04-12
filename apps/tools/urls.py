@@ -13,9 +13,9 @@ urlpatterns = [
     path("mcpserver/", MCPServerCreateView.as_view(), name="mcpserver-create"),
     # MCP Server list URL - organization ID is in the query parameters
     path("mcpserver/list/", MCPServerListView.as_view(), name="mcpserver-list"),
-    # MCP Server detail URL - organization ID is in the request body
+    # MCP Server detail URL - get an MCP server by ID
     path(
-        "mcpserver/<str:organization_id>/<str:mcpserver_id>/",
+        "mcpserver/<str:mcpserver_id>/",
         MCPServerDetailView.as_view(),
         name="mcpserver-detail",
     ),
