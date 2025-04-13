@@ -48,6 +48,8 @@ from apps.agents.serializers.llm_detail import (
     LLMDetailSuccessResponseSerializer,
 )
 from apps.agents.serializers.llm_list import (
+    LLMListMeResponseSerializer,
+    LLMListMissingParamResponseSerializer,
     LLMListNotFoundResponseSerializer,
     LLMListResponseSerializer,
 )
@@ -93,6 +95,8 @@ __all__ = [
     "LLMDetailPermissionDeniedResponseSerializer",
     "LLMDetailSuccessResponseSerializer",
     "LLMHasAgentsResponseSerializer",
+    "LLMListMeResponseSerializer",
+    "LLMListMissingParamResponseSerializer",
     "LLMListNotFoundResponseSerializer",
     "LLMListResponseSerializer",
     "LLMNotFoundResponseSerializer",

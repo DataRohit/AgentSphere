@@ -13,9 +13,8 @@ from rest_framework_simplejwt.exceptions import TokenError
 from apps.agents.models import LLM
 from apps.agents.serializers import (
     LLMAuthErrorResponseSerializer,
-    LLMListMissingParamResponseSerializer,
+    LLMListMeResponseSerializer,
     LLMListNotFoundResponseSerializer,
-    LLMListResponseSerializer,
     LLMSerializer,
 )
 from apps.common.renderers import GenericJSONRenderer
@@ -24,14 +23,12 @@ from apps.common.renderers import GenericJSONRenderer
 User = get_user_model()
 
 
-# LLM list view
-class LLMListView(APIView):
-    """LLM list view.
+# LLM list me view
+class LLMListMeView(APIView):
+    """LLM list me view.
 
-    This view allows authenticated users to list all LLM configurations within an organization.
-    It requires the organization_id parameter and returns all LLMs in that organization,
-    including those created by other members of the organization.
-    It supports filtering by api_type.
+    This view allows authenticated users to list all LLM configurations they have created.
+    It supports optional filtering by organization_id and api_type.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -50,9 +47,9 @@ class LLMListView(APIView):
 
     # Override the handle_exception method to customize error responses
     def handle_exception(self, exc):
-        """Handle exceptions for the LLM list view.
+        """Handle exceptions for the LLM list me view.
 
-        This method handles exceptions for the LLM list view.
+        This method handles exceptions for the LLM list me view.
 
         Args:
             exc: The exception that occurred.
@@ -75,44 +72,40 @@ class LLMListView(APIView):
             status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
         )
 
-    # Define the schema for the list view
+    # Define the schema for the list me view
     @extend_schema(
         tags=["LLMs"],
-        summary="List all LLM configurations within an organization.",
+        summary="List LLM configurations created by the current user.",
         description="""
-        Lists all LLM configurations within the specified organization, including those created by
-        other members of the organization. The organization_id parameter is mandatory.
-        Supports filtering by api_type.
-        Returns 400 if organization_id is not provided.
+        Lists all LLM configurations created by the authenticated user.
+        Supports optional filtering by organization_id and api_type.
         Returns 404 if no LLM configurations are found matching the criteria.
         """,
         parameters=[
             OpenApiParameter(
                 name="organization_id",
-                description="Organization ID (required)",
-                required=True,
+                description="Filter by organization ID (optional)",
+                required=False,
                 type=str,
             ),
             OpenApiParameter(
                 name="api_type",
-                description="Filter by API type (ollama, gemini)",
+                description="Filter by API type (ollama, gemini) (optional)",
                 required=False,
                 type=str,
             ),
         ],
         responses={
-            status.HTTP_200_OK: LLMListResponseSerializer,
-            status.HTTP_400_BAD_REQUEST: LLMListMissingParamResponseSerializer,
+            status.HTTP_200_OK: LLMListMeResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: LLMAuthErrorResponseSerializer,
             status.HTTP_404_NOT_FOUND: LLMListNotFoundResponseSerializer,
         },
     )
     def get(self, request: Request) -> Response:
-        """List all LLM configurations within an organization.
+        """List LLM configurations created by the current user.
 
-        This method lists all LLM configurations within the specified organization,
-        including those created by other members of the organization.
-        The organization_id parameter is mandatory.
+        This method lists all LLM configurations created by the authenticated user.
+        It supports optional filtering by organization_id and api_type.
 
         Args:
             request (Request): The HTTP request object.
@@ -124,28 +117,25 @@ class LLMListView(APIView):
         # Get the authenticated user
         user = request.user
 
-        # Check if organization_id is provided
+        # Build query for user's LLMs only
+        queryset = LLM.objects.filter(user=user)
+
+        # Apply organization_id filter if provided
         organization_id = request.query_params.get("organization_id")
-        if not organization_id:
-            # Return 400 Bad Request if organization_id is not provided
-            return Response(
-                {"error": "Missing required parameter: organization_id"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if organization_id:
+            # Get the user's organizations
+            user_organizations = user.organizations.all()
 
-        # Get the user's organizations
-        user_organizations = user.organizations.all()
+            # Check if the user is a member of the specified organization
+            if not user_organizations.filter(id=organization_id).exists():
+                # Return 404 Not Found if the user is not a member of the organization
+                return Response(
+                    {"error": "No LLM configurations found matching the criteria."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-        # Check if the user is a member of the specified organization
-        if not user_organizations.filter(id=organization_id).exists():
-            # Return 404 Not Found if the user is not a member of the organization
-            return Response(
-                {"error": "No LLM configurations found matching the criteria."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        # Get all LLMs in the specified organization
-        queryset = LLM.objects.filter(organization_id=organization_id)
+            # Filter by organization_id
+            queryset = queryset.filter(organization_id=organization_id)
 
         # Apply api_type filter if provided
         api_type = request.query_params.get("api_type")
