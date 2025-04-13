@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 
 # Copy requirements files to the build stage
-COPY ./requirements.txt .
+COPY ./backend/requirements.txt .
 
 
 # Create Python Dependency and Sub-Dependency Wheels
@@ -92,6 +92,10 @@ RUN chmod +x /start-flower
 
 # Copy application code to WORKDIR
 COPY . ${APP_HOME}
+
+
+# Update the current working directory to the backend directory
+WORKDIR ${APP_HOME}/backend
 
 
 # Define entrypoint
