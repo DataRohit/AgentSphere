@@ -36,6 +36,35 @@ class AgentListResponseSerializer(GenericResponseSerializer):
     )
 
 
+# Agent list me response serializer
+class AgentListMeResponseSerializer(GenericResponseSerializer):
+    """Agent list me response serializer.
+
+    This serializer defines the structure of the response for the 'list/me' endpoint.
+    It includes a status code and a list of agents created by the current user.
+
+    Attributes:
+        status_code (int): The status code of the response.
+        agents (List[AgentSerializer]): List of agent objects created by the current user.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_200_OK,
+        read_only=True,
+        help_text=_("HTTP status code for the response."),
+    )
+
+    # Agent list
+    agents = AgentSerializer(
+        many=True,
+        read_only=True,
+        help_text=_(
+            "List of agents created by the current user with detailed information.",
+        ),
+    )
+
+
 # Agent list not found error response serializer
 class AgentListNotFoundResponseSerializer(GenericResponseSerializer):
     """Agent list not found error response serializer.
@@ -60,4 +89,31 @@ class AgentListNotFoundResponseSerializer(GenericResponseSerializer):
         default=_("No agents found matching the criteria."),
         read_only=True,
         help_text=_("Error message explaining why no agents were found."),
+    )
+
+
+# Missing required parameter error response serializer
+class AgentListMissingParamResponseSerializer(GenericResponseSerializer):
+    """Missing required parameter error response serializer.
+
+    This serializer defines the structure of the 400 Bad Request error response
+    when a required parameter is missing from the request.
+
+    Attributes:
+        status_code (int): The status code of the response (400 Bad Request).
+        error (str): An error message explaining the missing parameter.
+    """
+
+    # Status code
+    status_code = serializers.IntegerField(
+        default=status.HTTP_400_BAD_REQUEST,
+        read_only=True,
+        help_text=_("HTTP status code for the response."),
+    )
+
+    # Error message
+    error = serializers.CharField(
+        default=_("Missing required parameter: organization_id"),
+        read_only=True,
+        help_text=_("Error message explaining the missing parameter."),
     )
