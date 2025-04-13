@@ -6,6 +6,7 @@ from apps.tools.views import (
     MCPServerCreateView,
     MCPServerDeleteView,
     MCPServerDetailView,
+    MCPServerListMeView,
     MCPServerListView,
     MCPServerUpdateView,
 )
@@ -17,8 +18,10 @@ app_name = "org_tools"
 urlpatterns = [
     # MCP Server creation URL
     path("mcpserver/", MCPServerCreateView.as_view(), name="mcpserver-create"),
-    # MCP Server list URL - organization ID is in the query parameters
+    # MCP Server list URL - get all MCP servers within an organization (organization_id required)
     path("mcpserver/list/", MCPServerListView.as_view(), name="mcpserver-list"),
+    # MCP Server list me URL - get all MCP servers created by the current user (organization_id optional)
+    path("mcpserver/list/me/", MCPServerListMeView.as_view(), name="mcpserver-list-me"),
     # MCP Server detail URL - get an MCP server by ID
     path(
         "mcpserver/<str:mcpserver_id>/",

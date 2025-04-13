@@ -17,6 +17,8 @@ from apps.tools.serializers.mcpserver_detail import (
     MCPServerDetailSuccessResponseSerializer,
 )
 from apps.tools.serializers.mcpserver_list import (
+    MCPServerListMeResponseSerializer,
+    MCPServerListMissingParamResponseSerializer,
     MCPServerListNotFoundResponseSerializer,
     MCPServerListResponseSerializer,
 )
@@ -40,6 +42,8 @@ __all__ = [
     "MCPServerDetailNotFoundResponseSerializer",
     "MCPServerDetailPermissionDeniedResponseSerializer",
     "MCPServerDetailSuccessResponseSerializer",
+    "MCPServerListMeResponseSerializer",
+    "MCPServerListMissingParamResponseSerializer",
     "MCPServerListNotFoundResponseSerializer",
     "MCPServerListResponseSerializer",
     "MCPServerNotFoundResponseSerializer",
