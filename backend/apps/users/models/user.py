@@ -4,9 +4,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+# Local application imports
 from apps.common.models import TimeStampedModel
-
-# Project imports
 from apps.users.managers import UserManager
 from apps.users.validators import UsernameValidator
 
@@ -134,8 +133,7 @@ class User(AbstractUser, TimeStampedModel):
         # Generate the default avatar URL
         base_url = f"{settings.DICEBEAR_SERVICE_URL}/9.x/avataaars/png"
         params = (
-            f"seed={self.username}&eyes=happy,wink&facialHair[]&"
-            f"facialHairProbability=0&mouth=smile&eyebrows=default"
+            f"seed={self.username}&eyes=happy,wink&facialHair[]&facialHairProbability=0&mouth=smile&eyebrows=default"
         )
 
         # Return the default avatar URL

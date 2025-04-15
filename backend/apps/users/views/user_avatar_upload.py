@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
-# Project imports
+# Local application imports
 from apps.common.renderers import GenericJSONRenderer
 from apps.users.serializers.user_avatar import (
     UserAvatarAuthErrorResponseSerializer,

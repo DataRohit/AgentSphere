@@ -13,6 +13,5 @@ __version__: str = "0.1.0"
 
 # Version information as a tuple for programmatic access
 __version_info__: tuple[int | str, ...] = tuple(
-    int(num) if num.isdigit() else num
-    for num in __version__.replace("-", ".", 1).split(".")
+    int(num) if num.isdigit() else num for num in __version__.replace("-", ".", 1).split(".")
 )

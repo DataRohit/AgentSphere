@@ -1,7 +1,7 @@
 # Third-party imports
 from django.contrib import admin
 
-# Project imports
+# Local application imports
 from apps.organization.models import OrganizationOwnershipTransfer
 
 

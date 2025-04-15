@@ -55,7 +55,5 @@ def filter_authentication(request, view):
 
     # Return only JWTAuthentication classes
     return [
-        auth
-        for auth in view.authentication_classes
-        if isinstance(auth, type) and issubclass(auth, JWTAuthentication)
+        auth for auth in view.authentication_classes if isinstance(auth, type) and issubclass(auth, JWTAuthentication)
     ]

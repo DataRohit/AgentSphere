@@ -2,7 +2,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
 from apps.organization.models import Organization
 from apps.organization.serializers.organization import OrganizationSerializer
@@ -80,13 +80,7 @@ class OrganizationUpdateSerializer(serializers.ModelSerializer):
             return value
 
         # Check if the user already has an organization with the same name
-        if (
-            user
-            and organization
-            and user.owned_organizations.exclude(id=organization.id)
-            .filter(name=value)
-            .exists()
-        ):
+        if user and organization and user.owned_organizations.exclude(id=organization.id).filter(name=value).exists():
             # Raise a validation error
             raise serializers.ValidationError(
                 ["You already have another organization with this name."],

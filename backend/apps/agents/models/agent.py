@@ -82,7 +82,7 @@ class Agent(TimeStampedModel):
 
     # LLM model connected to this agent
     llm = models.ForeignKey(
-        "agents.LLM",
+        "llms.LLM",
         verbose_name=_("LLM Model"),
         on_delete=models.CASCADE,
         related_name="agents",
@@ -143,8 +143,7 @@ class Agent(TimeStampedModel):
 
         # Generate the avatar URL parameters
         params = (
-            f"seed={encoded_name}&eyes=happy,wink&facialHair[]&"
-            f"facialHairProbability=0&mouth=smile&eyebrows=default"
+            f"seed={encoded_name}&eyes=happy,wink&facialHair[]&facialHairProbability=0&mouth=smile&eyebrows=default"
         )
 
         # Return the complete avatar URL
@@ -167,11 +166,7 @@ class Agent(TimeStampedModel):
         # Check if both agent and LLM have been assigned
         if self.llm:
             # Validate organization consistency
-            if (
-                self.organization
-                and self.llm.organization
-                and self.organization != self.llm.organization
-            ):
+            if self.organization and self.llm.organization and self.organization != self.llm.organization:
                 # Raise a validation error
                 raise ValidationError(
                     {

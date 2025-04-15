@@ -2,9 +2,9 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
-from apps.agents.serializers.llm import LLMSerializer
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
+from apps.llms.serializers.llm import LLMSerializer
 
 
 # LLM list response serializer

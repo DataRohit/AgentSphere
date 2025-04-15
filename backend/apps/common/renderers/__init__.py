@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.common.renderers.json import GenericJSONRenderer
 
 # Exports

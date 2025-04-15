@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.users.validators.username import UsernameValidator
 
 # Exports

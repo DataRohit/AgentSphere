@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
-# Project imports
+# Local application imports
 from apps.common.renderers import GenericJSONRenderer
 from apps.organization.models import Organization
 from apps.organization.serializers import (
@@ -110,10 +110,7 @@ class OrganizationDetailView(APIView):
             organization = Organization.objects.get(id=organization_id)
 
             # Check if the user is the owner or a member of the organization
-            if (
-                request.user != organization.owner
-                and request.user not in organization.members.all()
-            ):
+            if request.user != organization.owner and request.user not in organization.members.all():
                 # Return 404 Not Found if the user is not the owner or a member
                 return Response(
                     {

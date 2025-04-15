@@ -2,7 +2,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
 from apps.organization.models import Organization
 from apps.tools.models import MCPServer
@@ -120,10 +120,7 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
             ).count()
 
             # Check if the user has reached the maximum number of MCP servers per organization
-            if (
-                user_mcpserver_count
-                >= MCPServer.MAX_MCPSERVERS_PER_USER_PER_ORGANIZATION
-            ):
+            if user_mcpserver_count >= MCPServer.MAX_MCPSERVERS_PER_USER_PER_ORGANIZATION:
                 # Set the error message
                 error_message = f"You can only create a maximum of {MCPServer.MAX_MCPSERVERS_PER_USER_PER_ORGANIZATION} MCP servers per organization."  # noqa: E501
 

@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-# Project imports
+# Local application imports
 from apps.users.serializers import (
     UserLoginErrorResponseSerializer,
     UserLoginResponseSerializer,

@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
-# Project imports
+# Local application imports
 from apps.agents.models import Agent
 from apps.agents.serializers import (
     AgentAuthErrorResponseSerializer,

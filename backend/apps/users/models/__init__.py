@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.users.models.user import User
 from apps.users.models.user_activation_token import UserActivationToken
 from apps.users.models.user_deletion_token import UserDeletionToken

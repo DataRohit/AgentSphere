@@ -11,7 +11,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-# Project imports
+# Local application imports
 from apps.common.renderers import GenericJSONRenderer
 from apps.common.utils import send_templated_mail
 from apps.users.models import UserActivationToken

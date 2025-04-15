@@ -6,9 +6,9 @@ from uuid import UUID
 from celery import shared_task
 from django.db import transaction
 
-# Project imports
-from apps.agents.models import LLM
+# Local application imports
 from apps.common.utils.vault import delete_api_key
+from apps.llms.models import LLM
 
 
 # Delete user LLMs in organization task

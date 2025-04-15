@@ -3,8 +3,8 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-# Project imports
-from apps.agents.models import LLM
+# Local application imports
+from apps.llms.models import LLM
 
 
 # LLM organization nested serializer for API documentation

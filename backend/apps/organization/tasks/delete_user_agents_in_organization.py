@@ -5,7 +5,7 @@ from uuid import UUID
 from celery import shared_task
 from django.db import transaction
 
-# Project imports
+# Local application imports
 from apps.agents.models import Agent
 
 

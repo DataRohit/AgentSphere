@@ -6,76 +6,11 @@ from django.utils.translation import gettext_lazy as _
 # Local application imports
 from apps.common.models.timestamped import TimeStampedModel
 from apps.common.utils.vault import delete_api_key, get_api_key, store_api_key
+from apps.llms.models.choices import ApiType, GoogleGeminiModel, OllamaModel
 from apps.organization.models import Organization
 
 # Get the User model
 User = get_user_model()
-
-
-# LLM API Type choices
-class ApiType(models.TextChoices):
-    """Enum for LLM API types.
-
-    Defines the supported LLM API providers.
-
-    Attributes:
-        OLLAMA (str): Ollama API type.
-        GEMINI (str): Google Gemini API type.
-    """
-
-    # Ollama API type
-    OLLAMA = "ollama", _("Ollama")
-
-    # Gemini API type
-    GEMINI = "gemini", _("Gemini")
-
-
-# Ollama model choices
-class OllamaModel(models.TextChoices):
-    """Enum for Ollama model types.
-
-    Defines the supported Ollama models.
-
-    Attributes:
-        GRANITE (str): Granite 3.1 Dense 2B Instruct Q8_0 model.
-        QWEN (str): Qwen 2.5 1.5B Instruct Q8_0 model.
-        LLAMA (str): Llama 3.2 1B Instruct Q8_0 model.
-        DEEPSEEK (str): DeepSeek R1 1.5B Qwen Distill Q8_0 model.
-    """
-
-    # Granite 3.1 2B
-    GRANITE = "granite3.1-dense:2b-instruct-q8_0", _("Granite 3.1 2B")
-
-    # Qwen 2.5 1.5B
-    QWEN = "qwen2.5:1.5b-instruct-q8_0", _("Qwen 2.5 1.5B")
-
-    # Llama 3.2 1B
-    LLAMA = "llama3.2:1b-instruct-q8_0", _("Llama 3.2 1B")
-
-    # DeepSeek R1 1.5B
-    DEEPSEEK = "deepseek-r1:1.5b-qwen-distill-q8_0", _("DeepSeek R1 1.5B")
-
-
-# Gemini model choices
-class GeminiModel(models.TextChoices):
-    """Enum for Gemini model types.
-
-    Defines the supported Google Gemini models.
-
-    Attributes:
-        FLASH (str): Gemini 2.0 Flash model.
-        FLASH_LITE (str): Gemini 2.0 Flash Lite model.
-        THINKING (str): Gemini 2.0 Flash Thinking Experimental model.
-    """
-
-    # Gemini 2.0 Flash
-    FLASH = "gemini-2.0-flash", _("Gemini 2.0 Flash")
-
-    # Gemini 2.0 Flash Lite
-    FLASH_LITE = "gemini-2.0-flash-lite", _("Gemini 2.0 Flash Lite")
-
-    # Gemini 2.0 Flash Thinking
-    THINKING = "gemini-2.0-flash-thinking-exp-01-21", _("Gemini 2.0 Flash Thinking")
 
 
 # LLM model
@@ -170,7 +105,7 @@ class LLM(TimeStampedModel):
         ordering = ["api_type", "model"]
 
         # Specify the database table name
-        db_table = "agents_llm"
+        db_table = "llms_llm"
 
     # String representation of the LLM configuration
     def __str__(self) -> str:
@@ -272,30 +207,30 @@ class LLM(TimeStampedModel):
                     },
                 )
 
-        # Validate model selection for Gemini
-        elif self.api_type == ApiType.GEMINI:
-            # Check if the model is in the Gemini model choices
-            if self.model not in [choice[0] for choice in GeminiModel.choices]:
+        # Validate model selection for Google Gemini
+        elif self.api_type == ApiType.GOOGLE:
+            # Check if the model is in the Google Gemini model choices
+            if self.model not in [choice[0] for choice in GoogleGeminiModel.choices]:
                 # Raise a validation error
                 raise ValidationError(
                     {
                         "model": _(
-                            "Invalid model for Gemini API. Choose from: {}",
+                            "Invalid model for Google Gemini API. Choose from: {}",
                         ).format(
-                            ", ".join([choice[0] for choice in GeminiModel.choices]),
+                            ", ".join([choice[0] for choice in GoogleGeminiModel.choices]),
                         ),
                     },
                 )
 
-            # Check if API key is provided for new Gemini instances or is available in Vault
+            # Check if API key is provided for new Google Gemini instances or is available in Vault
             if not self.pk and not self.api_key:
                 # Raise a validation error if API key is not provided for new instances
                 raise ValidationError(
-                    {"api_key": _("API key is required for Gemini API.")},
+                    {"api_key": _("API key is required for Google Gemini API.")},
                 )
 
             if self.pk and not self.api_key and not self.get_api_key():
                 # Raise a validation error if API key is not available for existing instances
                 raise ValidationError(
-                    {"api_key": _("API key is required for Gemini API.")},
+                    {"api_key": _("API key is required for Google Gemini API.")},
                 )

@@ -1,7 +1,7 @@
 # Third
 from django.urls import path
 
-# Project imports
+# Local application imports
 from apps.users.views import (
     ResendActivationEmailView,
     UserActivationView,

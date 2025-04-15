@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.tools.views.mcpserver_create import MCPServerCreateView
 from apps.tools.views.mcpserver_delete import MCPServerDeleteView
 from apps.tools.views.mcpserver_detail import MCPServerDetailView

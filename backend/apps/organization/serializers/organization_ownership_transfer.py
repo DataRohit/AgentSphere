@@ -2,7 +2,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
 from apps.organization.models import Organization
 from apps.users.models import User
@@ -100,9 +100,7 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
         identifiers = ["user_id", "email", "username"]
 
         # Get the provided identifiers
-        provided_identifiers = [
-            identifier for identifier in identifiers if attrs.get(identifier)
-        ]
+        provided_identifiers = [identifier for identifier in identifiers if attrs.get(identifier)]
 
         # If no identifiers are provided
         if len(provided_identifiers) == 0:
@@ -229,9 +227,7 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
         # If the user does not exist
         except User.DoesNotExist:
             # Get the field name that was provided
-            field_name = next(
-                k for k in ["user_id", "email", "username"] if attrs.get(k)
-            )
+            field_name = next(k for k in ["user_id", "email", "username"] if attrs.get(k))
 
             # Raise a validation error
             raise serializers.ValidationError(

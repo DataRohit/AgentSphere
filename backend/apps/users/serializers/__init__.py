@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.users.serializers.resend_activation import (
     ResendActivationEmailSerializer,
     ResendActivationErrorResponseSerializer,

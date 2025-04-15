@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-# Project imports
+# Local application imports
 from apps.agents.models import Agent
 
 

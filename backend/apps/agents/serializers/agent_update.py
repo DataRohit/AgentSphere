@@ -2,10 +2,11 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
-from apps.agents.models import LLM, Agent
+# Local application imports
+from apps.agents.models import Agent
 from apps.agents.serializers.agent import AgentResponseSchema
 from apps.common.serializers import GenericResponseSerializer
+from apps.llms.models import LLM
 
 
 # Agent update serializer
@@ -93,10 +94,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
         # Check if the user owns this agent or is part of the organization
         if agent.user != user and (
             not agent.organization
-            or (
-                user not in agent.organization.members.all()
-                and user != agent.organization.owner
-            )
+            or (user not in agent.organization.members.all() and user != agent.organization.owner)
         ):
             # Raise a validation error
             raise serializers.ValidationError(
@@ -126,11 +124,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
                     )
 
                 # Check if the LLM belongs to the same organization
-                if (
-                    agent.organization
-                    and llm.organization
-                    and agent.organization != llm.organization
-                ):
+                if agent.organization and llm.organization and agent.organization != llm.organization:
                     # Raise a validation error
                     raise serializers.ValidationError(
                         {

@@ -2,7 +2,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-# Project imports
+# Local application imports
 from apps.organization.models import Organization
 from apps.users.serializers import UserDetailSerializer
 

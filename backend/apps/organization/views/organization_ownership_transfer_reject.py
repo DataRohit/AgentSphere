@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
-# Project imports
+# Local application imports
 from apps.common.renderers import GenericJSONRenderer
 
 # Import send_templated_mail at the top of the file

@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.organization.tasks.delete_user_agents_in_organization import (
     delete_user_agents_in_organization,
 )

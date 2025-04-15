@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# Project imports
+# Local application imports
 from apps.common.models import TimeStampedModel
 from apps.organization.models.organization import Organization
 
@@ -142,9 +142,7 @@ class OrganizationOwnershipTransfer(TimeStampedModel):
         """
 
         # Return True if the transfer is active, False otherwise
-        return not (
-            self.is_accepted or self.is_rejected or self.is_cancelled or self.is_expired
-        )
+        return not (self.is_accepted or self.is_rejected or self.is_cancelled or self.is_expired)
 
     # Get the active transfer request for an organization, if any
     @classmethod

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from apps.organization.models import Organization
 
-# Project imports
+# Local application imports
 from apps.tools.models import MCPServer
 
 # Get the User model

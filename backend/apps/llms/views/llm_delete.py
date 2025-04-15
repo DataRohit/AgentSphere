@@ -9,16 +9,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
-# Project imports
-from apps.agents.models import LLM
-from apps.agents.serializers import (
+# Local application imports
+from apps.common.renderers import GenericJSONRenderer
+from apps.llms.models import LLM
+from apps.llms.serializers import (
     LLMAuthErrorResponseSerializer,
     LLMDeleteNotFoundResponseSerializer,
     LLMDeletePermissionDeniedResponseSerializer,
     LLMDeleteSuccessResponseSerializer,
     LLMHasAgentsResponseSerializer,
 )
-from apps.common.renderers import GenericJSONRenderer
 
 # Get the User model
 User = get_user_model()

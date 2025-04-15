@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-# Project imports
+# Local application imports
 from apps.common.models import TimeStampedModel
 
 # Get the User model
@@ -141,7 +141,9 @@ class Organization(TimeStampedModel):
         # Check if the organization has reached the maximum number of members
         if self.member_count >= self.MAX_MEMBERS_PER_ORGANIZATION:
             # Set the error message
-            error_message = f"The organization has reached the maximum number of {self.MAX_MEMBERS_PER_ORGANIZATION} members."  # noqa: E501
+            error_message = (
+                f"The organization has reached the maximum number of {self.MAX_MEMBERS_PER_ORGANIZATION} members.",
+            )
 
             # Raise the error
             raise ValueError(error_message)

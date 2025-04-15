@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.tools.models.mcpserver import MCPServer
 
 # Exports

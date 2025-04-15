@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.common.models.timestamped import TimeStampedModel
 
 # Exports

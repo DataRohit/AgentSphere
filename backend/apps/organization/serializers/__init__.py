@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.organization.serializers.organization import OrganizationSerializer
 from apps.organization.serializers.organization_auth import (
     OrganizationAuthErrorResponseSerializer,

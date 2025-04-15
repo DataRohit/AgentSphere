@@ -2,7 +2,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
 from apps.organization.serializers.organization import OrganizationSerializer
 

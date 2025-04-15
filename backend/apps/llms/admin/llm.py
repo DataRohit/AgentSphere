@@ -4,7 +4,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # Local application imports
-from apps.agents.models import LLM
+from apps.llms.models import LLM
 
 
 # Admin configuration for the LLM model

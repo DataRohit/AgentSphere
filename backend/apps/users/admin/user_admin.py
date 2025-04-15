@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-# Project imports
+# Local application imports
 from apps.users.forms import UserChangeForm, UserCreationForm
 
 # Get the User model

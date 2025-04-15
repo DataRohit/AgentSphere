@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
 from apps.users.serializers.user_detail import UserDetailSerializer
 
@@ -63,8 +63,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "password": {"write_only": True, "style": {"input_type": "password"}},
             User.USERNAME_FIELD: {"required": True, "allow_blank": False},
             "email": {
-                "required": "email" in User.REQUIRED_FIELDS
-                or User.USERNAME_FIELD == "email",
+                "required": "email" in User.REQUIRED_FIELDS or User.USERNAME_FIELD == "email",
                 "allow_blank": False,
             },
             "first_name": {

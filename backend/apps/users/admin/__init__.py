@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.users.admin.user_activation_token_admin import UserActivationTokenAdmin
 from apps.users.admin.user_admin import UserAdmin
 from apps.users.admin.user_deletion_token_admin import UserDeletionTokenAdmin

@@ -141,6 +141,7 @@ LOCAL_APPS = [
     "apps.users",
     "apps.organization",
     "apps.agents",
+    "apps.llms",
     "apps.tools",
 ]
 

@@ -1,7 +1,7 @@
 # Third-party imports
 from django.urls import path
 
-# Project imports
+# Local application imports
 from apps.tools.views import (
     MCPServerCreateView,
     MCPServerDeleteView,

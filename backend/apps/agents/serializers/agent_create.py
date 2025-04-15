@@ -2,10 +2,11 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
-from apps.agents.models import LLM, Agent
+# Local application imports
+from apps.agents.models import Agent
 from apps.agents.serializers.agent import AgentResponseSchema
 from apps.common.serializers import GenericResponseSerializer
+from apps.llms.models import LLM
 from apps.organization.models import Organization
 
 

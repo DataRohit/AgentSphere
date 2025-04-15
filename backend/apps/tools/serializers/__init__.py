@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.tools.serializers.mcpserver import MCPServerSerializer
 from apps.tools.serializers.mcpserver_create import (
     MCPServerAuthErrorResponseSerializer,

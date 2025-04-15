@@ -13,7 +13,7 @@ from pathlib import Path
 from django.core.asgi import get_asgi_application
 from django.core.handlers.asgi import ASGIHandler
 
-# Project imports
+# Local application imports
 from config.websocket import websocket_application
 
 # Set the base directory for the project

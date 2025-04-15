@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.organization.views.organization_create import OrganizationCreateView
 from apps.organization.views.organization_detail import OrganizationDetailView
 from apps.organization.views.organization_leave import OrganizationLeaveView

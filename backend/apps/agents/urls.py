@@ -9,12 +9,6 @@ from apps.agents.views import (
     AgentListMeView,
     AgentListView,
     AgentUpdateView,
-    LLMCreateView,
-    LLMDeleteView,
-    LLMDetailView,
-    LLMListMeView,
-    LLMListView,
-    LLMUpdateView,
 )
 
 # Set application namespace
@@ -34,16 +28,4 @@ urlpatterns = [
     path("<str:agent_id>/update/", AgentUpdateView.as_view(), name="agent-update"),
     # Agent delete URL - delete an agent by ID
     path("<str:agent_id>/delete/", AgentDeleteView.as_view(), name="agent-delete"),
-    # LLM creation URL
-    path("llm/", LLMCreateView.as_view(), name="llm-create"),
-    # LLM list URL - get all LLMs within an organization (organization_id required)
-    path("llm/list/", LLMListView.as_view(), name="llm-list"),
-    # LLM list me URL - get all LLMs created by the current user (organization_id optional)
-    path("llm/list/me/", LLMListMeView.as_view(), name="llm-list-me"),
-    # LLM detail URL - get an LLM by ID
-    path("llm/<str:llm_id>/", LLMDetailView.as_view(), name="llm-detail"),
-    # LLM update URL - update an LLM by ID
-    path("llm/<str:llm_id>/update/", LLMUpdateView.as_view(), name="llm-update"),
-    # LLM delete URL - delete an LLM by ID
-    path("llm/<str:llm_id>/delete/", LLMDeleteView.as_view(), name="llm-delete"),
 ]

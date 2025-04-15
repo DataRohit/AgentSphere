@@ -9,27 +9,29 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 
-# Project imports
-from apps.agents.models import LLM
-from apps.agents.serializers import (
-    LLMAuthErrorResponseSerializer,
-    LLMDetailNotFoundResponseSerializer,
-    LLMDetailPermissionDeniedResponseSerializer,
-    LLMDetailSuccessResponseSerializer,
-    LLMSerializer,
-)
+# Local application imports
 from apps.common.renderers import GenericJSONRenderer
+from apps.llms.models import LLM
+from apps.llms.serializers import (
+    LLMAuthErrorResponseSerializer,
+    LLMNotFoundResponseSerializer,
+    LLMPermissionDeniedResponseSerializer,
+    LLMSerializer,
+    LLMUpdateErrorResponseSerializer,
+    LLMUpdateSerializer,
+    LLMUpdateSuccessResponseSerializer,
+)
 
 # Get the User model
 User = get_user_model()
 
 
-# LLM detail view
-class LLMDetailView(APIView):
-    """LLM detail view.
+# LLM update view
+class LLMUpdateView(APIView):
+    """LLM update view.
 
-    This view allows authenticated users to retrieve LLM configuration details by ID.
-    Users can only view LLM configurations they created/own.
+    This view allows users to update their own LLM configurations.
+    Only the user who created an LLM can update it.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -48,9 +50,9 @@ class LLMDetailView(APIView):
 
     # Override the handle_exception method to customize error responses
     def handle_exception(self, exc):
-        """Handle exceptions for the LLM detail view.
+        """Handle exceptions for the LLM update view.
 
-        This method handles exceptions for the LLM detail view.
+        This method handles exceptions for the LLM update view.
 
         Args:
             exc: The exception that occurred.
@@ -89,38 +91,38 @@ class LLMDetailView(APIView):
             status=getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
         )
 
-    # Define the schema for the detail view
+    # Define the schema
     @extend_schema(
         tags=["LLMs"],
-        summary="Get LLM configuration details by ID.",
+        summary="Update an existing LLM configuration.",
         description="""
-        Retrieves the details of a specific LLM configuration by its ID.
-        Users can only view LLM configurations they created/own.
+        Updates an existing LLM configuration. Only the user who created the LLM can update it.
+        All fields are optional - only the fields that need to be updated should be included.
         """,
+        request=LLMUpdateSerializer,
         responses={
-            status.HTTP_200_OK: LLMDetailSuccessResponseSerializer,
+            status.HTTP_200_OK: LLMUpdateSuccessResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: LLMUpdateErrorResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: LLMAuthErrorResponseSerializer,
-            status.HTTP_403_FORBIDDEN: LLMDetailPermissionDeniedResponseSerializer,
-            status.HTTP_404_NOT_FOUND: LLMDetailNotFoundResponseSerializer,
+            status.HTTP_403_FORBIDDEN: LLMPermissionDeniedResponseSerializer,
+            status.HTTP_404_NOT_FOUND: LLMNotFoundResponseSerializer,
         },
     )
-    def get(self, request: Request, llm_id: str) -> Response:
-        """Get LLM configuration details by ID.
+    def patch(self, request: Request, llm_id: str) -> Response:
+        """Update an existing LLM configuration.
 
-        This method retrieves the details of a specific LLM configuration by its ID.
-        Access is granted if:
-        - The LLM is owned/created by the user
+        This method updates an existing LLM configuration. Only the user who created the LLM can update it.
 
         Args:
             request (Request): The HTTP request object.
-            llm_id (str): The ID of the LLM to retrieve.
+            llm_id (str): The ID of the LLM to update.
 
         Returns:
-            Response: The HTTP response object with the LLM details.
+            Response: The HTTP response object.
 
         Raises:
-            NotFound: If the LLM does not exist.
-            PermissionDenied: If the user does not have permission to view the LLM.
+            NotFound: If the LLM doesn't exist.
+            PermissionDenied: If the user isn't the creator of the LLM.
         """
 
         # Get the authenticated user
@@ -130,22 +132,41 @@ class LLMDetailView(APIView):
             # Try to get the LLM
             llm = LLM.objects.get(id=llm_id)
 
-            # The LLM is owned/created by the user
-            if user == llm.user:
-                # Return the LLM details
+            # Check if the user is the creator of the LLM
+            if llm.user != user:
+                # Return the error response
                 return Response(
-                    LLMSerializer(llm).data,
+                    {
+                        "error": "You do not have permission to update this LLM configuration.",
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            # Create serializer with the LLM and data
+            serializer = LLMUpdateSerializer(llm, data=request.data, partial=True)
+
+            # Validate the serializer
+            if serializer.is_valid():
+                # Save the updated LLM
+                updated_llm = serializer.save()
+
+                # Serialize the updated LLM for response
+                response_serializer = LLMSerializer(updated_llm)
+
+                # Return 200 OK with the updated LLM data
+                return Response(
+                    response_serializer.data,
                     status=status.HTTP_200_OK,
                 )
 
-            # If the access condition is not met, deny access
+            # Return 400 Bad Request with validation errors
             return Response(
-                {"error": "You do not have permission to view this LLM configuration."},
-                status=status.HTTP_403_FORBIDDEN,
+                {"errors": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         except LLM.DoesNotExist:
-            # Return a 404 error
+            # If the LLM doesn't exist, return a 404 error
             return Response(
                 {"error": "LLM configuration not found."},
                 status=status.HTTP_404_NOT_FOUND,

@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.users.views.resend_activation import ResendActivationEmailView
 from apps.users.views.user_activation import UserActivationView
 from apps.users.views.user_avatar_upload import UserAvatarUploadView

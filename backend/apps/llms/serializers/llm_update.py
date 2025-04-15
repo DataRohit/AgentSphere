@@ -2,10 +2,10 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
-from apps.agents.models import LLM, ApiType, GeminiModel, OllamaModel
-from apps.agents.serializers.llm import LLMResponseSchema
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
+from apps.llms.models import LLM, ApiType, GoogleGeminiModel, OllamaModel
+from apps.llms.serializers.llm import LLMResponseSchema
 
 
 # LLM update serializer
@@ -131,7 +131,7 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
             # Validate model selection for Gemini
             elif api_type == ApiType.GEMINI:
                 # Check if the model is in the Gemini model choices
-                if model not in [choice[0] for choice in GeminiModel.choices]:
+                if model not in [choice[0] for choice in GoogleGeminiModel.choices]:
                     # Raise a validation error
                     raise serializers.ValidationError(
                         {
@@ -140,7 +140,7 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
                                     "Invalid model for Gemini API. Choose from: {}",
                                 ).format(
                                     ", ".join(
-                                        [choice[0] for choice in GeminiModel.choices],
+                                        [choice[0] for choice in GoogleGeminiModel.choices],
                                     ),
                                 ),
                             ],
@@ -157,11 +157,7 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
                     )
 
         # If changing to Gemini but not providing a key
-        elif (
-            api_type == ApiType.GEMINI
-            and not api_key
-            and not self.instance.get_api_key()
-        ):
+        elif api_type == ApiType.GEMINI and not api_key and not self.instance.get_api_key():
             # Raise a validation error
             raise serializers.ValidationError(
                 {

@@ -1,4 +1,4 @@
-# Project imports
+# Local application imports
 from apps.users.managers.user_manager import UserManager
 
 # Exports

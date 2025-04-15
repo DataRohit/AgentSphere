@@ -2,7 +2,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
-# Project imports
+# Local application imports
 from apps.common.serializers import GenericResponseSerializer
 from apps.organization.serializers.organization import OrganizationSerializer
 from apps.users.models import User
@@ -120,8 +120,7 @@ class OrganizationMemberAddSerializer(serializers.Serializer):
             # Raise a validation error if the user does not exist
             raise serializers.ValidationError(
                 {
-                    field_name: _("User with this %s does not exist.")
-                    % field_name.replace("_", " "),
+                    field_name: _("User with this %s does not exist.") % field_name.replace("_", " "),
                 },
             ) from None
 
@@ -359,8 +358,7 @@ class OrganizationMemberRemoveSerializer(serializers.Serializer):
             # Raise a validation error if the user does not exist
             raise serializers.ValidationError(
                 {
-                    field_name: _("User with this %s does not exist.")
-                    % field_name.replace("_", " "),
+                    field_name: _("User with this %s does not exist.") % field_name.replace("_", " "),
                 },
             ) from None
 
