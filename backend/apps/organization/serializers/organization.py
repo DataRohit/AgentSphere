@@ -21,7 +21,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
         logo_url (str): The URL to the organization's logo.
         owner (UserDetailSerializer): The owner of the organization.
         member_count (int): The number of members in the organization.
-        is_active (bool): Whether the organization is active.
+
         created_at (datetime): The date and time the organization was created.
         updated_at (datetime): The date and time the organization was last updated.
 
@@ -68,7 +68,6 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "logo_url",
             "owner",
             "member_count",
-            "is_active",
             "created_at",
             "updated_at",
         ]
@@ -77,7 +76,6 @@ class OrganizationSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "owner",
-            "is_active",
             "created_at",
             "updated_at",
         ]

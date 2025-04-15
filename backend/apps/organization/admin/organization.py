@@ -31,7 +31,6 @@ class OrganizationAdmin(admin.ModelAdmin):
         "owner",
         "display_logo",
         "member_count",
-        "is_active",
         "created_at",
     ]
 
@@ -42,7 +41,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     search_fields = ["name", "owner__email", "owner__username"]
 
     # Fields to filter by in the admin interface
-    list_filter = ["is_active", "created_at"]
+    list_filter = ["created_at"]
 
     # Fields that cannot be modified
     readonly_fields = ["member_count", "display_logo", "created_at", "updated_at"]
@@ -56,7 +55,7 @@ class OrganizationAdmin(admin.ModelAdmin):
             _("Organization Information"),
             {"fields": ("name", "description", "logo", "display_logo", "website")},
         ),
-        (_("Ownership and Status"), {"fields": ("owner", "is_active")}),
+        (_("Ownership"), {"fields": ("owner",)}),
         (_("Members"), {"fields": ("members",)}),
         (
             _("Important Dates"),

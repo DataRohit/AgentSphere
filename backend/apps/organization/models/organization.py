@@ -27,7 +27,6 @@ class Organization(TimeStampedModel):
         logo (ImageField): The logo image of the organization.
         owner (ForeignKey): The user who created and owns the organization.
         members (ManyToManyField): Users who are members of the organization.
-        is_active (BooleanField): Flag indicating if the organization is active.
 
     Meta:
         verbose_name (str): Human-readable name for the model.
@@ -82,12 +81,6 @@ class Organization(TimeStampedModel):
         verbose_name=_("Members"),
         related_name="organizations",
         blank=True,
-    )
-
-    # Organization active status
-    is_active = models.BooleanField(
-        verbose_name=_("Active Status"),
-        default=True,
     )
 
     # Meta class for Organization model configuration
