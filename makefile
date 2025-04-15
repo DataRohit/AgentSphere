@@ -28,9 +28,16 @@ help:
 	@echo -e "$(GREEN)make restart$(NC)           - \xF0\x9F\x94\x84 Restart all containers"
 	@echo -e "$(GREEN)make restart-app$(NC)       - \xF0\x9F\x94\x84 Restart application containers"
 	@echo -e "$(GREEN)make restart-infra$(NC)     - \xF0\x9F\x94\x84 Restart infrastructure containers"
+	@echo -e "$(YELLOW)===== Python Code Quality Commands =====$(NC)"
+	@echo -e "$(GREEN)make lint$(NC)              - \xF0\x9F\x94\x8E Run ruff linter on Python code"
+	@echo -e "$(GREEN)make format$(NC)            - \xF0\x9F\x92\x85 Format Python code with ruff"
+	@echo -e "$(GREEN)make fix$(NC)               - \xF0\x9F\x94\xA7 Fix auto-fixable issues with ruff"
 
 # Docker Commands
 .PHONY: up down ps logs build clean restart restart-app restart-infra
+
+# Python Code Quality Commands
+.PHONY: lint format fix
 
 # Infrastructure Services
 INFRA_SERVICES := postgres-service pgadmin-service vault-service minio-service dicebear-service redis-service mailpit-service
@@ -111,4 +118,22 @@ restart-infra:
 	@echo -e "$(BLUE)\xF0\x9F\x94\x84 Restarting infrastructure containers...$(NC)"
 	docker-compose restart $(INFRA_SERVICES)
 	@echo -e "$(GREEN)[OK] Infrastructure containers restarted!$(NC)"
+
+# Run ruff linter on Python code
+lint:
+	@echo -e "$(PURPLE)\xF0\x9F\x94\x8E Running ruff linter...$(NC)"
+	ruff check .
+	@echo -e "$(GREEN)[OK] Linting completed!$(NC)"
+
+# Format Python code with ruff
+format:
+	@echo -e "$(PURPLE)\xF0\x9F\x92\x85 Formatting Python code...$(NC)"
+	ruff format .
+	@echo -e "$(GREEN)[OK] Formatting completed!$(NC)"
+
+# Fix auto-fixable issues with ruff
+fix:
+	@echo -e "$(PURPLE)\xF0\x9F\x94\xA7 Fixing auto-fixable issues...$(NC)"
+	ruff check --fix .
+	@echo -e "$(GREEN)[OK] Auto-fixes applied!$(NC)"
 
