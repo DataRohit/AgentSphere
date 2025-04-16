@@ -36,6 +36,7 @@ class SingleChatUserSerializer(serializers.Serializer):
     Attributes:
         id (UUID): User's unique identifier.
         username (str): Username of the user.
+        email (str): Email of the user.
     """
 
     # ID field
@@ -47,6 +48,12 @@ class SingleChatUserSerializer(serializers.Serializer):
     # Username field
     username = serializers.CharField(
         help_text=_("Username of the user."),
+        read_only=True,
+    )
+
+    # Email field
+    email = serializers.EmailField(
+        help_text=_("Email of the user."),
         read_only=True,
     )
 
@@ -175,7 +182,7 @@ class SingleChatSerializer(serializers.ModelSerializer):
             obj (SingleChat): The single chat instance.
 
         Returns:
-            dict: The user details including id and username.
+            dict: The user details including id, username, and email.
         """
 
         # If the chat has a user
@@ -184,6 +191,7 @@ class SingleChatSerializer(serializers.ModelSerializer):
             return {
                 "id": str(obj.user.id),
                 "username": obj.user.username,
+                "email": obj.user.email,
             }
 
         # Return None if the chat has no user
@@ -224,7 +232,7 @@ class SingleChatResponseSchema(serializers.Serializer):
         title (str): The chat's title.
         is_public (bool): Whether this chat is publicly visible to other users in the organization.
         organization (SingleChatOrganizationSerializer): Organization details including id and name.
-        user (SingleChatUserSerializer): User details including id and username.
+        user (SingleChatUserSerializer): User details including id, username, and email.
         agent (SingleChatAgentSerializer): Agent details including id and name.
         created_at (datetime): The date and time the chat was created.
         updated_at (datetime): The date and time the chat was last updated.
