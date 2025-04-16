@@ -14,9 +14,9 @@ from apps.common.renderers import GenericJSONRenderer
 from apps.organization.models import Organization
 from apps.organization.serializers import (
     OrganizationAuthErrorResponseSerializer,
+    OrganizationDeleteStatusSuccessResponseSerializer,
     OrganizationDetailResponseSerializer,
     OrganizationNotFoundResponseSerializer,
-    OrganizationOwnershipTransferStatusSuccessResponseSerializer,
     OrganizationSerializer,
     OrganizationUpdateErrorResponseSerializer,
     OrganizationUpdateSerializer,
@@ -228,7 +228,7 @@ class OrganizationDetailView(APIView):
         This operation cannot be undone.
         """,
         responses={
-            status.HTTP_200_OK: OrganizationOwnershipTransferStatusSuccessResponseSerializer,
+            status.HTTP_200_OK: OrganizationDeleteStatusSuccessResponseSerializer,
             status.HTTP_404_NOT_FOUND: OrganizationNotFoundResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: OrganizationAuthErrorResponseSerializer,
         },

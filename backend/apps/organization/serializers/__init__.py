@@ -9,6 +9,7 @@ from apps.organization.serializers.organization_create import (
     OrganizationCreateSuccessResponseSerializer,
 )
 from apps.organization.serializers.organization_detail import (
+    OrganizationDeleteStatusSuccessResponseSerializer,
     OrganizationDetailResponseSerializer,
     OrganizationNotFoundResponseSerializer,
 )
