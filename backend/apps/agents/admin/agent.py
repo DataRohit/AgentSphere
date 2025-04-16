@@ -1,9 +1,10 @@
 # Third-party imports
-# Local application imports
-from apps.agents.models import Agent
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+
+# Local application imports
+from apps.agents.models import Agent
 
 
 # Admin configuration for the Agent model
