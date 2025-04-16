@@ -12,16 +12,28 @@ from apps.chats.serializers.single_chat_create import (
     SingleChatCreateSerializer,
     SingleChatCreateSuccessResponseSerializer,
 )
+from apps.chats.serializers.single_chat_update import (
+    SingleChatNotFoundErrorResponseSerializer,
+    SingleChatPermissionDeniedResponseSerializer,
+    SingleChatUpdateErrorResponseSerializer,
+    SingleChatUpdateSerializer,
+    SingleChatUpdateSuccessResponseSerializer,
+)
 
 # Exports
 __all__ = [
-    "SingleChatSerializer",
-    "SingleChatResponseSchema",
-    "SingleChatOrganizationSerializer",
-    "SingleChatUserSerializer",
     "SingleChatAgentSerializer",
+    "SingleChatAuthErrorResponseSerializer",
+    "SingleChatCreateErrorResponseSerializer",
     "SingleChatCreateSerializer",
     "SingleChatCreateSuccessResponseSerializer",
-    "SingleChatCreateErrorResponseSerializer",
-    "SingleChatAuthErrorResponseSerializer",
+    "SingleChatNotFoundErrorResponseSerializer",
+    "SingleChatOrganizationSerializer",
+    "SingleChatPermissionDeniedResponseSerializer",
+    "SingleChatResponseSchema",
+    "SingleChatSerializer",
+    "SingleChatUpdateErrorResponseSerializer",
+    "SingleChatUpdateSerializer",
+    "SingleChatUpdateSuccessResponseSerializer",
+    "SingleChatUserSerializer",
 ]
