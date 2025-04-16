@@ -3,6 +3,7 @@ from django.urls import path
 
 # Local application imports
 from apps.chats.views import (
+    GroupChatCreateView,
     SingleChatCreateView,
     SingleChatDeleteView,
     SingleChatDetailView,
@@ -28,4 +29,6 @@ urlpatterns = [
     path("single/list/", SingleChatsListView.as_view(), name="single-chats-list"),
     # Single chats list for current user URL
     path("single/list/me/", SingleChatsListMeView.as_view(), name="single-chats-list-me"),
+    # Group chat creation URL
+    path("group/", GroupChatCreateView.as_view(), name="group-chat-create"),
 ]
