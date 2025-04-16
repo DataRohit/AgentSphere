@@ -18,5 +18,5 @@ python manage.py migrate --no-input
 python manage.py collectstatic --no-input
 
 
-# Start the Django development server on all available network interfaces on port 8000
-exec watchfiles --filter python "python manage.py runserver 0.0.0.0:8000"
+# Start the Uvicorn ASGI server with hot reloading using watchfiles
+exec watchfiles --filter python "uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload"

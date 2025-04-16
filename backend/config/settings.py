@@ -98,6 +98,10 @@ ROOT_URLCONF = "config.urls"
 # WSGI application path
 WSGI_APPLICATION = "config.wsgi.application"
 
+# ASGI application path
+ASGI_APPLICATION = "config.asgi.application"
+
+
 # -----------------------------------------
 # Application definition
 # -----------------------------------------
@@ -133,6 +137,7 @@ THIRD_PARTY_APPS = [
     "health_check.contrib.migrations",
     "health_check.contrib.celery",
     "health_check.contrib.redis",
+    "channels",
 ]
 
 # Local applications
@@ -359,6 +364,20 @@ REDIS_URL = env.str("REDIS_URL", default="redis://redis:6379/0")
 REDIS_SSL = REDIS_URL.startswith("rediss://")
 
 # -----------------------------------------
+# Channel layers settings
+# -----------------------------------------
+
+# Channel layers configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [REDIS_URL],
+        },
+    },
+}
+
+# -----------------------------------------
 # Cache settings
 # -----------------------------------------
 
@@ -370,6 +389,20 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "IGNORE_EXCEPTIONS": True,
+        },
+    },
+}
+
+# -----------------------------------------
+# Channel layers settings
+# -----------------------------------------
+
+# Channel layers configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [REDIS_URL],
         },
     },
 }
