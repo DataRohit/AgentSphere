@@ -56,6 +56,7 @@ __all__ = [
     "OrganizationCreateErrorResponseSerializer",
     "OrganizationCreateSerializer",
     "OrganizationCreateSuccessResponseSerializer",
+    "OrganizationDeleteStatusSuccessResponseSerializer",
     "OrganizationDetailResponseSerializer",
     "OrganizationLeaveErrorResponseSerializer",
     "OrganizationLeaveSuccessResponseSerializer",

@@ -5,7 +5,57 @@ from rest_framework import serializers
 
 # Local application imports
 from apps.chats.models import GroupChat
-from apps.chats.serializers.single_chat import SingleChatOrganizationSerializer, SingleChatUserSerializer
+
+
+# GroupChat organization nested serializer for API documentation
+class GroupChatOrganizationSerializer(serializers.Serializer):
+    """GroupChat organization serializer for use in group chat responses.
+
+    Attributes:
+        id (UUID): Organization's unique identifier.
+        name (str): Name of the organization.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the organization."),
+        read_only=True,
+    )
+
+    # Name field
+    name = serializers.CharField(
+        help_text=_("Name of the organization."),
+        read_only=True,
+    )
+
+
+# GroupChat user nested serializer for API documentation
+class GroupChatUserSerializer(serializers.Serializer):
+    """GroupChat user serializer for use in group chat responses.
+
+    Attributes:
+        id (UUID): User's unique identifier.
+        username (str): Username of the user.
+        email (str): Email of the user.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the user."),
+        read_only=True,
+    )
+
+    # Username field
+    username = serializers.CharField(
+        help_text=_("Username of the user."),
+        read_only=True,
+    )
+
+    # Email field
+    email = serializers.EmailField(
+        help_text=_("Email of the user."),
+        read_only=True,
+    )
 
 
 # GroupChat agent nested serializer for API documentation
@@ -101,7 +151,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
         ]
 
     # Get organization details
-    @extend_schema_field(SingleChatOrganizationSerializer())
+    @extend_schema_field(GroupChatOrganizationSerializer())
     def get_organization(self, obj: GroupChat) -> dict | None:
         """Get organization details for the chat.
 
@@ -124,7 +174,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
         return None
 
     # Get user details
-    @extend_schema_field(SingleChatUserSerializer())
+    @extend_schema_field(GroupChatUserSerializer())
     def get_user(self, obj: GroupChat) -> dict | None:
         """Get user details for the chat.
 
@@ -217,14 +267,14 @@ class GroupChatResponseSchema(serializers.Serializer):
     )
 
     # Organization field using the proper serializer
-    organization = SingleChatOrganizationSerializer(
+    organization = GroupChatOrganizationSerializer(
         help_text=_("Organization details the chat belongs to."),
         required=False,
         allow_null=True,
     )
 
     # User field using the proper serializer
-    user = SingleChatUserSerializer(
+    user = GroupChatUserSerializer(
         help_text=_("User details who participates in the chat."),
         required=False,
         allow_null=True,
