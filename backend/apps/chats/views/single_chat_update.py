@@ -47,7 +47,7 @@ class SingleChatUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Define the object label
-    object_label = "single_chat"
+    object_label = "chat"
 
     # Override the handle_exception method to customize error responses
     def handle_exception(self, exc):

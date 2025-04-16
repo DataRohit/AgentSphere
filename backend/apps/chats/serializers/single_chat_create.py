@@ -217,10 +217,10 @@ class SingleChatCreateSuccessResponseSerializer(GenericResponseSerializer):
         help_text=_("HTTP status code for the response."),
     )
 
-    # SingleChat data
-    single_chat = SingleChatResponseSchema(
+    # Chat data
+    chat = SingleChatResponseSchema(
         help_text=_(
-            "The newly created single chat with necessary organization, user, and agent information.",
+            "The newly created chat with necessary organization, user, and agent information.",
         ),
     )
 
