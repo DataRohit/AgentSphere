@@ -2,9 +2,11 @@
 from apps.chats.views.single_chat_create import SingleChatCreateView
 from apps.chats.views.single_chat_detail import SingleChatDetailView
 from apps.chats.views.single_chat_update import SingleChatUpdateView
+from apps.chats.views.single_chats_list import SingleChatsListView
 
 # Exports
 __all__ = [
+    "SingleChatsListView",
     "SingleChatCreateView",
     "SingleChatDetailView",
     "SingleChatUpdateView",
