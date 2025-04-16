@@ -152,14 +152,14 @@ class SingleChatSerializer(serializers.ModelSerializer):
 
     # Get organization details
     @extend_schema_field(SingleChatOrganizationSerializer())
-    def get_organization(self, obj: SingleChat) -> dict:
+    def get_organization(self, obj: SingleChat) -> dict | None:
         """Get organization details for the chat.
 
         Args:
             obj (SingleChat): The single chat instance.
 
         Returns:
-            dict: The organization details including id and name.
+            dict | None: The organization details including id and name.
         """
 
         # If the chat has an organization
@@ -175,14 +175,14 @@ class SingleChatSerializer(serializers.ModelSerializer):
 
     # Get user details
     @extend_schema_field(SingleChatUserSerializer())
-    def get_user(self, obj: SingleChat) -> dict:
+    def get_user(self, obj: SingleChat) -> dict | None:
         """Get user details for the chat.
 
         Args:
             obj (SingleChat): The single chat instance.
 
         Returns:
-            dict: The user details including id, username, and email.
+            dict | None: The user details including id, username, and email.
         """
 
         # If the chat has a user
@@ -199,14 +199,14 @@ class SingleChatSerializer(serializers.ModelSerializer):
 
     # Get agent details
     @extend_schema_field(SingleChatAgentSerializer())
-    def get_agent(self, obj: SingleChat) -> dict:
+    def get_agent(self, obj: SingleChat) -> dict | None:
         """Get agent details for the chat.
 
         Args:
             obj (SingleChat): The single chat instance.
 
         Returns:
-            dict: The agent details including id and name.
+            dict | None: The agent details including id and name.
         """
 
         # If the chat has an agent

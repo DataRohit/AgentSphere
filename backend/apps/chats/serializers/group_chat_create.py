@@ -78,7 +78,7 @@ class GroupChatCreateSerializer(serializers.ModelSerializer):
         }
 
     # Validate the serializer data
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Validate the serializer data.
 
         This method validates that:
@@ -192,7 +192,7 @@ class GroupChatCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     # Create a new group chat
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> GroupChat:
         """Create a new group chat.
 
         This method creates a new group chat with the validated data.

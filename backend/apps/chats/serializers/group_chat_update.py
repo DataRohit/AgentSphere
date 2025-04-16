@@ -66,7 +66,7 @@ class GroupChatUpdateSerializer(serializers.ModelSerializer):
         }
 
     # Validate the serializer data
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Validate the serializer data.
 
         This method validates that:
@@ -173,7 +173,7 @@ class GroupChatUpdateSerializer(serializers.ModelSerializer):
         return attrs
 
     # Update the group chat with the validated data
-    def update(self, instance, validated_data):
+    def update(self, instance: GroupChat, validated_data: dict) -> GroupChat:
         """Update the group chat with the validated data.
 
         Args:

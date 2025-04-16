@@ -102,14 +102,14 @@ class GroupChatSerializer(serializers.ModelSerializer):
 
     # Get organization details
     @extend_schema_field(SingleChatOrganizationSerializer())
-    def get_organization(self, obj: GroupChat) -> dict:
+    def get_organization(self, obj: GroupChat) -> dict | None:
         """Get organization details for the chat.
 
         Args:
             obj (GroupChat): The group chat instance.
 
         Returns:
-            dict: The organization details including id and name.
+            dict | None: The organization details including id and name.
         """
 
         # If the chat has an organization
@@ -125,14 +125,14 @@ class GroupChatSerializer(serializers.ModelSerializer):
 
     # Get user details
     @extend_schema_field(SingleChatUserSerializer())
-    def get_user(self, obj: GroupChat) -> dict:
+    def get_user(self, obj: GroupChat) -> dict | None:
         """Get user details for the chat.
 
         Args:
             obj (GroupChat): The group chat instance.
 
         Returns:
-            dict: The user details including id, username, and email.
+            dict | None: The user details including id, username, and email.
         """
 
         # If the chat has a user

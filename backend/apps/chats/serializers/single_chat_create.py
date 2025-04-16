@@ -77,7 +77,7 @@ class SingleChatCreateSerializer(serializers.ModelSerializer):
         }
 
     # Validate the serializer data
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Validate the serializer data.
 
         This method validates that:
@@ -184,7 +184,7 @@ class SingleChatCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     # Create method to create a new single chat
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> SingleChat:
         """Create a new single chat with the validated data.
 
         Args:
