@@ -23,6 +23,13 @@ from apps.chats.serializers.group_chat_update import (
     GroupChatUpdateSerializer,
     GroupChatUpdateSuccessResponseSerializer,
 )
+from apps.chats.serializers.group_chats_list import (
+    GroupChatsListAuthErrorResponseSerializer,
+    GroupChatsListMissingParamResponseSerializer,
+    GroupChatsListNotFoundResponseSerializer,
+    GroupChatsListPermissionDeniedResponseSerializer,
+    GroupChatsListSuccessResponseSerializer,
+)
 from apps.chats.serializers.single_chat import (
     SingleChatAgentSerializer,
     SingleChatOrganizationSerializer,
@@ -78,6 +85,11 @@ __all__ = [
     "GroupChatPermissionDeniedResponseSerializer",
     "GroupChatResponseSchema",
     "GroupChatSerializer",
+    "GroupChatsListAuthErrorResponseSerializer",
+    "GroupChatsListMissingParamResponseSerializer",
+    "GroupChatsListNotFoundResponseSerializer",
+    "GroupChatsListPermissionDeniedResponseSerializer",
+    "GroupChatsListSuccessResponseSerializer",
     "GroupChatUpdateErrorResponseSerializer",
     "GroupChatUpdateSerializer",
     "GroupChatUpdateSuccessResponseSerializer",
