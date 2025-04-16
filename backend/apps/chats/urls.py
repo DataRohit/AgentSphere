@@ -4,6 +4,7 @@ from django.urls import path
 # Local application imports
 from apps.chats.views import (
     GroupChatCreateView,
+    GroupChatDeleteView,
     GroupChatDetailView,
     GroupChatsListMeView,
     GroupChatsListView,
@@ -39,6 +40,8 @@ urlpatterns = [
     path("group/<str:group_chat_id>/", GroupChatDetailView.as_view(), name="group-chat-detail"),
     # Group chat update URL
     path("group/<str:group_chat_id>/update/", GroupChatUpdateView.as_view(), name="group-chat-update"),
+    # Group chat delete URL
+    path("group/<str:group_chat_id>/delete/", GroupChatDeleteView.as_view(), name="group-chat-delete"),
     # Group chats list URL
     path("group/list/", GroupChatsListView.as_view(), name="group-chats-list"),
     # Group chats list for current user URL
