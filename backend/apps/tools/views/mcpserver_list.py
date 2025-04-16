@@ -85,8 +85,6 @@ class MCPServerListView(APIView):
         Lists all MCP servers within the specified organization, including those created by
         other members of the organization. The organization_id parameter is mandatory.
         Supports filtering by tags.
-        Returns 400 if organization_id is not provided.
-        Returns 404 if no MCP servers are found matching the criteria.
         """,
         parameters=[
             OpenApiParameter(

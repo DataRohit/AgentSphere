@@ -79,7 +79,6 @@ class LLMListMeView(APIView):
         description="""
         Lists all LLM configurations created by the authenticated user.
         Supports optional filtering by organization_id and api_type.
-        Returns 404 if no LLM configurations are found matching the criteria.
         """,
         parameters=[
             OpenApiParameter(

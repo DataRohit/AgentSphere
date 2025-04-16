@@ -154,6 +154,7 @@ class AgentSerializer(serializers.ModelSerializer):
             "organization",
             "user",
             "llm",
+            "is_public",
             "created_at",
             "updated_at",
         ]
@@ -264,6 +265,7 @@ class AgentResponseSchema(serializers.Serializer):
         description (str): The agent's description.
         system_prompt (str): The agent's system prompt.
         avatar_url (str): The URL to the agent's avatar.
+        is_public (bool): Whether this agent is publicly visible to other users in the organization.
         organization (AgentOrganizationSerializer): Organization details including id and name.
         user (UserSerializer): User details including id, username, and email.
         llm (LLMSerializer): LLM details including id, api_type, and model.
@@ -295,6 +297,11 @@ class AgentResponseSchema(serializers.Serializer):
     # Avatar URL field
     avatar_url = serializers.URLField(
         help_text=_("URL for the agent's avatar image."),
+    )
+
+    # Is public field
+    is_public = serializers.BooleanField(
+        help_text=_("Whether this agent is publicly visible to other users in the organization."),
     )
 
     # Created at field

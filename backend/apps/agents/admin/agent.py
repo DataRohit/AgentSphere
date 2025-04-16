@@ -1,10 +1,9 @@
 # Third-party imports
+# Local application imports
+from apps.agents.models import Agent
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-
-# Local application imports
-from apps.agents.models import Agent
 
 
 # Admin configuration for the Agent model
@@ -30,11 +29,12 @@ class AgentAdmin(admin.ModelAdmin):
         "llm",
         "organization",
         "user",
+        "is_public",
         "created_at",
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["created_at", "organization", "llm__api_type"]
+    list_filter = ["created_at", "organization", "llm__api_type", "is_public"]
 
     # Fields that can be searched
     search_fields = [
@@ -56,7 +56,7 @@ class AgentAdmin(admin.ModelAdmin):
         (
             _("Configuration"),
             {
-                "fields": ["system_prompt", "llm"],
+                "fields": ["system_prompt", "llm", "is_public"],
             },
         ),
         (

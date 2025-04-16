@@ -31,7 +31,7 @@ class AgentDetailView(APIView):
     This view allows authenticated users to retrieve agent details by ID.
     Users can view:
     - Agents they own (both public and private)
-    - Public agents from organizations they belong to
+    - Agents from organizations they belong to that have is_public=True
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -99,7 +99,7 @@ class AgentDetailView(APIView):
         Retrieves the details of a specific agent by its ID.
         Users can only view:
         - Agents they own (both public and private)
-        - Public agents from organizations they belong to
+        - Agents from organizations they belong to that have is_public=True
         """,
         responses={
             status.HTTP_200_OK: AgentDetailSuccessResponseSerializer,
@@ -141,7 +141,7 @@ class AgentDetailView(APIView):
                 )
 
             # If the agent belongs to the user's organization and is public
-            if agent.organization and user == agent.organization.owner:
+            if agent.organization and agent.is_public and user.organizations.filter(id=agent.organization.id).exists():
                 # Return the agent details
                 return Response(
                     AgentSerializer(agent).data,

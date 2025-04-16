@@ -58,6 +58,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
             "description",
             "system_prompt",
             "llm_id",
+            "is_public",
         ]
 
         # Extra kwargs
@@ -65,6 +66,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
             "name": {"required": False},
             "description": {"required": False},
             "system_prompt": {"required": False},
+            "is_public": {"required": False},
         }
 
     # Validate the serializer data

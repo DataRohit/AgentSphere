@@ -80,8 +80,6 @@ class MCPServerDetailView(APIView):
         description="""
         Retrieves the details of an MCP server by its ID.
         Users can only view MCP servers they have created.
-        Returns 404 if the MCP server is not found.
-        Returns 403 if the user does not have permission to view the MCP server.
         """,
         responses={
             status.HTTP_200_OK: MCPServerDetailSuccessResponseSerializer,

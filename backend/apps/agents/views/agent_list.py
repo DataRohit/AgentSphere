@@ -28,9 +28,10 @@ User = get_user_model()
 class AgentListView(APIView):
     """Agent list view.
 
-    This view allows authenticated users to list all agents within an organization.
-    It requires the organization_id parameter and returns all agents in that organization,
+    This view allows authenticated users to list all public agents within an organization.
+    It requires the organization_id parameter and returns all public agents in that organization,
     including those created by other members of the organization.
+    Only agents with is_public=True are returned.
     It supports filtering by type.
 
     Attributes:
@@ -78,13 +79,12 @@ class AgentListView(APIView):
     # Define the schema for the list view
     @extend_schema(
         tags=["Agents"],
-        summary="List all agents within an organization.",
+        summary="List all public agents within an organization.",
         description="""
-        Lists all agents within the specified organization, including those created by
-        other members of the organization. The organization_id parameter is mandatory.
+        Lists all public agents within the specified organization, including those created by
+        other members of the organization. Only agents with is_public=True are returned.
+        The organization_id parameter is mandatory.
         Supports filtering by type.
-        Returns 400 if organization_id is not provided.
-        Returns 404 if no agents are found matching the criteria.
         """,
         parameters=[
             OpenApiParameter(
@@ -108,10 +108,11 @@ class AgentListView(APIView):
         },
     )
     def get(self, request: Request) -> Response:
-        """List all agents within an organization.
+        """List all public agents within an organization.
 
-        This method lists all agents within the specified organization,
+        This method lists all public agents within the specified organization,
         including those created by other members of the organization.
+        Only agents with is_public=True are returned.
         The organization_id parameter is mandatory.
 
         Args:
@@ -144,8 +145,8 @@ class AgentListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Get all agents in the specified organization
-        queryset = Agent.objects.filter(organization_id=organization_id).distinct()
+        # Get all agents in the specified organization that are public
+        queryset = Agent.objects.filter(organization_id=organization_id, is_public=True).distinct()
 
         # Apply type filter if provided
         agent_type = request.query_params.get("type")

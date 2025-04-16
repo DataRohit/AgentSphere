@@ -81,7 +81,6 @@ class MCPServerListMeView(APIView):
         description="""
         Lists all MCP servers created by the authenticated user.
         Supports optional filtering by organization_id and tags.
-        Returns 404 if no MCP servers are found matching the criteria.
         """,
         parameters=[
             OpenApiParameter(

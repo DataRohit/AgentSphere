@@ -31,6 +31,7 @@ class Agent(TimeStampedModel):
         organization (ForeignKey): The organization this agent belongs to.
         user (ForeignKey): The user who created this agent.
         llm (ForeignKey): The LLM model this agent is connected to.
+        is_public (BooleanField): Whether this agent is publicly visible to other users in the organization.
         avatar_url (URLField): URL for the agent's avatar image.
 
     Meta:
@@ -89,6 +90,13 @@ class Agent(TimeStampedModel):
         help_text=_("The LLM model this agent uses for responses"),
         null=True,
         blank=True,
+    )
+
+    # Agent visibility setting
+    is_public = models.BooleanField(
+        verbose_name=_("Public"),
+        default=False,
+        help_text=_("Whether this agent is publicly visible to other users in the organization"),
     )
 
     # Meta class for Agent model configuration
