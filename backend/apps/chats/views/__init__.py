@@ -8,10 +8,10 @@ from apps.chats.views.single_chats_list_me import SingleChatsListMeView
 
 # Exports
 __all__ = [
-    "SingleChatsListView",
-    "SingleChatsListMeView",
     "SingleChatCreateView",
     "SingleChatDeleteView",
     "SingleChatDetailView",
     "SingleChatUpdateView",
+    "SingleChatsListMeView",
+    "SingleChatsListView",
 ]

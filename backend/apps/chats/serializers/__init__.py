@@ -41,11 +41,6 @@ from apps.chats.serializers.single_chats_list import (
 
 # Exports
 __all__ = [
-    "SingleChatsListAuthErrorResponseSerializer",
-    "SingleChatsListMissingParamResponseSerializer",
-    "SingleChatsListNotFoundResponseSerializer",
-    "SingleChatsListPermissionDeniedResponseSerializer",
-    "SingleChatsListSuccessResponseSerializer",
     "SingleChatAgentSerializer",
     "SingleChatAuthErrorResponseSerializer",
     "SingleChatCreateErrorResponseSerializer",
@@ -68,4 +63,9 @@ __all__ = [
     "SingleChatUpdateSerializer",
     "SingleChatUpdateSuccessResponseSerializer",
     "SingleChatUserSerializer",
+    "SingleChatsListAuthErrorResponseSerializer",
+    "SingleChatsListMissingParamResponseSerializer",
+    "SingleChatsListNotFoundResponseSerializer",
+    "SingleChatsListPermissionDeniedResponseSerializer",
+    "SingleChatsListSuccessResponseSerializer",
 ]
