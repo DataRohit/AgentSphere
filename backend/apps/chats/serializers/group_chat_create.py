@@ -144,8 +144,8 @@ class GroupChatCreateSerializer(serializers.ModelSerializer):
                             {
                                 "agent_ids": [
                                     _(
-                                        "The agent must belong to the same organization as the chat.",
-                                    ),
+                                        "Agent with ID {agent_id} does not belong to the specified organization.",
+                                    ).format(agent_id=agent_id),
                                 ],
                             },
                         )
@@ -158,7 +158,9 @@ class GroupChatCreateSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {
                             "agent_ids": [
-                                _("Agent not found."),
+                                _(
+                                    "Agent with ID {agent_id} not found.",
+                                ).format(agent_id=agent_id),
                             ],
                         },
                     ) from None
