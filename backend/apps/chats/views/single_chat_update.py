@@ -94,7 +94,7 @@ class SingleChatUpdateView(APIView):
 
     # Define the schema for the PATCH view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Single Chats"],
         summary="Update a single chat.",
         description="""
         Updates an existing single chat. The user must be the owner of the chat

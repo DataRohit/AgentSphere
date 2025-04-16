@@ -84,7 +84,7 @@ class GroupChatDetailView(APIView):
 
     # Define the schema for the GET view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Group Chats"],
         summary="Get a group chat by ID.",
         description="""
         Retrieves a group chat by ID. The user must be the owner of the chat,
@@ -131,11 +131,7 @@ class GroupChatDetailView(APIView):
             has_permission = (
                 group_chat.user == user
                 or (group_chat.organization and user == group_chat.organization.owner)
-                or (
-                    group_chat.is_public
-                    and group_chat.organization
-                    and user in group_chat.organization.members.all()
-                )
+                or (group_chat.is_public and group_chat.organization and user in group_chat.organization.members.all())
             )
 
             # If user doesn't have permission

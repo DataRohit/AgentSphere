@@ -78,7 +78,7 @@ class GroupChatsListMeView(APIView):
 
     # Define the schema for the GET view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Group Chats"],
         summary="List group chats created by the current user within an organization.",
         description="""
         Lists group chats created by the current user within the specified organization.

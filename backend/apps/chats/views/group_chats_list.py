@@ -80,7 +80,7 @@ class GroupChatsListView(APIView):
 
     # Define the schema for the GET view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Group Chats"],
         summary="List group chats within an organization.",
         description="""
         Lists group chats within the specified organization based on user permissions:

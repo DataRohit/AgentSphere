@@ -74,7 +74,7 @@ class SingleChatCreateView(APIView):
 
     # Define the schema for the POST view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Single Chats"],
         summary="Create a new single chat.",
         description="""
         Creates a new single chat within an organization with the authenticated user as the participant.

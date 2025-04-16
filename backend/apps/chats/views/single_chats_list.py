@@ -80,7 +80,7 @@ class SingleChatsListView(APIView):
 
     # Define the schema for the GET view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Single Chats"],
         summary="List chats within an organization.",
         description="""
         Lists chats within the specified organization based on user permissions:

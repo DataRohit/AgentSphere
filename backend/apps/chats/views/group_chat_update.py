@@ -86,7 +86,7 @@ class GroupChatUpdateView(APIView):
 
     # Define the schema for the PATCH view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Group Chats"],
         summary="Update a group chat.",
         description="""
         Updates an existing group chat. The user must be the owner of the chat

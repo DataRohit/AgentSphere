@@ -92,7 +92,7 @@ class SingleChatDetailView(APIView):
 
     # Define the schema for the GET view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Single Chats"],
         summary="Get a single chat by ID.",
         description="""
         Retrieves a single chat by ID. The user must be the owner of the chat,

@@ -74,7 +74,7 @@ class GroupChatCreateView(APIView):
 
     # Define the schema for the POST view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Group Chats"],
         summary="Create a new group chat.",
         description="""
         Creates a new group chat within an organization with the authenticated user as the participant.

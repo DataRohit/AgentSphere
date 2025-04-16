@@ -76,7 +76,7 @@ class GroupChatDeleteView(APIView):
 
     # Define the schema for the DELETE view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Group Chats"],
         summary="Delete a group chat by ID.",
         description="""
         Deletes a group chat by ID. The user must be the owner of the chat or

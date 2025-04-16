@@ -78,7 +78,7 @@ class SingleChatsListMeView(APIView):
 
     # Define the schema for the GET view
     @extend_schema(
-        tags=["Chats"],
+        tags=["Single Chats"],
         summary="List chats created by the current user within an organization.",
         description="""
         Lists chats created by the current user within the specified organization.
