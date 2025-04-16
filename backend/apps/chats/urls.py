@@ -6,6 +6,7 @@ from apps.chats.views import (
     SingleChatCreateView,
     SingleChatDeleteView,
     SingleChatDetailView,
+    SingleChatsListMeView,
     SingleChatsListView,
     SingleChatUpdateView,
 )
@@ -25,4 +26,6 @@ urlpatterns = [
     path("single/<str:single_chat_id>/delete/", SingleChatDeleteView.as_view(), name="single-chat-delete"),
     # Single chats list URL
     path("single/list/", SingleChatsListView.as_view(), name="single-chats-list"),
+    # Single chats list for current user URL
+    path("single/list/me/", SingleChatsListMeView.as_view(), name="single-chats-list-me"),
 ]

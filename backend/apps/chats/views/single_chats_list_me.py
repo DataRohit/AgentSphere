@@ -1,6 +1,5 @@
 # Third-party imports
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
@@ -27,14 +26,13 @@ from apps.organization.models import Organization
 User = get_user_model()
 
 
-# Single chats list view
-class SingleChatsListView(APIView):
-    """Single chats list view.
+# Single chats list me view
+class SingleChatsListMeView(APIView):
+    """Single chats list me view.
 
-    This view allows authenticated users to list chats within an organization.
-    It requires the organization_id parameter and returns chats based on user permissions:
-    - Organization owners can see all chats in the organization
-    - Organization members can see their own chats and public chats in the organization
+    This view allows authenticated users to list their own chats within an organization.
+    It requires the organization_id parameter and returns only chats created by the current user.
+    Additional filters for agent_id and is_public are available.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -53,9 +51,9 @@ class SingleChatsListView(APIView):
 
     # Override the handle_exception method to customize error responses
     def handle_exception(self, exc):
-        """Handle exceptions for the single chats list view.
+        """Handle exceptions for the single chats list me view.
 
-        This method handles exceptions for the single chats list view.
+        This method handles exceptions for the single chats list me view.
 
         Args:
             exc: The exception that occurred.
@@ -81,25 +79,17 @@ class SingleChatsListView(APIView):
     # Define the schema for the GET view
     @extend_schema(
         tags=["Chats"],
-        summary="List chats within an organization.",
+        summary="List chats created by the current user within an organization.",
         description="""
-        Lists chats within the specified organization based on user permissions:
-        - Organization owners can see all chats in the organization
-        - Organization members can see their own chats and public chats in the organization
+        Lists chats created by the current user within the specified organization.
         The organization_id parameter is mandatory.
-        Additional filters for user_id, agent_id, and is_public are available.
+        Additional filters for agent_id and is_public are available.
         """,
         parameters=[
             OpenApiParameter(
                 name="organization_id",
                 description="Organization ID (required)",
                 required=True,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="user_id",
-                description="Filter by user ID",
-                required=False,
                 type=str,
             ),
             OpenApiParameter(
@@ -124,15 +114,12 @@ class SingleChatsListView(APIView):
         },
     )
     def get(self, request: Request) -> Response:
-        """List chats within an organization.
+        """List chats created by the current user within an organization.
 
-        This method lists chats within the specified organization based on user permissions:
-        - Organization owners can see all chats in the organization
-        - Organization members can see their own chats and public chats in the organization
+        This method lists chats created by the current user within the specified organization.
         The organization_id parameter is mandatory.
 
         Additional filters can be applied using query parameters:
-        - user_id: Filter chats by specific user
         - agent_id: Filter chats by specific agent
         - is_public: Filter chats by public status (true/false)
 
@@ -167,22 +154,11 @@ class SingleChatsListView(APIView):
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
-            # Initialize queryset based on user's role in the organization
-            if user == organization.owner:
-                # Organization owner can see all chats
-                queryset = SingleChat.objects.filter(organization=organization)
-
-            else:
-                # Organization member can see their own chats and public chats
-                queryset = SingleChat.objects.filter(
-                    Q(organization=organization) & (Q(user=user) | Q(is_public=True)),
-                )
-
-            # If user_id is provided
-            user_id = request.query_params.get("user_id")
-            if user_id:
-                # Filter by user_id
-                queryset = queryset.filter(user_id=user_id)
+            # Initialize queryset to only include chats created by the current user
+            queryset = SingleChat.objects.filter(
+                organization=organization,
+                user=user,
+            )
 
             # If agent_id is provided
             agent_id = request.query_params.get("agent_id")
