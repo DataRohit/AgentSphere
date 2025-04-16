@@ -24,6 +24,7 @@ class SingleChat(TimeStampedModel):
         organization (ForeignKey): The organization this chat belongs to.
         user (ForeignKey): The user participating in this chat.
         agent (ForeignKey): The agent participating in this chat.
+        is_public (BooleanField): Whether this chat is publicly visible to other users in the organization.
 
     Meta:
         verbose_name (str): Human-readable name for the model.
@@ -60,6 +61,13 @@ class SingleChat(TimeStampedModel):
         verbose_name=_("Agent"),
         on_delete=models.CASCADE,
         related_name="single_chats",
+    )
+
+    # Chat visibility setting
+    is_public = models.BooleanField(
+        verbose_name=_("Public"),
+        default=False,
+        help_text=_("Whether this chat is publicly visible to other users in the organization"),
     )
 
     # Meta class for SingleChat model configuration

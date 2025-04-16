@@ -70,11 +70,12 @@ class SingleChatAdmin(admin.ModelAdmin):
         "organization",
         "user",
         "agent",
+        "is_public",
         "created_at",
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["created_at", "organization"]
+    list_filter = ["created_at", "organization", "is_public"]
 
     # Fields that can be searched
     search_fields = [
@@ -90,7 +91,7 @@ class SingleChatAdmin(admin.ModelAdmin):
         (
             _("Basic Information"),
             {
-                "fields": ["title"],
+                "fields": ["title", "is_public"],
             },
         ),
         (

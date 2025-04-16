@@ -70,11 +70,12 @@ class GroupChatAdmin(admin.ModelAdmin):
         "organization",
         "user",
         "agent_count",
+        "is_public",
         "created_at",
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["created_at", "organization"]
+    list_filter = ["created_at", "organization", "is_public"]
 
     # Fields that can be searched
     search_fields = [
@@ -89,7 +90,7 @@ class GroupChatAdmin(admin.ModelAdmin):
         (
             _("Basic Information"),
             {
-                "fields": ["title"],
+                "fields": ["title", "is_public"],
             },
         ),
         (
