@@ -77,6 +77,14 @@ from apps.chats.serializers.single_chat_message_create import (
     SingleChatMessageNotFoundErrorResponseSerializer,
     SingleChatMessagePermissionDeniedResponseSerializer,
 )
+from apps.chats.serializers.single_chat_message_update import (
+    SingleChatMessageUpdateAuthErrorResponseSerializer,
+    SingleChatMessageUpdateErrorResponseSerializer,
+    SingleChatMessageUpdateNotFoundErrorResponseSerializer,
+    SingleChatMessageUpdatePermissionDeniedResponseSerializer,
+    SingleChatMessageUpdateSerializer,
+    SingleChatMessageUpdateSuccessResponseSerializer,
+)
 from apps.chats.serializers.single_chat_update import (
     SingleChatNotFoundErrorResponseSerializer,
     SingleChatPermissionDeniedResponseSerializer,
@@ -146,6 +154,12 @@ __all__ = [
     "SingleChatMessageCreateSuccessResponseSerializer",
     "SingleChatMessageNotFoundErrorResponseSerializer",
     "SingleChatMessagePermissionDeniedResponseSerializer",
+    "SingleChatMessageUpdateAuthErrorResponseSerializer",
+    "SingleChatMessageUpdateErrorResponseSerializer",
+    "SingleChatMessageUpdateNotFoundErrorResponseSerializer",
+    "SingleChatMessageUpdatePermissionDeniedResponseSerializer",
+    "SingleChatMessageUpdateSerializer",
+    "SingleChatMessageUpdateSuccessResponseSerializer",
     "SingleChatNotFoundErrorResponseSerializer",
     "SingleChatOrganizationSerializer",
     "SingleChatPermissionDeniedResponseSerializer",

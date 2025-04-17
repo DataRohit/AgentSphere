@@ -13,6 +13,7 @@ from apps.chats.views import (
     SingleChatDeleteView,
     SingleChatDetailView,
     SingleChatMessageCreateView,
+    SingleChatMessageUpdateView,
     SingleChatsListMeView,
     SingleChatsListView,
     SingleChatUpdateView,
@@ -36,6 +37,12 @@ urlpatterns = [
         "single/<str:single_chat_id>/message/",
         SingleChatMessageCreateView.as_view(),
         name="single-chat-message-create",
+    ),
+    # Single chat message update URL
+    path(
+        "single/<str:single_chat_id>/message/<str:message_id>/",
+        SingleChatMessageUpdateView.as_view(),
+        name="single-chat-message-update",
     ),
     # Single chats list URL
     path("single/list/", SingleChatsListView.as_view(), name="single-chats-list"),
