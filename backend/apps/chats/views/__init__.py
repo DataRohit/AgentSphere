@@ -3,6 +3,7 @@ from apps.chats.views.group_chat_create import GroupChatCreateView
 from apps.chats.views.group_chat_delete import GroupChatDeleteView
 from apps.chats.views.group_chat_detail import GroupChatDetailView
 from apps.chats.views.group_chat_message_create import GroupChatMessageCreateView
+from apps.chats.views.group_chat_message_update import GroupChatMessageUpdateView
 from apps.chats.views.group_chat_update import GroupChatUpdateView
 from apps.chats.views.group_chats_list import GroupChatsListView
 from apps.chats.views.group_chats_list_me import GroupChatsListMeView
@@ -23,6 +24,7 @@ __all__ = [
     "GroupChatDeleteView",
     "GroupChatDetailView",
     "GroupChatMessageCreateView",
+    "GroupChatMessageUpdateView",
     "GroupChatUpdateView",
     "GroupChatsListMeView",
     "GroupChatsListView",
