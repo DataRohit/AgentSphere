@@ -6,6 +6,7 @@ from apps.chats.views import (
     GroupChatCreateView,
     GroupChatDeleteView,
     GroupChatDetailView,
+    GroupChatMessageCreateView,
     GroupChatsListMeView,
     GroupChatsListView,
     GroupChatUpdateView,
@@ -70,6 +71,12 @@ urlpatterns = [
     path("group/<str:group_chat_id>/update/", GroupChatUpdateView.as_view(), name="group-chat-update"),
     # Group chat delete URL
     path("group/<str:group_chat_id>/delete/", GroupChatDeleteView.as_view(), name="group-chat-delete"),
+    # Group chat message creation URL
+    path(
+        "group/<str:group_chat_id>/message/",
+        GroupChatMessageCreateView.as_view(),
+        name="group-chat-message-create",
+    ),
     # Group chats list URL
     path("group/list/", GroupChatsListView.as_view(), name="group-chats-list"),
     # Group chats list for current user URL
