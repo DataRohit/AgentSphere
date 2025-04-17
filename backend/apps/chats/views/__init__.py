@@ -8,6 +8,7 @@ from apps.chats.views.group_chats_list_me import GroupChatsListMeView
 from apps.chats.views.single_chat_create import SingleChatCreateView
 from apps.chats.views.single_chat_delete import SingleChatDeleteView
 from apps.chats.views.single_chat_detail import SingleChatDetailView
+from apps.chats.views.single_chat_message_create import SingleChatMessageCreateView
 from apps.chats.views.single_chat_update import SingleChatUpdateView
 from apps.chats.views.single_chats_list import SingleChatsListView
 from apps.chats.views.single_chats_list_me import SingleChatsListMeView
@@ -23,6 +24,7 @@ __all__ = [
     "SingleChatCreateView",
     "SingleChatDeleteView",
     "SingleChatDetailView",
+    "SingleChatMessageCreateView",
     "SingleChatUpdateView",
     "SingleChatsListMeView",
     "SingleChatsListView",
