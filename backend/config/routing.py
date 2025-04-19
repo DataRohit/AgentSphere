@@ -7,10 +7,10 @@ This module contains the WebSocket URL patterns for the AgentSphere project.
 from django.urls import path
 
 # Local application imports
-from config.websocket import websocket_application
+from config.websocket import WebSocketConsumer
 
 # WebSocket URL patterns
 websocket_urlpatterns = [
-    # Default WebSocket endpoint
-    path("ws/", websocket_application),
+    # Default WebSocket endpoint using the WebSocketConsumer class
+    path("ws/", WebSocketConsumer.as_asgi()),
 ]

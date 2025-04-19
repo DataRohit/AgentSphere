@@ -1,18 +1,23 @@
 # Standard library imports
-import json
+import asyncio
+import contextlib
 from typing import Any
 
 # Third-party imports
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 
 # WebSocket consumer
-class WebSocketConsumer(AsyncWebsocketConsumer):
-    """WebSocket consumer for handling WebSocket connections.
+class WebSocketConsumer(AsyncJsonWebsocketConsumer):
+    """WebSocket consumer for handling JSON WebSocket connections.
 
-    This consumer handles basic WebSocket connections and implements
+    This consumer handles JSON WebSocket connections and implements
     a simple ping/pong mechanism for testing connectivity.
+    It also includes a heartbeat mechanism to keep connections alive.
     """
+
+    # Class variables
+    heartbeat_interval = 30
 
     # Connect method
     async def connect(self) -> None:
@@ -24,6 +29,9 @@ class WebSocketConsumer(AsyncWebsocketConsumer):
         # Accept the WebSocket connection
         await self.accept()
 
+        # Start heartbeat task
+        self.heartbeat_task = asyncio.create_task(self.heartbeat())
+
     # Disconnect method
     async def disconnect(self, close_code: int) -> None:
         """Handle WebSocket disconnection.
@@ -34,58 +42,47 @@ class WebSocketConsumer(AsyncWebsocketConsumer):
             close_code (int): The close code for the connection.
         """
 
-    # Receive method
-    async def receive(self, text_data: str | None = None, bytes_data: bytes | None = None) -> None:
-        """Handle incoming WebSocket messages.
+        # If the heartbeat task exists
+        if hasattr(self, "heartbeat_task"):
+            # Cancel the heartbeat task
+            self.heartbeat_task.cancel()
 
-        This method is called when a WebSocket message is received.
+            # Try to await the heartbeat task
+            with contextlib.suppress(asyncio.CancelledError):
+                # Await the heartbeat task
+                await self.heartbeat_task
+
+    # Receive JSON method
+    async def receive_json(self, content: dict[str, Any], **kwargs) -> None:
+        """Handle incoming JSON WebSocket messages.
+
+        This method is called when a JSON WebSocket message is received.
+        The content is already decoded from JSON.
 
         Args:
-            text_data (str | None): The text data received.
-            bytes_data (bytes | None): The binary data received.
+            content (dict[str, Any]): The decoded JSON data received.
         """
 
-        # If text data is received
-        if text_data:
-            try:
-                # Parse the text data as JSON
-                text_data_json: dict[str, Any] = json.loads(text_data)
+        # Get the message type/content from the decoded JSON
+        message: str = content.get("message", "")
 
-                # Get the message
-                message: str = text_data_json.get("message", "")
+        # Handle ping message
+        if message == "ping":
+            # Send a pong message using send_json
+            await self.send_json({"message": "pong"})
 
-                # Handle ping message
-                if message == "ping":
-                    # Send a pong message
-                    await self.send(text_data=json.dumps({"message": "pong"}))
+    # Heartbeat method to keep the connection alive
+    async def heartbeat(self) -> None:
+        """Send periodic heartbeat messages to keep the connection alive.
 
-            # If the text data is not valid JSON
-            except json.JSONDecodeError:
-                # Handle plain text messages
-                if text_data == "ping":
-                    # Send a pong message
-                    await self.send(text_data="pong!")
+        This method runs in the background and sends a heartbeat message
+        every heartbeat_interval seconds.
+        """
 
+        # While True
+        while True:
+            # Wait for the specified interval
+            await asyncio.sleep(self.heartbeat_interval)
 
-# For backward compatibility with the old websocket_application function
-async def websocket_application(scope: dict[str, Any], receive: Any, send: Any) -> None:
-    """Legacy WebSocket application function.
-
-    This function is maintained for backward compatibility.
-
-    Args:
-        scope (dict[str, Any]): The connection scope.
-        receive (Any): The receive channel.
-        send (Any): The send channel.
-    """
-
-    # Create a WebSocketConsumer instance
-    consumer = WebSocketConsumer()
-
-    # Set the scope, receive, and send channels
-    consumer.scope = scope
-    consumer.receive = receive
-    consumer.send = send
-
-    # Call the dispatch method
-    await consumer(scope, receive, send)
+            # Send a heartbeat message using send_json
+            await self.send_json({"type": "heartbeat"})
