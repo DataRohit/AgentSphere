@@ -2,7 +2,7 @@
 from django.urls import path
 
 # Local application imports
-from apps.conversation.views import SessionCreateView, SessionDeactivateView, SessionDetailView
+from apps.conversation.views import SessionCreateView, SessionDeactivateView, SessionDeleteView, SessionDetailView
 
 # Set application namespace
 app_name = "conversation"
@@ -15,4 +15,6 @@ urlpatterns = [
     path("session/<str:session_id>/", SessionDetailView.as_view(), name="session-detail"),
     # Session deactivate URL
     path("session/<str:session_id>/deactivate/", SessionDeactivateView.as_view(), name="session-deactivate"),
+    # Session delete URL
+    path("session/<str:session_id>/delete/", SessionDeleteView.as_view(), name="session-delete"),
 ]
