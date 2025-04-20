@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 # Local application imports
 from apps.chats.models import GroupChat, SingleChat
 from apps.common.models import TimeStampedModel
+from apps.llms.models import LLM
 
 
 # Session model
@@ -14,12 +15,14 @@ class Session(TimeStampedModel):
 
     This model represents a conversation session that can be linked to either
     a single chat or a group chat, but not both simultaneously. It tracks whether
-    the session is currently active.
+    the session is currently active and can be associated with an LLM model.
 
     Attributes:
         single_chat (ForeignKey): The single chat this session is linked to (optional).
         group_chat (ForeignKey): The group chat this session is linked to (optional).
         is_active (BooleanField): Whether this session is currently active.
+        selector_prompt (CharField): Prompt used for selecting the appropriate agent or tool.
+        llm (ForeignKey): The LLM model used for this session (optional).
 
     Meta:
         verbose_name (str): Human-readable name for the model.
@@ -53,6 +56,26 @@ class Session(TimeStampedModel):
         verbose_name=_("Active"),
         default=True,
         help_text=_("Whether this session is currently active"),
+    )
+
+    # Selector prompt for the session
+    selector_prompt = models.CharField(
+        verbose_name=_("Selector Prompt"),
+        max_length=1000,
+        blank=True,
+        default="",
+        help_text=_("Prompt used for selecting the appropriate agent or tool"),
+    )
+
+    # LLM model for the session
+    llm = models.ForeignKey(
+        LLM,
+        verbose_name=_("LLM Model"),
+        on_delete=models.SET_NULL,
+        related_name="sessions",
+        null=True,
+        blank=True,
+        help_text=_("The LLM model used for this session"),
     )
 
     # Meta class for Session model configuration

@@ -27,6 +27,7 @@ class SessionAdmin(admin.ModelAdmin):
         "get_chat_title",
         "chat_type",
         "is_active",
+        "llm",
         "created_at",
         "updated_at",
     ]
@@ -34,6 +35,7 @@ class SessionAdmin(admin.ModelAdmin):
     # Fields to filter by in the list view
     list_filter = [
         "is_active",
+        "llm",
         "created_at",
         "updated_at",
     ]
@@ -62,6 +64,15 @@ class SessionAdmin(admin.ModelAdmin):
                     "single_chat",
                     "group_chat",
                     "is_active",
+                ],
+            },
+        ),
+        (
+            "LLM Configuration",
+            {
+                "fields": [
+                    "llm",
+                    "selector_prompt",
                 ],
             },
         ),
