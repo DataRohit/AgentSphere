@@ -118,22 +118,15 @@ class SessionDetailView(APIView):
 
             # If the session has a single chat
             if session.single_chat:
-                # Check if user is owner or member of the organization
+                # Check if user is the owner of the chat or the owner of the organization
                 has_permission = session.single_chat.user == user or (
-                    session.single_chat.organization
-                    and (
-                        user in session.single_chat.organization.members.all()
-                        or user == session.single_chat.organization.owner
-                    )
+                    session.single_chat.organization and user == session.single_chat.organization.owner
                 )
 
             # If the session has a group chat
             elif session.group_chat:
-                # Check if the user is a member of the organization that the chat belongs to
-                has_permission = session.group_chat.organization and (
-                    user in session.group_chat.organization.members.all()
-                    or user == session.group_chat.organization.owner
-                )
+                # Check if the user is the owner of the organization that the chat belongs to
+                has_permission = session.group_chat.organization and user == session.group_chat.organization.owner
 
             # If the user doesn't have permission
             if not has_permission:
