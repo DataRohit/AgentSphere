@@ -55,6 +55,7 @@ urlpatterns += [
     path("api/v1/llms/", include("apps.llms.urls")),
     path("api/v1/tools/", include("apps.tools.urls")),
     path("api/v1/chats/", include("apps.chats.urls")),
+    path("api/v1/conversation/", include("apps.conversation.urls")),
 ]
 
 # Health check URLs

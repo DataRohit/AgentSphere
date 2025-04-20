@@ -24,15 +24,34 @@ sys.path.append(str(BASE_DIR / "apps"))
 # Set the default Django settings module
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-# Import websocket routing configuration
-from config.routing import websocket_urlpatterns  # noqa: E402
+# Get the Django ASGI application first
+django_asgi_app = get_asgi_application()
+
+
+# Define a function to get the WebSocket application
+def get_websocket_application():
+    """Get the WebSocket application.
+
+    This function is used to defer the import of the websocket_urlpatterns
+    until the function is called, after Django is fully set up.
+
+    Returns:
+        URLRouter: The WebSocket URL router.
+    """
+
+    # Import websocket routing configuration after Django is set up
+    from config.routing import websocket_urlpatterns
+
+    # Return the WebSocket URL router
+    return URLRouter(websocket_urlpatterns)
+
 
 # Configure the ASGI application with protocol routing
 application = ProtocolTypeRouter(
     {
         # Django's ASGI application for HTTP requests
-        "http": get_asgi_application(),
+        "http": django_asgi_app,
         # WebSocket handler with authentication and origin validation
-        "websocket": AllowedHostsOriginValidator(AuthMiddlewareStack(URLRouter(websocket_urlpatterns))),
+        "websocket": AllowedHostsOriginValidator(AuthMiddlewareStack(get_websocket_application())),
     },
 )
