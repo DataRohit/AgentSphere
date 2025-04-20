@@ -14,14 +14,19 @@ class SessionCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating a new session.
 
     This serializer is used for validating and creating a new session.
-    It validates the chat_id from the URL path parameter and determines
-    whether it's a single chat or group chat. It also validates the llm_id
-    and optional selector_prompt from the request body.
+    It validates the chat_id and llm_id from the request body and determines
+    whether it's a single chat or group chat.
 
     Attributes:
+        chat_id (UUIDField): The ID of the chat to create a session for (required).
         llm_id (UUIDField): The ID of the LLM to use for this session (required).
-        selector_prompt (CharField): Prompt used for selecting the appropriate agent or tool (optional).
     """
+
+    # Chat ID field
+    chat_id = serializers.UUIDField(
+        required=True,
+        help_text=_("ID of the chat to create a session for."),
+    )
 
     # LLM ID field
     llm_id = serializers.UUIDField(
@@ -36,7 +41,6 @@ class SessionCreateSerializer(serializers.ModelSerializer):
         Attributes:
             model (Session): The model class.
             fields (list): The fields to include in the serializer.
-            extra_kwargs (dict): Additional field configurations.
         """
 
         # Model to use for the serializer
@@ -44,14 +48,9 @@ class SessionCreateSerializer(serializers.ModelSerializer):
 
         # Fields to include in the serializer
         fields = [
+            "chat_id",
             "llm_id",
-            "selector_prompt",
         ]
-
-        # Extra kwargs
-        extra_kwargs = {
-            "selector_prompt": {"required": False},
-        }
 
     # Validate method to check if the chat exists and the user has permission
     def validate(self, attrs: dict) -> dict:
@@ -72,8 +71,8 @@ class SessionCreateSerializer(serializers.ModelSerializer):
             serializers.ValidationError: If validation fails.
         """
 
-        # Get the chat ID from the context
-        chat_id = self.context.get("chat_id")
+        # Get the chat ID from the attributes
+        chat_id = attrs.get("chat_id")
 
         # Get the request from the context
         request = self.context.get("request")
@@ -197,11 +196,20 @@ class SessionCreateSerializer(serializers.ModelSerializer):
         # Extract the LLM
         llm = validated_data.get("llm")
 
-        # Extract the selector prompt
-        selector_prompt = validated_data.get("selector_prompt", "")
+        # Generate the selector prompt for group chat
+        selector_prompt = ""
+        if validated_data.get("group_chat"):
+            # Start with the base prompt
+            selector_prompt = "Select an agent to perform task.\n\n"
 
-        # Remove llm_id from validated_data as it's not a field in the Session model
+            # Traverse through the agents
+            for agent in validated_data["group_chat"].agents.all():
+                # Add the agent to the selector prompt
+                selector_prompt += f"{agent.name} - {agent.description}\n"
+
+        # Remove llm_id and chat_id from validated_data as they're not fields in the Session model
         validated_data.pop("llm_id", None)
+        validated_data.pop("chat_id", None)
 
         # Create and return a new session
         return Session.objects.create(
@@ -258,7 +266,6 @@ class SessionCreateErrorResponseSerializer(GenericResponseSerializer):
         Attributes:
             chat_id (list): Errors related to the chat ID field.
             llm_id (list): Errors related to the LLM ID field.
-            selector_prompt (list): Errors related to the selector prompt field.
             non_field_errors (list): Non-field specific errors.
         """
 
@@ -274,13 +281,6 @@ class SessionCreateErrorResponseSerializer(GenericResponseSerializer):
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the LLM ID field."),
-        )
-
-        # Selector prompt field
-        selector_prompt = serializers.ListField(
-            child=serializers.CharField(),
-            required=False,
-            help_text=_("Errors related to the selector prompt field."),
         )
 
         # Non-field errors

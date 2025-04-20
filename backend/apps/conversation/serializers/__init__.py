@@ -8,6 +8,12 @@ from apps.conversation.serializers.session_create import (
     SessionNotFoundErrorResponseSerializer,
     SessionPermissionDeniedResponseSerializer,
 )
+from apps.conversation.serializers.session_detail import (
+    SessionDetailAuthErrorResponseSerializer,
+    SessionDetailNotFoundResponseSerializer,
+    SessionDetailPermissionDeniedResponseSerializer,
+    SessionDetailSuccessResponseSerializer,
+)
 
 # Exports
 __all__ = [
@@ -15,6 +21,10 @@ __all__ = [
     "SessionCreateErrorResponseSerializer",
     "SessionCreateSerializer",
     "SessionCreateSuccessResponseSerializer",
+    "SessionDetailAuthErrorResponseSerializer",
+    "SessionDetailNotFoundResponseSerializer",
+    "SessionDetailPermissionDeniedResponseSerializer",
+    "SessionDetailSuccessResponseSerializer",
     "SessionNotFoundErrorResponseSerializer",
     "SessionPermissionDeniedResponseSerializer",
     "SessionResponseSchema",

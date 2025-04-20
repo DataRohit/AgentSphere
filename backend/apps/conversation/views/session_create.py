@@ -82,10 +82,9 @@ class SessionCreateView(APIView):
         summary="Create a new session for a chat.",
         description="""
         Creates a new session for the specified chat (single or group).
-        The chat_id is provided as a URL path parameter.
+        The chat_id and llm_id are provided in the request body.
         The user must have permission to access the chat.
         Only one active session can exist for a chat at a time.
-        The request body must include the LLM ID and can optionally include a selector prompt.
         Returns a WebSocket URL that can be used to connect to the session.
         """,
         request=SessionCreateSerializer,
@@ -97,7 +96,7 @@ class SessionCreateView(APIView):
             status.HTTP_404_NOT_FOUND: SessionNotFoundErrorResponseSerializer,
         },
     )
-    def post(self, request: Request, chat_id: str) -> Response:
+    def post(self, request: Request) -> Response:
         """Create a new session for a chat.
 
         This method creates a new session for the specified chat (single or group).
@@ -105,7 +104,6 @@ class SessionCreateView(APIView):
 
         Args:
             request (Request): The HTTP request object.
-            chat_id (str): The ID of the chat.
 
         Returns:
             Response: The HTTP response object.
@@ -114,7 +112,7 @@ class SessionCreateView(APIView):
         # Create a serializer with the request data
         serializer = SessionCreateSerializer(
             data=request.data,
-            context={"request": request, "chat_id": chat_id},
+            context={"request": request},
         )
 
         # Validate the serializer
