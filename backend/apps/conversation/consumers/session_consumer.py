@@ -1,10 +1,9 @@
 # Standard library imports
-import asyncio
-import contextlib
 import uuid
 from typing import Any
 
 # Third-party imports
+from autogen_agentchat.messages import TextMessage
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
@@ -17,16 +16,11 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
     """WebSocket consumer for handling session connections.
 
     This consumer handles WebSocket connections for chat sessions.
-    It implements a simple ping/pong mechanism for testing connectivity
-    and includes a heartbeat mechanism to keep connections alive.
+    It implements a simple ping/pong mechanism for testing connectivity.
 
     Attributes:
-        heartbeat_interval (int): The interval in seconds for sending heartbeat messages.
         session (Session): The session associated with this connection.
     """
-
-    # Class variables
-    heartbeat_interval = 30
 
     # Connect method
     async def connect(self) -> None:
@@ -57,9 +51,6 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
                     f"session_{self.session_id}",
                     self.channel_name,
                 )
-
-                # Start heartbeat task
-                self.heartbeat_task = asyncio.create_task(self.heartbeat())
 
             else:
                 # Reject the connection if the session doesn't exist or is not active
@@ -94,50 +85,24 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
                 # Deactivate the session
                 await self.deactivate_session(self.session.id)
 
-        # If the heartbeat task exists
-        if hasattr(self, "heartbeat_task"):
-            # Cancel the heartbeat task
-            self.heartbeat_task.cancel()
-
-            # Try to await the heartbeat task
-            with contextlib.suppress(asyncio.CancelledError):
-                # Await the heartbeat task
-                await self.heartbeat_task
-
     # Receive JSON method
-    async def receive_json(self, content: dict[str, Any], **kwargs) -> None:
+    async def receive_json(self, request: dict[str, Any], **kwargs) -> None:
         """Handle incoming JSON WebSocket messages.
 
         This method is called when a JSON WebSocket message is received.
-        The content is already decoded from JSON.
+        The request is already decoded from JSON.
 
         Args:
-            content (dict[str, Any]): The decoded JSON data received.
+            request (dict[str, Any]): The decoded JSON data received.
         """
 
-        # Get the message type/content from the decoded JSON
-        message: str = content.get("message", "")
+        # Decode the request into a TextMessage
+        message = TextMessage.model_validate(request)
 
         # Handle ping message
-        if message == "ping":
+        if message.content == "ping" and message.source == "user":
             # Send a pong message using send_json
-            await self.send_json({"message": "pong"})
-
-    # Heartbeat method to keep the connection alive
-    async def heartbeat(self) -> None:
-        """Send periodic heartbeat messages to keep the connection alive.
-
-        This method runs in the background and sends a heartbeat message
-        every heartbeat_interval seconds.
-        """
-
-        # While True
-        while True:
-            # Wait for the specified interval
-            await asyncio.sleep(self.heartbeat_interval)
-
-            # Send a heartbeat message using send_json
-            await self.send_json({"type": "heartbeat"})
+            await self.send_json(TextMessage(content="pong", source="server").model_dump())
 
     # Database method to get a session
     @database_sync_to_async
