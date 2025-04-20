@@ -9,6 +9,8 @@ from apps.agents.views import (
     AgentListMeView,
     AgentListView,
     AgentUpdateView,
+    MostActiveAgentsView,
+    MostUsedAgentsView,
 )
 
 # Set application namespace
@@ -22,6 +24,10 @@ urlpatterns = [
     path("list/", AgentListView.as_view(), name="agent-list"),
     # Agent list me URL - get all agents created by the current user (organization_id optional)
     path("list/me/", AgentListMeView.as_view(), name="agent-list-me"),
+    # Most used agents URL - get the top 3 most used agents
+    path("stats/most-used/", MostUsedAgentsView.as_view(), name="agent-most-used"),
+    # Most active agents URL - get the top 3 most active agents
+    path("stats/most-active/", MostActiveAgentsView.as_view(), name="agent-most-active"),
     # Agent detail URL - get an agent by ID
     path("<str:agent_id>/", AgentDetailView.as_view(), name="agent-detail"),
     # Agent update URL - update an agent by ID

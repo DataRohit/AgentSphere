@@ -22,6 +22,12 @@ from apps.agents.serializers.agent_list import (
     AgentListNotFoundResponseSerializer,
     AgentListResponseSerializer,
 )
+from apps.agents.serializers.agent_stats import (
+    AgentStatsAuthErrorResponseSerializer,
+    AgentStatsSerializer,
+    MostActiveAgentsSuccessResponseSerializer,
+    MostUsedAgentsSuccessResponseSerializer,
+)
 from apps.agents.serializers.agent_update import (
     AgentNotFoundErrorResponseSerializer,
     AgentPermissionDeniedResponseSerializer,
@@ -50,7 +56,11 @@ __all__ = [
     "AgentPermissionDeniedResponseSerializer",
     "AgentResponseSchema",
     "AgentSerializer",
+    "AgentStatsAuthErrorResponseSerializer",
+    "AgentStatsSerializer",
     "AgentUpdateErrorResponseSerializer",
     "AgentUpdateSerializer",
     "AgentUpdateSuccessResponseSerializer",
+    "MostActiveAgentsSuccessResponseSerializer",
+    "MostUsedAgentsSuccessResponseSerializer",
 ]
