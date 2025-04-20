@@ -10,12 +10,8 @@ class ApiType(models.TextChoices):
     Defines the supported LLM API providers.
 
     Attributes:
-        OLLAMA (str): Ollama API type.
         GOOGLE (str): Google Gemini API type.
     """
-
-    # Ollama API type
-    OLLAMA = "ollama", _("Ollama")
 
     # Google Gemini API type
     GOOGLE = "google", _("Google")

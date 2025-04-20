@@ -1,12 +1,13 @@
 # Standard library imports
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 # Local application imports
 from apps.common.models.timestamped import TimeStampedModel
 from apps.common.utils.vault import delete_api_key, get_api_key, store_api_key
-from apps.llms.models.choices import ApiType, GoogleGeminiModel, OllamaModel
+from apps.llms.models.choices import ApiType, GoogleGeminiModel
 from apps.organization.models import Organization
 
 # Get the User model
@@ -189,26 +190,8 @@ class LLM(TimeStampedModel):
         Ensures that the selected model is compatible with the selected API type.
         """
 
-        # Import for validation
-        from django.core.exceptions import ValidationError
-
-        # Validate model selection for Ollama
-        if self.api_type == ApiType.OLLAMA:
-            # Check if the model is in the Ollama model choices
-            if self.model not in [choice[0] for choice in OllamaModel.choices]:
-                # Raise a validation error
-                raise ValidationError(
-                    {
-                        "model": _(
-                            "Invalid model for Ollama API. Choose from: {}",
-                        ).format(
-                            ", ".join([choice[0] for choice in OllamaModel.choices]),
-                        ),
-                    },
-                )
-
         # Validate model selection for Google Gemini
-        elif self.api_type == ApiType.GOOGLE:
+        if self.api_type == ApiType.GOOGLE:
             # Check if the model is in the Google Gemini model choices
             if self.model not in [choice[0] for choice in GoogleGeminiModel.choices]:
                 # Raise a validation error
