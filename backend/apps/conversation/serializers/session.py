@@ -4,8 +4,95 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 # Local application imports
-from apps.chats.serializers import GroupChatSerializer, SingleChatSerializer
 from apps.conversation.models import Session
+
+
+# Agent nested serializer for Session responses
+class SessionAgentSerializer(serializers.Serializer):
+    """Agent serializer for use in Session responses.
+
+    Attributes:
+        id (UUID): Agent's unique identifier.
+        name (str): Name of the agent.
+        description (str): Description of the agent.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the agent."),
+        read_only=True,
+    )
+
+    # Name field
+    name = serializers.CharField(
+        help_text=_("Name of the agent."),
+        read_only=True,
+    )
+
+    # Description field
+    description = serializers.CharField(
+        help_text=_("Description of the agent."),
+        read_only=True,
+    )
+
+
+# SingleChat nested serializer for Session responses
+class SessionSingleChatSerializer(serializers.Serializer):
+    """SingleChat serializer for use in Session responses.
+
+    Attributes:
+        id (UUID): SingleChat's unique identifier.
+        title (str): Title of the chat.
+        agent (SessionAgentSerializer): Agent associated with the chat.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the chat."),
+        read_only=True,
+    )
+
+    # Title field
+    title = serializers.CharField(
+        help_text=_("Title of the chat."),
+        read_only=True,
+    )
+
+    # Agent field
+    agent = SessionAgentSerializer(
+        help_text=_("Agent associated with the chat."),
+        read_only=True,
+    )
+
+
+# GroupChat nested serializer for Session responses
+class SessionGroupChatSerializer(serializers.Serializer):
+    """GroupChat serializer for use in Session responses.
+
+    Attributes:
+        id (UUID): GroupChat's unique identifier.
+        title (str): Title of the chat.
+        agents (list): List of agents associated with the chat.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the chat."),
+        read_only=True,
+    )
+
+    # Title field
+    title = serializers.CharField(
+        help_text=_("Title of the chat."),
+        read_only=True,
+    )
+
+    # Agents field
+    agents = serializers.ListField(
+        child=SessionAgentSerializer(),
+        help_text=_("Agents associated with the chat."),
+        read_only=True,
+    )
 
 
 # LLM nested serializer for Session responses
@@ -63,11 +150,15 @@ class SessionResponseSchema(serializers.ModelSerializer):
         updated_at (DateTimeField): When the session was last updated.
     """
 
-    # Serializers for single chat
-    single_chat = SingleChatSerializer(read_only=True)
+    # Single chat details
+    single_chat = serializers.SerializerMethodField(
+        help_text=_("Single chat associated with this session."),
+    )
 
-    # Serializer for group chat
-    group_chat = GroupChatSerializer(read_only=True)
+    # Group chat details
+    group_chat = serializers.SerializerMethodField(
+        help_text=_("Group chat associated with this session."),
+    )
 
     # LLM details
     llm = serializers.SerializerMethodField(
@@ -79,6 +170,80 @@ class SessionResponseSchema(serializers.ModelSerializer):
         help_text=_("The WebSocket URL for the session."),
         read_only=True,
     )
+
+    # Get single chat details
+    @extend_schema_field(SessionSingleChatSerializer())
+    def get_single_chat(self, obj: Session) -> dict | None:
+        """Get single chat details for the session.
+
+        Args:
+            obj (Session): The session instance.
+
+        Returns:
+            dict | None: The single chat details including id, title, and agent.
+        """
+
+        # If the session has a single chat
+        if obj.single_chat:
+            # Prepare the response
+            result = {
+                "id": str(obj.single_chat.id),
+                "title": obj.single_chat.title,
+            }
+
+            # Add agent details if available
+            if obj.single_chat.agent:
+                result["agent"] = {
+                    "id": str(obj.single_chat.agent.id),
+                    "name": obj.single_chat.agent.name,
+                    "description": obj.single_chat.agent.description,
+                }
+
+            # If the single chat has no agent
+            else:
+                # Set the agent to None
+                result["agent"] = None
+
+            # Return the result
+            return result
+
+        # Return None if the session has no single chat
+        return None
+
+    # Get group chat details
+    @extend_schema_field(SessionGroupChatSerializer())
+    def get_group_chat(self, obj: Session) -> dict | None:
+        """Get group chat details for the session.
+
+        Args:
+            obj (Session): The session instance.
+
+        Returns:
+            dict | None: The group chat details including id, title, and agents.
+        """
+
+        # If the session has a group chat
+        if obj.group_chat:
+            # Get the agents
+            agents = []
+
+            # If the group chat has agents
+            if obj.group_chat.agents.exists():
+                # Prepare the agents
+                agents = [
+                    {"id": str(agent.id), "name": agent.name, "description": agent.description}
+                    for agent in obj.group_chat.agents.all()
+                ]
+
+            # Return the group chat details
+            return {
+                "id": str(obj.group_chat.id),
+                "title": obj.group_chat.title,
+                "agents": agents,
+            }
+
+        # Return None if the session has no group chat
+        return None
 
     # Get LLM details
     @extend_schema_field(SessionLLMSerializer())
