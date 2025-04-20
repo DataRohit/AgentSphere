@@ -8,6 +8,12 @@ from apps.conversation.serializers.session_create import (
     SessionNotFoundErrorResponseSerializer,
     SessionPermissionDeniedResponseSerializer,
 )
+from apps.conversation.serializers.session_deactivate import (
+    SessionDeactivateAuthErrorResponseSerializer,
+    SessionDeactivateNotFoundResponseSerializer,
+    SessionDeactivatePermissionDeniedResponseSerializer,
+    SessionDeactivateSuccessResponseSerializer,
+)
 from apps.conversation.serializers.session_detail import (
     SessionDetailAuthErrorResponseSerializer,
     SessionDetailNotFoundResponseSerializer,
@@ -21,6 +27,10 @@ __all__ = [
     "SessionCreateErrorResponseSerializer",
     "SessionCreateSerializer",
     "SessionCreateSuccessResponseSerializer",
+    "SessionDeactivateAuthErrorResponseSerializer",
+    "SessionDeactivateNotFoundResponseSerializer",
+    "SessionDeactivatePermissionDeniedResponseSerializer",
+    "SessionDeactivateSuccessResponseSerializer",
     "SessionDetailAuthErrorResponseSerializer",
     "SessionDetailNotFoundResponseSerializer",
     "SessionDetailPermissionDeniedResponseSerializer",
