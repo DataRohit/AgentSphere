@@ -11,7 +11,7 @@
 ## 🌟 Features
 
 - **🤖 AI Agents**: Create and manage AI agents with customizable system prompts
-- **🔄 LLM Integration**: Connect to various LLM providers (Ollama, Gemini)
+- **🔄 LLM Integration**: Connect to various LLM providers (Only Gemini for Now!)
 - **🏢 Organizations**: Create and manage organizations with multiple members
 - **🔧 MCP Tools**: Integrate external tools via MCP servers
 - **👥 Multi-User**: Collaborative environment with user management
@@ -124,7 +124,7 @@ AI agents are the core of AgentSphere. Each agent has:
 
 Language Model configurations that can be connected to agents:
 
-- Support for multiple API providers (Ollama, Gemini)
+- Support for multiple API providers (Only Gemini for Now!)
 - Secure API key storage in HashiCorp Vault
 - Configurable token limits
 

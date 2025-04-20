@@ -84,11 +84,6 @@ class LLMAdmin(admin.ModelAdmin):
             str: HTML checkmark or cross icon indicating whether the API key exists.
         """
 
-        # Not applicable for Ollama
-        if obj.api_type == "ollama":
-            # Return a dash icon
-            return format_html("➖")  # noqa: RUF001
-
         # Check if the API key exists
         api_key = obj.get_api_key()
         if api_key:
@@ -111,12 +106,6 @@ class LLMAdmin(admin.ModelAdmin):
         Returns:
             str: HTML formatted status of the API key.
         """
-
-        # Not required for Ollama
-        if obj.api_type == "ollama":
-            return format_html(
-                '<span style="color: gray;">Not required for Ollama</span>',
-            )
 
         # Not saved yet
         if not obj.pk:

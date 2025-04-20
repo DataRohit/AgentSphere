@@ -85,9 +85,10 @@ class SessionCreateView(APIView):
         The chat_id is provided as a URL path parameter.
         The user must have permission to access the chat.
         Only one active session can exist for a chat at a time.
+        The request body must include the LLM ID and can optionally include a selector prompt.
         Returns a WebSocket URL that can be used to connect to the session.
         """,
-        request=None,
+        request=SessionCreateSerializer,
         responses={
             status.HTTP_201_CREATED: SessionCreateSuccessResponseSerializer,
             status.HTTP_400_BAD_REQUEST: SessionCreateErrorResponseSerializer,
@@ -112,7 +113,7 @@ class SessionCreateView(APIView):
 
         # Create a serializer with the request data
         serializer = SessionCreateSerializer(
-            data={},
+            data=request.data,
             context={"request": request, "chat_id": chat_id},
         )
 

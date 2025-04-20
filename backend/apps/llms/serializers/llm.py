@@ -66,7 +66,7 @@ class LLMSerializer(serializers.ModelSerializer):
 
     Attributes:
         id (UUID): The LLM's ID.
-        api_type (str): The API provider type (Ollama or Gemini).
+        api_type (str): The API provider type (Gemini).
         model (str): The specific model name.
         max_tokens (int): Maximum tokens for generation.
         organization (dict): Organization details including id and name.
@@ -200,7 +200,7 @@ class LLMResponseSchema(serializers.Serializer):
 
     Attributes:
         id (UUID): The LLM's ID.
-        api_type (str): The API provider type (Ollama or Gemini).
+        api_type (str): The API provider type (Gemini).
         api_type_display (str): The human-readable display name for the API type.
         model (str): The specific model name.
         max_tokens (int): Maximum tokens for generation.
@@ -217,7 +217,7 @@ class LLMResponseSchema(serializers.Serializer):
 
     # API type field
     api_type = serializers.CharField(
-        help_text=_("API provider type code (ollama or gemini)."),
+        help_text=_("API provider type code (gemini)."),
     )
 
     # API type display field

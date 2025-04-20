@@ -22,7 +22,7 @@ class LLM(TimeStampedModel):
     API type, model name, API key, and token limits.
 
     Attributes:
-        api_type (CharField): The API provider type (Ollama or Gemini).
+        api_type (CharField): The API provider type (Gemini).
         model (CharField): The specific model name.
         api_key (CharField): Temporary field for API key input (not stored).
         max_tokens (PositiveIntegerField): Maximum tokens for generation.
@@ -36,7 +36,7 @@ class LLM(TimeStampedModel):
         db_table (str): The database table name.
     """
 
-    # API type (Ollama or Gemini)
+    # API type (Gemini)
     api_type = models.CharField(
         verbose_name=_("API Type"),
         max_length=10,

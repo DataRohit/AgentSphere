@@ -4,7 +4,7 @@ from rest_framework import serializers, status
 
 # Local application imports
 from apps.common.serializers import GenericResponseSerializer
-from apps.llms.models import LLM, ApiType, GoogleGeminiModel, OllamaModel
+from apps.llms.models import LLM, ApiType, GoogleGeminiModel
 from apps.llms.serializers.llm import LLMResponseSchema
 from apps.organization.models import Organization
 
@@ -19,9 +19,9 @@ class LLMCreateSerializer(serializers.ModelSerializer):
 
     Attributes:
         organization_id (UUIDField): The ID of the organization to associate the LLM with.
-        api_type (CharField): The API provider type (Ollama or Gemini).
+        api_type (CharField): The API provider type (Gemini).
         model (CharField): The specific model name.
-        api_key (CharField): API key for authentication (required for Gemini, not for Ollama).
+        api_key (CharField): API key for authentication (required for Gemini).
         max_tokens (PositiveIntegerField): Maximum tokens for generation.
 
     Meta:
@@ -122,27 +122,8 @@ class LLMCreateSerializer(serializers.ModelSerializer):
                     },
                 ) from None
 
-            # Validate model selection for Ollama
-            if api_type == ApiType.OLLAMA:
-                # Check if the model is in the Ollama model choices
-                if model not in [choice[0] for choice in OllamaModel.choices]:
-                    # Raise a validation error
-                    raise serializers.ValidationError(
-                        {
-                            "model": [
-                                _(
-                                    "Invalid model for Ollama API. Choose from: {}",
-                                ).format(
-                                    ", ".join(
-                                        [choice[0] for choice in OllamaModel.choices],
-                                    ),
-                                ),
-                            ],
-                        },
-                    ) from None
-
             # Validate model selection for Gemini
-            elif api_type == ApiType.GEMINI:
+            if api_type == ApiType.GEMINI:
                 # Check if the model is in the Gemini model choices
                 if model not in [choice[0] for choice in GoogleGeminiModel.choices]:
                     # Raise a validation error

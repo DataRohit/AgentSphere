@@ -42,9 +42,7 @@ def delete_user_llms_in_organization(user_id: UUID, organization_id: UUID) -> in
         return 0
 
     # Get the IDs of LLMs that need API key deletion from Vault
-    llm_ids_with_api_keys = list(
-        llms.exclude(api_type="ollama").values_list("id", flat=True),
-    )
+    llm_ids_with_api_keys = list(llms.values_list("id", flat=True))
 
     # Function to delete API keys in parallel
     def delete_api_keys_in_parallel(llm_ids):

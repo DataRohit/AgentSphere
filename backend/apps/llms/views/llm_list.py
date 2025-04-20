@@ -93,7 +93,7 @@ class LLMListView(APIView):
             ),
             OpenApiParameter(
                 name="api_type",
-                description="Filter by API type (ollama, gemini)",
+                description="Filter by API type (gemini)",
                 required=False,
                 type=str,
             ),
