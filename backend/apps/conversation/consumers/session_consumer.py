@@ -3,12 +3,14 @@ import uuid
 from typing import Any
 
 # Third-party imports
+from asgiref.sync import sync_to_async
 from autogen_agentchat.messages import TextMessage
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 # Local application imports
 from apps.conversation.models import Session
+from apps.conversation.tasks.generate_chat_summary import generate_chat_summary
 
 
 # Session WebSocket consumer
@@ -66,7 +68,8 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """Handle WebSocket disconnection.
 
         This method is called when a WebSocket connection is closed.
-        It deactivates the session when the client disconnects.
+        It deactivates the session when the client disconnects and triggers
+        a task to generate a summary of the conversation.
 
         Args:
             close_code (int): The close code for the connection.
@@ -84,6 +87,9 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
             if hasattr(self, "session"):
                 # Deactivate the session
                 await self.deactivate_session(self.session.id)
+
+                # Trigger the task to generate a summary of the conversation
+                await self.generate_chat_summary(self.session.id)
 
     # Receive JSON method
     async def receive_json(self, request: dict[str, Any], **kwargs) -> None:
@@ -149,3 +155,18 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         except Session.DoesNotExist:
             # Pass
             pass
+
+    # Method to trigger the chat summary generation task
+    @sync_to_async
+    def generate_chat_summary(self, session_id: uuid.UUID) -> None:
+        """Trigger the task to generate a summary of the conversation.
+
+        This method triggers a Celery task to generate a summary of the conversation
+        associated with the specified session.
+
+        Args:
+            session_id (uuid.UUID): The ID of the session.
+        """
+
+        # Trigger the task
+        generate_chat_summary.delay(str(session_id))
