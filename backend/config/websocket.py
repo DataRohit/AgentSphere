@@ -24,7 +24,22 @@ class WebSocketConsumer(AsyncJsonWebsocketConsumer):
         """Handle WebSocket connection.
 
         This method is called when a WebSocket connection is established.
+        It checks if the user is authenticated before accepting the connection.
         """
+
+        # Get the user from the scope
+        from django.contrib.auth.models import AnonymousUser
+
+        self.user = self.scope.get("user", AnonymousUser())
+        self.is_authenticated = self.scope.get("is_authenticated", False)
+
+        # Check if the user is authenticated
+        if not self.is_authenticated:
+            # Reject the connection if the user is not authenticated
+            await self.close(code=4003)
+
+            # Return
+            return
 
         # Accept the WebSocket connection
         await self.accept()

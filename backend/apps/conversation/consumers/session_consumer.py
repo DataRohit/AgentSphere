@@ -7,6 +7,7 @@ from asgiref.sync import sync_to_async
 from autogen_agentchat.messages import TextMessage
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from django.contrib.auth.models import AnonymousUser
 
 # Local application imports
 from apps.conversation.models import Session
@@ -30,8 +31,22 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
 
         This method is called when a WebSocket connection is established.
         It validates the session ID from the URL and accepts the connection
-        if the session exists and is active.
+        if the session exists and is active and the user is authenticated.
         """
+
+        # Get the user from the scope
+        self.user = self.scope.get("user", AnonymousUser())
+
+        # Get the is_authenticated flag from the scope
+        self.is_authenticated = self.scope.get("is_authenticated", False)
+
+        # Check if the user is authenticated
+        if not self.is_authenticated:
+            # Reject the connection if the user is not authenticated
+            await self.close(code=4003)
+
+            # Return
+            return
 
         # Get the session ID from the URL route
         self.session_id = self.scope["url_route"]["kwargs"]["session_id"]

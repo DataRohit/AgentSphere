@@ -10,10 +10,12 @@ import sys
 from pathlib import Path
 
 # Third-party imports
-from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
+
+# Local application imports
+from config.middleware import JWTAuthMiddlewareStack
 
 # Set the base directory for the project
 BASE_DIR: Path = Path(__file__).resolve(strict=True).parent.parent
@@ -51,7 +53,7 @@ application = ProtocolTypeRouter(
     {
         # Django's ASGI application for HTTP requests
         "http": django_asgi_app,
-        # WebSocket handler with authentication and origin validation
-        "websocket": AllowedHostsOriginValidator(AuthMiddlewareStack(get_websocket_application())),
+        # WebSocket handler with JWT authentication and origin validation
+        "websocket": AllowedHostsOriginValidator(JWTAuthMiddlewareStack(get_websocket_application())),
     },
 )
