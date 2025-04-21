@@ -25,6 +25,7 @@ class GroupChat(TimeStampedModel):
         user (ForeignKey): The user participating in this chat.
         agents (ManyToManyField): The agents participating in this group chat.
         is_public (BooleanField): Whether this chat is publicly visible to other users in the organization.
+        summary (TextField): A summary of the chat conversation.
 
     Meta:
         verbose_name (str): Human-readable name for the model.
@@ -68,6 +69,14 @@ class GroupChat(TimeStampedModel):
         verbose_name=_("Public"),
         default=False,
         help_text=_("Whether this chat is publicly visible to other users in the organization"),
+    )
+
+    # Chat summary
+    summary = models.TextField(
+        verbose_name=_("Summary"),
+        blank=True,
+        default="",
+        help_text=_("A summary of the chat conversation"),
     )
 
     # Meta class for GroupChat model configuration

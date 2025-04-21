@@ -94,6 +94,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
         organization (dict): Organization details including id and name.
         user (dict): User details including id and username.
         agents (list): List of agent details including id and name.
+        summary (TextField): A summary of the chat conversation.
         created_at (datetime): The date and time the chat was created.
         updated_at (datetime): The date and time the chat was last updated.
 
@@ -139,6 +140,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
             "organization",
             "user",
             "agents",
+            "summary",
             "created_at",
             "updated_at",
         ]
@@ -148,6 +150,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
             "id",
             "created_at",
             "updated_at",
+            "summary",
         ]
 
     # Get organization details
@@ -237,6 +240,7 @@ class GroupChatResponseSchema(serializers.Serializer):
         organization (SingleChatOrganizationSerializer): Organization details including id and name.
         user (SingleChatUserSerializer): User details including id, username, and email.
         agents (list): List of agent details including id and name.
+        summary (TextField): A summary of the chat conversation.
         created_at (datetime): The date and time the chat was created.
         updated_at (datetime): The date and time the chat was last updated.
     """
@@ -264,6 +268,12 @@ class GroupChatResponseSchema(serializers.Serializer):
     # Updated at field
     updated_at = serializers.DateTimeField(
         help_text=_("Timestamp when the chat was last updated."),
+    )
+
+    # Summary field
+    summary = serializers.CharField(
+        help_text=_("A summary of the chat conversation."),
+        allow_blank=True,
     )
 
     # Organization field using the proper serializer

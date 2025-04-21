@@ -90,7 +90,7 @@ class GroupChatAdmin(admin.ModelAdmin):
         (
             _("Basic Information"),
             {
-                "fields": ["title", "is_public"],
+                "fields": ["title", "is_public", "summary"],
             },
         ),
         (

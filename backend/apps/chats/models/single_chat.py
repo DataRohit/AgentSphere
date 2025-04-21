@@ -25,6 +25,7 @@ class SingleChat(TimeStampedModel):
         user (ForeignKey): The user participating in this chat.
         agent (ForeignKey): The agent participating in this chat.
         is_public (BooleanField): Whether this chat is publicly visible to other users in the organization.
+        summary (TextField): A summary of the chat conversation.
 
     Meta:
         verbose_name (str): Human-readable name for the model.
@@ -68,6 +69,14 @@ class SingleChat(TimeStampedModel):
         verbose_name=_("Public"),
         default=False,
         help_text=_("Whether this chat is publicly visible to other users in the organization"),
+    )
+
+    # Chat summary
+    summary = models.TextField(
+        verbose_name=_("Summary"),
+        blank=True,
+        default="",
+        help_text=_("A summary of the chat conversation"),
     )
 
     # Meta class for SingleChat model configuration
