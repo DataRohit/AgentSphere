@@ -143,7 +143,7 @@ class SessionResponseSchema(serializers.ModelSerializer):
         single_chat (SingleChatSerializer): The serialized single chat (if applicable).
         group_chat (GroupChatSerializer): The serialized group chat (if applicable).
         is_active (BooleanField): Whether the session is active.
-        selector_prompt (CharField): Prompt used for selecting the appropriate agent or tool.
+        selector_prompt (TextField): Prompt used for selecting the appropriate agent or tool.
         llm (SessionLLMSerializer): The LLM model used for this session (if applicable).
         websocket_url (CharField): The WebSocket URL for the session.
         created_at (DateTimeField): When the session was created.
@@ -315,7 +315,7 @@ class SessionSerializer(serializers.ModelSerializer):
         single_chat (ForeignKey): The single chat this session is linked to (optional).
         group_chat (ForeignKey): The group chat this session is linked to (optional).
         is_active (BooleanField): Whether the session is active.
-        selector_prompt (CharField): Prompt used for selecting the appropriate agent or tool.
+        selector_prompt (TextField): Prompt used for selecting the appropriate agent or tool.
         llm (ForeignKey): The LLM model used for this session (optional).
         created_at (DateTimeField): When the session was created.
         updated_at (DateTimeField): When the session was last updated.

@@ -21,7 +21,7 @@ class Session(TimeStampedModel):
         single_chat (ForeignKey): The single chat this session is linked to (optional).
         group_chat (ForeignKey): The group chat this session is linked to (optional).
         is_active (BooleanField): Whether this session is currently active.
-        selector_prompt (CharField): Prompt used for selecting the appropriate agent or tool.
+        selector_prompt (TextField): Prompt used for selecting the appropriate agent or tool.
         llm (ForeignKey): The LLM model used for this session (optional).
 
     Meta:
@@ -59,9 +59,8 @@ class Session(TimeStampedModel):
     )
 
     # Selector prompt for the session
-    selector_prompt = models.CharField(
+    selector_prompt = models.TextField(
         verbose_name=_("Selector Prompt"),
-        max_length=1000,
         blank=True,
         default="",
         help_text=_("Prompt used for selecting the appropriate agent or tool"),
