@@ -150,6 +150,19 @@ class GroupChatCreateSerializer(serializers.ModelSerializer):
                             },
                         )
 
+                    # Check if the user is the organization owner or the creator of the agent
+                    if user not in (organization.owner, agent.user):
+                        # Raise a validation error
+                        raise serializers.ValidationError(
+                            {
+                                "agent_ids": [
+                                    _(
+                                        "Only the organization owner or the creator of the agent can use agent with ID {agent_id}.",  # noqa: E501
+                                    ).format(agent_id=agent_id),
+                                ],
+                            },
+                        )
+
                     # Add the agent to the list
                     agents.append(agent)
 

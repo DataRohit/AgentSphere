@@ -123,13 +123,13 @@ class SingleChatCreateSerializer(serializers.ModelSerializer):
                 # Try to get the agent
                 agent = Agent.objects.get(id=agent_id)
 
-                # Check if the agent is public or belongs to the user
-                if not agent.is_public and agent.user != user:
+                # Check if the user is the organization owner or the creator of the agent
+                if user not in (organization.owner, agent.user):
                     # Raise a validation error
                     raise serializers.ValidationError(
                         {
                             "agent_id": [
-                                _("You do not have access to this agent."),
+                                _("Only the organization owner or the creator of the agent can use this agent."),
                             ],
                         },
                     ) from None

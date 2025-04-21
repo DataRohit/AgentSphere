@@ -123,14 +123,14 @@ class GroupChatUpdateSerializer(serializers.ModelSerializer):
                     # Try to get the agent
                     agent = Agent.objects.get(id=agent_id)
 
-                    # Check if the agent is public or belongs to the user
-                    if not agent.is_public and agent.user != user:
+                    # Check if the user is the organization owner or the creator of the agent
+                    if user not in (group_chat.organization.owner, agent.user):
                         # Raise a validation error
                         raise serializers.ValidationError(
                             {
                                 "agent_ids": [
                                     _(
-                                        "You do not have access to agent with ID {agent_id}.",
+                                        "Only the organization owner or the creator of the agent can use agent with ID {agent_id}.",  # noqa: E501
                                     ).format(agent_id=agent_id),
                                 ],
                             },
