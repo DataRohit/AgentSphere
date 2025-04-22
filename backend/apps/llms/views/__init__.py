@@ -4,6 +4,7 @@ from apps.llms.views.llm_delete import LLMDeleteView
 from apps.llms.views.llm_detail import LLMDetailView
 from apps.llms.views.llm_list import LLMListView
 from apps.llms.views.llm_list_me import LLMListMeView
+from apps.llms.views.llm_models import LLMModelsView
 from apps.llms.views.llm_update import LLMUpdateView
 
 # Exports
@@ -13,5 +14,6 @@ __all__ = [
     "LLMDetailView",
     "LLMListMeView",
     "LLMListView",
+    "LLMModelsView",
     "LLMUpdateView",
 ]
