@@ -1,3 +1,6 @@
+# Third party imports
+from autogen_core.models import ModelFamily
+
 # Standard library imports
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -10,21 +13,20 @@ class GoogleGeminiModel(models.TextChoices):
     Defines the supported Google Gemini models.
 
     Attributes:
-        PRO_PREVIEW (str): Gemini 2.5 Pro Preview model.
-        FLASH_PREVIEW (str): Gemini 2.5 Flash Preview model.
-        FLASH (str): Gemini 2.0 Flash model.
-        FLASH_LITE (str): Gemini 2.0 Flash Lite model.
-        THINKING (str): Gemini 2.0 Flash Thinking Experimental model.
+        PRO_25 (str): Gemini 2.5 Pro model.
+        FLASH_20 (str): Gemini 2.0 Flash model.
+        PRO_15 (str): Gemini 1.5 Pro model.
+        FLASH_15 (str): Gemini 1.5 Flash model.
     """
 
-    # Gemini 2.5 Pro Preview
-    PRO_PREVIEW = "gemini-2.5-pro-preview-03-25", _("Gemini 2.5 Pro Preview")
-
-    # Gemini 2.5 Flash Preview
-    FLASH_PREVIEW = "gemini-2.5-flash-preview-04-17", _("Gemini 2.5 Flash Preview")
+    # Gemini 2.5 Pro
+    PRO_2_5 = ModelFamily.GEMINI_2_5_PRO, _("Gemini 2.5 Pro")
 
     # Gemini 2.0 Flash
-    FLASH = "gemini-2.0-flash", _("Gemini 2.0 Flash")
+    FLASH_2_0 = ModelFamily.GEMINI_2_0_FLASH, _("Gemini 2.0 Flash")
 
-    # Gemini 2.0 Flash Lite
-    FLASH_LITE = "gemini-2.0-flash-lite", _("Gemini 2.0 Flash Lite")
+    # Gemini 1.5 Pro
+    PRO_1_5 = ModelFamily.GEMINI_1_5_PRO, _("Gemini 1.5 Pro")
+
+    # Gemini 1.5 Flash
+    FLASH_1_5 = ModelFamily.GEMINI_1_5_FLASH, _("Gemini 1.5 Flash")
