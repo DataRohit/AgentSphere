@@ -1,4 +1,5 @@
 # Standard library imports
+import logging
 from collections.abc import Callable
 from contextlib import suppress
 from typing import Any
@@ -19,6 +20,24 @@ from apps.agents.models import Agent
 from apps.conversation.autogen.clients import api_type_to_client
 from apps.conversation.autogen.database import get_llm_details, get_llm_details_by_llm_id
 from apps.conversation.models import Session
+
+# Disable autogen logging
+for logger_name in [
+    "autogen_agentchat",
+    "autogen_core",
+    "_single_threaded_agent_runtime",
+    "autogen_runtime_core",
+    "autogen_agentchat.teams",
+    "autogen_agentchat.agents",
+]:
+    # Initialize the logger
+    logger = logging.getLogger(logger_name)
+
+    # Set the logger level to critical
+    logger.setLevel(logging.CRITICAL)
+
+    # Set the logger propagate to false
+    logger.propagate = False
 
 
 # Setup agent memory
