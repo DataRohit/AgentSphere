@@ -24,10 +24,7 @@ class GoogleGeminiModel(models.TextChoices):
     FLASH_PREVIEW = "gemini-2.5-flash-preview-04-17", _("Gemini 2.5 Flash Preview")
 
     # Gemini 2.0 Flash
-    FLASH = "gemini-2.0-flash-001", _("Gemini 2.0 Flash")
+    FLASH = "gemini-2.0-flash", _("Gemini 2.0 Flash")
 
     # Gemini 2.0 Flash Lite
-    FLASH_LITE = "gemini-2.0-flash-lite-001", _("Gemini 2.0 Flash Lite")
-
-    # Gemini 2.0 Flash Thinking
-    THINKING = "gemini-2.0-flash-thinking-exp-01-21", _("Gemini 2.0 Flash Thinking")
+    FLASH_LITE = "gemini-2.0-flash-lite", _("Gemini 2.0 Flash Lite")

@@ -190,16 +190,66 @@ def _generate_summary_with_llm(messages, llm: LLM, existing_summary: str | None)
     """
 
     try:
+        # List to store the formatted messages
+        formatted_messages = []
+
+        # Traverse the messages
+        for message in messages:
+            # Get the sender type and name
+            sender_type = "User" if message.sender == Message.SenderType.USER else "Agent"
+            sender_name = message.user.username if message.user else message.agent.name
+
+            # Add the formatted message to the list
+            formatted_messages.append(f"{sender_type} ({sender_name}): {message.content}")
+
+        # Join the formatted messages
+        messages_text = "\n".join(formatted_messages)
+
+        # Create the prompt synchronously
+        if existing_summary:
+            # Create the prompt for updating the summary
+            prompt = f"""You are tasked with updating a conversation summary based on new messages.
+
+Existing Summary:
+{existing_summary}
+
+New Messages:
+{messages_text}
+
+Please generate a comprehensive and detailed updated summary of the entire conversation. The summary should:
+1. Preserve all important information, facts, and figures
+2. Capture the main topics and key points discussed
+3. Include any decisions, action items, or conclusions reached
+4. Maintain chronological flow of the conversation
+5. Be detailed enough to understand the full context without reading the original messages
+
+Your summary should be well-structured, clear, and provide a complete understanding of the conversation.
+"""
+        else:
+            # Create the prompt for creating a summary
+            prompt = f"""You are tasked with creating a comprehensive summary of a conversation.
+
+Conversation:
+{messages_text}
+
+Please generate a detailed summary of this conversation. The summary should:
+1. Preserve all important information, facts, and figures
+2. Capture the main topics and key points discussed
+3. Include any decisions, action items, or conclusions reached
+4. Maintain chronological flow of the conversation
+5. Be detailed enough to understand the full context without reading the original messages
+
+Your summary should be well-structured, clear, and provide a complete understanding of the conversation.
+"""
+
         # Define the async function
         async def _generate_summary_async():
             # Get the client for the LLM
             model_client = api_type_to_client[llm.api_type](
                 model=llm.model,
                 api_key=llm.get_api_key(),
+                max_tokens=32_768,
             )
-
-            # Prepare the prompt
-            prompt = _create_summary_prompt(messages, existing_summary)
 
             # Generate the summary
             response = await model_client.create([UserMessage(content=prompt, source="user")])
@@ -230,72 +280,3 @@ def _generate_summary_with_llm(messages, llm: LLM, existing_summary: str | None)
 
     # Return the generated summary
     return summary
-
-
-# Create a prompt for generating a summary.
-def _create_summary_prompt(messages, existing_summary: str | None) -> str:
-    """Create a prompt for generating a summary.
-
-    Args:
-        messages (QuerySet): The messages to summarize.
-        existing_summary (str | None): The existing summary, if any.
-
-    Returns:
-        str: The prompt for generating a summary.
-    """
-
-    # List to store the formatted messages
-    formatted_messages = []
-
-    # Traverse over the messages
-    for message in messages:
-        # Get the sender type and name
-        sender_type = "User" if message.sender == Message.SenderType.USER else "Agent"
-        sender_name = message.user.username if message.user else message.agent.name
-
-        # Format the message
-        formatted_messages.append(f"{sender_type} ({sender_name}): {message.content}")
-
-    # Join the formatted messages
-    messages_text = "\n".join(formatted_messages)
-
-    # Create the prompt
-    if existing_summary:
-        # Create the prompt for updating the summary
-        prompt = f"""You are tasked with updating a conversation summary based on new messages.
-
-Existing Summary:
-{existing_summary}
-
-New Messages:
-{messages_text}
-
-Please generate a comprehensive and detailed updated summary of the entire conversation. The summary should:
-1. Preserve all important information, facts, and figures
-2. Capture the main topics and key points discussed
-3. Include any decisions, action items, or conclusions reached
-4. Maintain chronological flow of the conversation
-5. Be detailed enough to understand the full context without reading the original messages
-
-Your summary should be well-structured, clear, and provide a complete understanding of the conversation.
-"""
-
-    else:
-        # Create the prompt for creating a summary
-        prompt = f"""You are tasked with creating a comprehensive summary of a conversation.
-
-Conversation:
-{messages_text}
-
-Please generate a detailed summary of this conversation. The summary should:
-1. Preserve all important information, facts, and figures
-2. Capture the main topics and key points discussed
-3. Include any decisions, action items, or conclusions reached
-4. Maintain chronological flow of the conversation
-5. Be detailed enough to understand the full context without reading the original messages
-
-Your summary should be well-structured, clear, and provide a complete understanding of the conversation.
-"""
-
-    # Return the prompt
-    return prompt
