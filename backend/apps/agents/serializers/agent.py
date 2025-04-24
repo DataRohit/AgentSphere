@@ -94,6 +94,7 @@ class AgentMCPServerSerializer(serializers.Serializer):
     Attributes:
         id (UUID): MCPServer's unique identifier.
         name (str): Name of the MCPServer.
+        tool_name (str): Name of the tool provided by this MCP server.
         url (str): URL of the MCPServer.
     """
 
@@ -106,6 +107,12 @@ class AgentMCPServerSerializer(serializers.Serializer):
     # Name field
     name = serializers.CharField(
         help_text=_("Name of the MCP Server."),
+        read_only=True,
+    )
+
+    # Tool name field
+    tool_name = serializers.CharField(
+        help_text=_("Name of the tool provided by this MCP server."),
         read_only=True,
     )
 
@@ -296,7 +303,7 @@ class AgentSerializer(serializers.ModelSerializer):
             obj (Agent): The agent instance.
 
         Returns:
-            list: A list of MCP servers details including id, name, and url.
+            list: A list of MCP servers details including id, name, tool_name, and url.
         """
 
         # If the agent has MCP servers
@@ -306,6 +313,7 @@ class AgentSerializer(serializers.ModelSerializer):
                 {
                     "id": str(server.id),
                     "name": server.name,
+                    "tool_name": server.tool_name,
                     "url": server.url,
                 }
                 for server in obj.mcp_servers.all()

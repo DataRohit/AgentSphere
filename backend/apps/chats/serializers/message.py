@@ -64,12 +64,13 @@ class MessageSerializer(serializers.ModelSerializer):
     """Serializer for the Message model.
 
     This serializer provides a representation of a message in a chat,
-    including details about the sender (user or agent).
+    including details about the sender (user or agent) and the session it belongs to.
 
     Attributes:
         id (UUID): The message's ID.
         content (str): The message content.
         sender (str): The sender type (user or agent).
+        session (UUID): The ID of the session this message belongs to.
         user (dict): User details if sender is a user.
         agent (dict): Agent details if sender is an agent.
         created_at (datetime): The date and time the message was created.
@@ -108,6 +109,7 @@ class MessageSerializer(serializers.ModelSerializer):
             "id",
             "content",
             "sender",
+            "session",
             "user",
             "agent",
             "created_at",
@@ -117,6 +119,7 @@ class MessageSerializer(serializers.ModelSerializer):
         # Read-only fields
         read_only_fields = [
             "id",
+            "session",
             "created_at",
             "updated_at",
         ]
@@ -179,6 +182,7 @@ class MessageResponseSchema(serializers.Serializer):
         id (UUID): The message's ID.
         content (str): The message content.
         sender (str): The sender type (user or agent).
+        session (UUID): The ID of the session this message belongs to.
         user (MessageUserSerializer): User details if sender is a user.
         agent (MessageAgentSerializer): Agent details if sender is an agent.
         created_at (datetime): The date and time the message was created.
@@ -199,6 +203,11 @@ class MessageResponseSchema(serializers.Serializer):
     sender = serializers.ChoiceField(
         choices=Message.SenderType.choices,
         help_text=_("Sender type of the message (user or agent)."),
+    )
+
+    # Session field
+    session = serializers.UUIDField(
+        help_text=_("ID of the session this message belongs to."),
     )
 
     # Created at field

@@ -6,6 +6,7 @@ import uuid
 from autogen_core.models import UserMessage
 from celery import shared_task
 from django.db import transaction
+from django.db.models import QuerySet
 
 # Local application imports
 from apps.chats.models import GroupChat, Message, SingleChat
@@ -50,12 +51,12 @@ def generate_chat_summary(session_id: str) -> str | None:
         # If session is for a single chat
         if session.single_chat:
             # Handle single chat summary
-            return _generate_single_chat_summary(session.single_chat, llm)
+            return _generate_single_chat_summary(session, session.single_chat, llm)
 
         # If session is for a group chat
         if session.group_chat:
             # Handle group chat summary
-            return _generate_group_chat_summary(session.group_chat, llm)
+            return _generate_group_chat_summary(session, session.group_chat, llm)
 
     except (ValueError, Session.DoesNotExist, LLM.DoesNotExist):
         # Invalid session ID or session/LLM not found
@@ -66,7 +67,7 @@ def generate_chat_summary(session_id: str) -> str | None:
 
 
 # Generate a summary for a single chat.
-def _generate_single_chat_summary(single_chat: SingleChat, llm: LLM) -> str | None:
+def _generate_single_chat_summary(session: Session, single_chat: SingleChat, llm: LLM) -> str | None:
     """Generate a summary for a single chat.
 
     Args:
@@ -79,11 +80,12 @@ def _generate_single_chat_summary(single_chat: SingleChat, llm: LLM) -> str | No
 
     # Check if the summary field is empty
     if not single_chat.summary:
-        # Get all messages for the chat
-        messages = Message.objects.filter(single_chat=single_chat).order_by("created_at")
+        # Get all messages for the chat from all sessions
+        messages = Message.objects.filter(session__single_chat=single_chat).order_by("created_at")
 
-        # If there are no messages, return None
+        # If there are no messages
         if not messages.exists():
+            # Return None if no messages exist
             return None
 
         # Generate a summary using all messages
@@ -93,8 +95,8 @@ def _generate_single_chat_summary(single_chat: SingleChat, llm: LLM) -> str | No
         # Get the existing summary
         existing_summary = single_chat.summary
 
-        # Get the last 16 messages for the chat
-        messages = Message.objects.filter(single_chat=single_chat).order_by("-created_at")[:16]
+        # Get the all the messages for the chat from the latest session
+        messages = Message.objects.filter(session=session).order_by("-created_at")
 
         # If there are no messages
         if not messages.exists():
@@ -122,7 +124,7 @@ def _generate_single_chat_summary(single_chat: SingleChat, llm: LLM) -> str | No
 
 
 # Generate a summary for a group chat.
-def _generate_group_chat_summary(group_chat: GroupChat, llm: LLM) -> str | None:
+def _generate_group_chat_summary(session: Session, group_chat: GroupChat, llm: LLM) -> str | None:
     """Generate a summary for a group chat.
 
     Args:
@@ -135,11 +137,12 @@ def _generate_group_chat_summary(group_chat: GroupChat, llm: LLM) -> str | None:
 
     # Check if the summary field is empty
     if not group_chat.summary:
-        # Get all messages for the chat
-        messages = Message.objects.filter(group_chat=group_chat).order_by("created_at")
+        # Get all messages for the chat from all sessions
+        messages = Message.objects.filter(session__group_chat=group_chat).order_by("created_at")
 
-        # If there are no messages, return None
+        # If there are no messages
         if not messages.exists():
+            # Return None if no messages exist
             return None
 
         # Generate a summary using all messages
@@ -149,8 +152,8 @@ def _generate_group_chat_summary(group_chat: GroupChat, llm: LLM) -> str | None:
         # Get the existing summary
         existing_summary = group_chat.summary
 
-        # Get the last 16 messages for the chat
-        messages = Message.objects.filter(group_chat=group_chat).order_by("-created_at")[:16]
+        # Get the all the messages for the chat from the latest session
+        messages = Message.objects.filter(session=session).order_by("-created_at")
 
         # If there are no messages
         if not messages.exists():
@@ -178,7 +181,7 @@ def _generate_group_chat_summary(group_chat: GroupChat, llm: LLM) -> str | None:
 
 
 # Generate a summary using the specified LLM.
-def _generate_summary_with_llm(messages, llm: LLM, existing_summary: str | None) -> str | None:
+def _generate_summary_with_llm(messages: QuerySet[Message], llm: LLM, existing_summary: str | None) -> str | None:
     """Generate a summary using the specified LLM.
 
     Args:
@@ -217,31 +220,77 @@ Existing Summary:
 New Messages:
 {messages_text}
 
-Please generate a comprehensive and detailed updated summary of the entire conversation. The summary should:
-1. Preserve all important information, facts, and figures
-2. Capture the main topics and key points discussed
-3. Include any decisions, action items, or conclusions reached
-4. Maintain chronological flow of the conversation
-5. Be detailed enough to understand the full context without reading the original messages
+Please generate a concise, structured summary of the entire conversation with the following format:
 
-Your summary should be well-structured, clear, and provide a complete understanding of the conversation.
-"""
+# CONVERSATION SUMMARY
+
+## Topic Overview
+* Brief 1-2 sentence overview of what the conversation is about
+
+## Key Points
+* Main point 1
+* Main point 2
+* Main point 3
+(Add as many bullet points as needed to capture essential information)
+
+## Details Discussed
+* Important fact/information 1
+* Important fact/information 2
+* Important fact/information 3
+(Include specific data, figures, examples mentioned)
+
+## Decisions & Actions
+* Decision/conclusion 1
+* Action item 1 (with owner if specified)
+* Next step 1
+(List all agreements, plans, or tasks mentioned)
+
+## Questions & Open Items
+* Unresolved question 1
+* Follow-up needed on 1
+(List any pending items requiring attention)
+
+The summary should be comprehensive enough to understand the conversation without reading the original messages, but focus on brevity and clarity.
+"""  # noqa: E501
         else:
             # Create the prompt for creating a summary
-            prompt = f"""You are tasked with creating a comprehensive summary of a conversation.
+            prompt = f"""You are tasked with updating a conversation summary based on new messages.
 
-Conversation:
+New Messages:
 {messages_text}
 
-Please generate a detailed summary of this conversation. The summary should:
-1. Preserve all important information, facts, and figures
-2. Capture the main topics and key points discussed
-3. Include any decisions, action items, or conclusions reached
-4. Maintain chronological flow of the conversation
-5. Be detailed enough to understand the full context without reading the original messages
+Please generate a concise, structured summary of the entire conversation with the following format:
 
-Your summary should be well-structured, clear, and provide a complete understanding of the conversation.
-"""
+# CONVERSATION SUMMARY
+
+## Topic Overview
+* Brief 1-2 sentence overview of what the conversation is about
+
+## Key Points
+* Main point 1
+* Main point 2
+* Main point 3
+(Add as many bullet points as needed to capture essential information)
+
+## Details Discussed
+* Important fact/information 1
+* Important fact/information 2
+* Important fact/information 3
+(Include specific data, figures, examples mentioned)
+
+## Decisions & Actions
+* Decision/conclusion 1
+* Action item 1 (with owner if specified)
+* Next step 1
+(List all agreements, plans, or tasks mentioned)
+
+## Questions & Open Items
+* Unresolved question 1
+* Follow-up needed on 1
+(List any pending items requiring attention)
+
+The summary should be comprehensive enough to understand the conversation without reading the original messages, but focus on brevity and clarity.
+"""  # noqa: E501
 
         # Define the async function
         async def _generate_summary_async():

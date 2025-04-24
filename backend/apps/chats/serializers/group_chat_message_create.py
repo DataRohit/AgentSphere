@@ -16,11 +16,13 @@ class GroupChatMessageCreateSerializer(serializers.ModelSerializer):
     This serializer handles the creation of new messages in a group chat.
     It validates the sender type and sets the appropriate fields based on the sender.
     If the sender is an agent, it validates that the agent is part of the group chat.
+    The session field is required and cannot be updated after creation.
 
     Attributes:
         content (CharField): The content of the message.
         sender (ChoiceField): The sender type of the message (user or agent).
         agent_id (UUIDField): The ID of the agent sending the message (required if sender is agent).
+        session_id (UUIDField): The ID of the session this message belongs to.
 
     Meta:
         model (Message): The Message model.
@@ -35,6 +37,13 @@ class GroupChatMessageCreateSerializer(serializers.ModelSerializer):
     agent_id = serializers.UUIDField(
         help_text=_("ID of the agent sending the message (required if sender is agent)."),
         required=False,
+        write_only=True,
+    )
+
+    # Session ID field (not a model field, used for validation)
+    session_id = serializers.UUIDField(
+        required=True,
+        help_text=_("ID of the session this message belongs to."),
         write_only=True,
     )
 
@@ -56,6 +65,7 @@ class GroupChatMessageCreateSerializer(serializers.ModelSerializer):
             "content",
             "sender",
             "agent_id",
+            "session_id",
         ]
 
         # Extra kwargs
@@ -72,6 +82,7 @@ class GroupChatMessageCreateSerializer(serializers.ModelSerializer):
         1. The sender type is valid.
         2. The group chat exists.
         3. If sender is agent, the agent_id is provided and the agent is part of the group chat.
+        4. The session exists and is associated with the group chat.
 
         Args:
             attrs (dict): The attributes to validate.
@@ -82,6 +93,7 @@ class GroupChatMessageCreateSerializer(serializers.ModelSerializer):
         Raises:
             serializers.ValidationError: If validation fails.
         """
+        from apps.conversation.models import Session
 
         # Get the group chat from the context
         group_chat = self.context.get("group_chat")
@@ -110,6 +122,48 @@ class GroupChatMessageCreateSerializer(serializers.ModelSerializer):
                     ],
                 },
             )
+
+        # Get the session ID
+        session_id = attrs.pop("session_id", None)
+
+        # Check if session ID is provided
+        if not session_id:
+            # Raise a validation error
+            raise serializers.ValidationError(
+                {
+                    "session_id": [
+                        _("Session ID is required."),
+                    ],
+                },
+            )
+
+        try:
+            # Get the session
+            session = Session.objects.get(id=session_id)
+
+            # Check if the session is associated with the group chat
+            if session.group_chat != group_chat:
+                # Raise a validation error
+                raise serializers.ValidationError(
+                    {
+                        "session_id": [
+                            _("Session must be associated with the specified group chat."),
+                        ],
+                    },
+                )
+
+            # Store the session in attrs for later use
+            attrs["session"] = session
+
+        except Session.DoesNotExist:
+            # Raise a validation error
+            raise serializers.ValidationError(
+                {
+                    "session_id": [
+                        _("Session not found."),
+                    ],
+                },
+            ) from None
 
         # Store the group chat in attrs for later use
         attrs["group_chat"] = group_chat
@@ -243,6 +297,7 @@ class GroupChatMessageCreateErrorResponseSerializer(GenericResponseSerializer):
             content (list): Errors related to the content field.
             sender (list): Errors related to the sender field.
             agent_id (list): Errors related to the agent_id field.
+            session_id (list): Errors related to the session_id field.
             non_field_errors (list): Non-field specific errors.
         """
 
@@ -265,6 +320,13 @@ class GroupChatMessageCreateErrorResponseSerializer(GenericResponseSerializer):
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the agent_id field."),
+        )
+
+        # Session ID field
+        session_id = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the session_id field."),
         )
 
         # Non-field errors

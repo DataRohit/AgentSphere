@@ -136,6 +136,7 @@ def save_message(
         sender=sender,
         user_id=user_id,
         agent_id=agent_id,
+        session=session,
     )
 
     # If the session is a single chat
@@ -335,41 +336,46 @@ def get_previous_messages(session: Session, limit: int = 16) -> list[dict[str, A
     """Get previous messages for a session.
 
     This method retrieves the previous messages for a session,
-    ordered by creation date (oldest first).
+    ordered by creation date (oldest first). It also includes the chat summary
+    as the first message to provide context to the agent.
 
     Args:
         session (Session): The session to get messages for.
         limit (int): The maximum number of messages to retrieve.
 
     Returns:
-        list[dict]: A list of serialized messages.
+        list[dict]: A list of serialized messages, with the chat summary as the first message.
     """
 
     try:
-        # Get the messages for the session's chat
+        # Get the chat summary
         if session.single_chat:
             # Get the chat summary
             summary = session.single_chat.summary
-
-            # Get messages for single chat
-            messages = Message.objects.filter(single_chat=session.single_chat)
 
         elif session.group_chat:
             # Get the chat summary
             summary = session.group_chat.summary
 
-            # Get messages for group chat
-            messages = Message.objects.filter(group_chat=session.group_chat)
-
         else:
-            # Return an empty list
+            # Return an empty list if no chat is associated
             return []
+
+        # Get messages for this specific session
+        messages = Message.objects.filter(session=session)
 
         # Order by creation date (oldest first) and limit the number of messages
         messages = messages.order_by("created_at")[:limit]
 
         # Serialize the messages
-        serialized_messages = [{"content": summary, "sender": "agent"}]
+        serialized_messages = []
+
+        # If summary exists
+        if summary:
+            # Add the summary as the first message
+            serialized_messages.append({"content": summary, "sender": "agent"})
+
+        # Add the actual messages
         for message in messages:
             # Serialize the message
             serialized = MessageSerializer(message).data

@@ -14,10 +14,12 @@ class SingleChatMessageCreateSerializer(serializers.ModelSerializer):
 
     This serializer handles the creation of new messages in a single chat.
     It validates the sender type and sets the appropriate fields based on the sender.
+    The session field is required and cannot be updated after creation.
 
     Attributes:
         content (CharField): The content of the message.
         sender (ChoiceField): The sender type of the message (user or agent).
+        session_id (UUIDField): The ID of the session this message belongs to.
 
     Meta:
         model (Message): The Message model.
@@ -27,6 +29,13 @@ class SingleChatMessageCreateSerializer(serializers.ModelSerializer):
     Returns:
         Message: The newly created message instance.
     """
+
+    # Session ID field (not a model field, used for validation)
+    session_id = serializers.UUIDField(
+        required=True,
+        help_text=_("ID of the session this message belongs to."),
+        write_only=True,
+    )
 
     # Meta class for SingleChatMessageCreateSerializer configuration
     class Meta:
@@ -45,6 +54,7 @@ class SingleChatMessageCreateSerializer(serializers.ModelSerializer):
         fields = [
             "content",
             "sender",
+            "session_id",
         ]
 
         # Extra kwargs
@@ -60,6 +70,7 @@ class SingleChatMessageCreateSerializer(serializers.ModelSerializer):
         This method validates that:
         1. The sender type is valid.
         2. The single chat exists.
+        3. The session exists and is associated with the single chat.
 
         Args:
             attrs (dict): The attributes to validate.
@@ -70,6 +81,7 @@ class SingleChatMessageCreateSerializer(serializers.ModelSerializer):
         Raises:
             serializers.ValidationError: If validation fails.
         """
+        from apps.conversation.models import Session
 
         # Get the single chat from the context
         single_chat = self.context.get("single_chat")
@@ -98,6 +110,48 @@ class SingleChatMessageCreateSerializer(serializers.ModelSerializer):
                     ],
                 },
             )
+
+        # Get the session ID
+        session_id = attrs.pop("session_id", None)
+
+        # Check if session ID is provided
+        if not session_id:
+            # Raise a validation error
+            raise serializers.ValidationError(
+                {
+                    "session_id": [
+                        _("Session ID is required."),
+                    ],
+                },
+            )
+
+        try:
+            # Get the session
+            session = Session.objects.get(id=session_id)
+
+            # Check if the session is associated with the single chat
+            if session.single_chat != single_chat:
+                # Raise a validation error
+                raise serializers.ValidationError(
+                    {
+                        "session_id": [
+                            _("Session must be associated with the specified single chat."),
+                        ],
+                    },
+                )
+
+            # Store the session in attrs for later use
+            attrs["session"] = session
+
+        except Session.DoesNotExist:
+            # Raise a validation error
+            raise serializers.ValidationError(
+                {
+                    "session_id": [
+                        _("Session not found."),
+                    ],
+                },
+            ) from None
 
         # Store the single chat in attrs for later use
         attrs["single_chat"] = single_chat
@@ -190,6 +244,7 @@ class SingleChatMessageCreateErrorResponseSerializer(GenericResponseSerializer):
         Attributes:
             content (list): Errors related to the content field.
             sender (list): Errors related to the sender field.
+            session_id (list): Errors related to the session_id field.
             non_field_errors (list): Non-field specific errors.
         """
 
@@ -205,6 +260,13 @@ class SingleChatMessageCreateErrorResponseSerializer(GenericResponseSerializer):
             child=serializers.CharField(),
             required=False,
             help_text=_("Errors related to the sender field."),
+        )
+
+        # Session ID field
+        session_id = serializers.ListField(
+            child=serializers.CharField(),
+            required=False,
+            help_text=_("Errors related to the session_id field."),
         )
 
         # Non-field errors

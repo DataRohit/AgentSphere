@@ -15,11 +15,12 @@ User = get_user_model()
 class MCPServer(TimeStampedModel):
     """Model for MCP Servers in the system.
 
-    This model stores MCP Server information including name, description,
+    This model stores MCP Server information including name, tool_name, description,
     and URL. A user can create a maximum of 5 MCP Servers per organization.
 
     Attributes:
         name (CharField): The name of the MCP Server.
+        tool_name (CharField): The name of the tool provided by this MCP server.
         description (TextField): A detailed description of the server.
         url (URLField): The URL of the MCP Server.
         organization (ForeignKey): The organization this server belongs to.
@@ -40,6 +41,14 @@ class MCPServer(TimeStampedModel):
     name = models.CharField(
         verbose_name=_("Name"),
         max_length=255,
+    )
+
+    # Tool name
+    tool_name = models.CharField(
+        verbose_name=_("Tool Name"),
+        max_length=255,
+        blank=True,
+        help_text=_("Name of the tool provided by this MCP server"),
     )
 
     # Server description
@@ -106,8 +115,13 @@ class MCPServer(TimeStampedModel):
         """Return a string representation of the MCPServer.
 
         Returns:
-            str: The name of the MCPServer.
+            str: The name of the MCPServer with tool name if available.
         """
 
-        # Return the name of the MCPServer
+        # If tool name is available
+        if self.tool_name:
+            # Return the name of the MCPServer with tool name
+            return f"{self.name} - {self.tool_name}"
+
+        # Otherwise, just return the name
         return self.name

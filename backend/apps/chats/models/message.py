@@ -17,10 +17,12 @@ class Message(TimeStampedModel):
 
     This model stores individual messages that can belong to either a SingleChat or a GroupChat.
     Each message is associated with a user or an agent and contains the message content.
+    Every message must be associated with a conversation session.
 
     Attributes:
         single_chat (ForeignKey): The single chat this message belongs to (optional).
         group_chat (ForeignKey): The group chat this message belongs to (optional).
+        session (ForeignKey): The conversation session this message belongs to.
         user (ForeignKey): The user who sent this message (if user message).
         agent (ForeignKey): The agent who sent this message (if agent message).
         content (TextField): The content of the message.
@@ -65,6 +67,16 @@ class Message(TimeStampedModel):
     group_chat = models.ForeignKey(
         "chats.GroupChat",
         verbose_name=_("Group Chat"),
+        on_delete=models.CASCADE,
+        related_name="messages",
+        null=True,
+        blank=True,
+    )
+
+    # Session this message belongs to
+    session = models.ForeignKey(
+        "conversation.Session",
+        verbose_name=_("Session"),
         on_delete=models.CASCADE,
         related_name="messages",
         null=True,
@@ -144,15 +156,18 @@ class Message(TimeStampedModel):
         # Return a string representation with sender type and content preview
         return f"{self.get_sender_display()}: {preview}"
 
-    # Custom clean method to validate chat relationship and sender consistency
+    # Custom clean method to validate chat relationship, session, and sender consistency
     def clean(self):
-        """Validate message relationships and sender consistency.
+        """Validate message relationships, session, and sender consistency.
 
-        Ensures that a message belongs to exactly one chat (either SingleChat or GroupChat)
-        and that the sender type matches the sender field.
+        Ensures that:
+        - A message belongs to exactly one chat (either SingleChat or GroupChat)
+        - A message is associated with a session
+        - The sender type matches the sender field
+        - The session is associated with the same chat as the message
 
         Raises:
-            ValidationError: If validation fails for chat or sender relationship.
+            ValidationError: If validation fails for chat, session, or sender relationship.
         """
 
         # Check if message belongs to exactly one chat
@@ -160,6 +175,27 @@ class Message(TimeStampedModel):
             # Raise a validation error
             raise ValidationError(
                 _("Message must belong to exactly one chat (either SingleChat or GroupChat)."),
+            )
+
+        # Check if session is set
+        if not self.session:
+            # Raise a validation error
+            raise ValidationError(
+                {"session": _("Session must be set for all messages.")},
+            )
+
+        # Check session consistency with chat
+        if self.single_chat and self.session.single_chat != self.single_chat:
+            # Raise a validation error
+            raise ValidationError(
+                {"session": _("Session must be associated with the same single chat as the message.")},
+            )
+
+        # Check session consistency with chat for group chat
+        if self.group_chat and self.session.group_chat != self.group_chat:
+            # Raise a validation error
+            raise ValidationError(
+                {"session": _("Session must be associated with the same group chat as the message.")},
             )
 
         # Check sender consistency for user messages

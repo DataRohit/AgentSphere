@@ -19,6 +19,7 @@ from autogen_core.model_context import BufferedChatCompletionContext
 from apps.agents.models import Agent
 from apps.conversation.autogen.clients import api_type_to_client
 from apps.conversation.autogen.database import get_llm_details, get_llm_details_by_llm_id
+from apps.conversation.autogen.mcp import get_mcp_tools_for_agent
 from apps.conversation.models import Session
 
 # Disable autogen logging
@@ -174,6 +175,9 @@ async def setup_autogen_agents(agents: list[Agent], previous_messages: list[dict
             # Set up memory and context
             agent_memory, model_context = await setup_agent_memory(agent.id, previous_messages)
 
+            # Get MCP tools for the agent
+            mcp_tools = await get_mcp_tools_for_agent(agent.id)
+
             # Enhance the system prompt with instructions to maintain context
             enhanced_system_prompt = (
                 f"{agent_system_prompt}\n\n"
@@ -182,16 +186,25 @@ async def setup_autogen_agents(agents: list[Agent], previous_messages: list[dict
                 "Be consistent with your previous responses."
             )
 
+            # If there are MCP tools
+            if mcp_tools:
+                # Add information about available tools
+                enhanced_system_prompt += (
+                    "\n\nYou have access to external tools. Use them when appropriate to fulfill user requests."
+                )
+
             # Create assistant agent & add to the list
             agent_slug = slugify.slugify(agent_name)
 
-            # Initialize the assistant agent
+            # Initialize the assistant agent with tools if available
             assistant_agent = AssistantAgent(
                 name=agent_slug,
                 description=agent_description,
                 model_client=chat_completion_client,
                 system_message=enhanced_system_prompt,
                 model_context=model_context,
+                tools=mcp_tools if mcp_tools else None,
+                reflect_on_tool_use=True,
             )
 
             # Add the agent to the list

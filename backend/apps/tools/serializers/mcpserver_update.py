@@ -17,6 +17,7 @@ class MCPServerUpdateSerializer(serializers.ModelSerializer):
 
     Attributes:
         name (CharField): The name of the MCP server.
+        tool_name (CharField): The name of the tool provided by this MCP server.
         description (TextField): A description of the MCP server.
         url (URLField): The URL of the MCP server.
         tags (CharField): Optional tags for categorizing the server.
@@ -45,6 +46,7 @@ class MCPServerUpdateSerializer(serializers.ModelSerializer):
         # Fields to include in the serializer
         fields = [
             "name",
+            "tool_name",
             "description",
             "url",
             "tags",
@@ -53,6 +55,7 @@ class MCPServerUpdateSerializer(serializers.ModelSerializer):
         # Extra kwargs
         extra_kwargs = {
             "name": {"required": False},
+            "tool_name": {"required": False},
             "description": {"required": False},
             "url": {"required": False},
             "tags": {"required": False},
