@@ -87,6 +87,35 @@ class AgentLLMSerializer(serializers.Serializer):
     )
 
 
+# Agent MCPServer nested serializer for API documentation
+class AgentMCPServerSerializer(serializers.Serializer):
+    """Agent MCPServer serializer for use in agent responses.
+
+    Attributes:
+        id (UUID): MCPServer's unique identifier.
+        name (str): Name of the MCPServer.
+        url (str): URL of the MCPServer.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the MCP Server."),
+        read_only=True,
+    )
+
+    # Name field
+    name = serializers.CharField(
+        help_text=_("Name of the MCP Server."),
+        read_only=True,
+    )
+
+    # URL field
+    url = serializers.URLField(
+        help_text=_("URL of the MCP Server."),
+        read_only=True,
+    )
+
+
 # Agent serializer
 class AgentSerializer(serializers.ModelSerializer):
     """Agent serializer.
@@ -131,6 +160,11 @@ class AgentSerializer(serializers.ModelSerializer):
         help_text=_("LLM model details associated with the agent."),
     )
 
+    # MCP servers details
+    mcp_servers = serializers.SerializerMethodField(
+        help_text=_("MCP servers associated with the agent."),
+    )
+
     # Meta class for AgentSerializer configuration
     class Meta:
         """Meta class for AgentSerializer configuration.
@@ -154,6 +188,7 @@ class AgentSerializer(serializers.ModelSerializer):
             "organization",
             "user",
             "llm",
+            "mcp_servers",
             "is_public",
             "created_at",
             "updated_at",
@@ -252,6 +287,33 @@ class AgentSerializer(serializers.ModelSerializer):
         # Return None if the agent has no LLM
         return None
 
+    # Get MCP servers details
+    @extend_schema_field(AgentMCPServerSerializer(many=True))
+    def get_mcp_servers(self, obj: Agent) -> list:
+        """Get MCP servers details for the agent.
+
+        Args:
+            obj (Agent): The agent instance.
+
+        Returns:
+            list: A list of MCP servers details including id, name, and url.
+        """
+
+        # If the agent has MCP servers
+        if obj.mcp_servers.exists():
+            # Return the MCP servers details
+            return [
+                {
+                    "id": str(server.id),
+                    "name": server.name,
+                    "url": server.url,
+                }
+                for server in obj.mcp_servers.all()
+            ]
+
+        # Return an empty list if the agent has no MCP servers
+        return []
+
 
 # Agent response schema for Swagger documentation
 class AgentResponseSchema(serializers.Serializer):
@@ -269,6 +331,7 @@ class AgentResponseSchema(serializers.Serializer):
         organization (AgentOrganizationSerializer): Organization details including id and name.
         user (UserSerializer): User details including id, username, and email.
         llm (LLMSerializer): LLM details including id, api_type, and model.
+        mcp_servers (list): List of MCP servers this agent is connected to.
         created_at (datetime): The date and time the agent was created.
         updated_at (datetime): The date and time the agent was last updated.
     """
@@ -333,4 +396,11 @@ class AgentResponseSchema(serializers.Serializer):
         help_text=_("LLM model details associated with the agent."),
         required=False,
         allow_null=True,
+    )
+
+    # MCP servers field using the proper serializer
+    mcp_servers = AgentMCPServerSerializer(
+        help_text=_("MCP servers associated with the agent."),
+        required=False,
+        many=True,
     )

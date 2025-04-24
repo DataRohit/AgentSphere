@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 # Local application imports
 from apps.common.models.timestamped import TimeStampedModel
 from apps.organization.models import Organization
+from apps.tools.models import MCPServer
 
 # Get the User model
 User = get_user_model()
@@ -31,6 +32,7 @@ class Agent(TimeStampedModel):
         organization (ForeignKey): The organization this agent belongs to.
         user (ForeignKey): The user who created this agent.
         llm (ForeignKey): The LLM model this agent is connected to.
+        mcp_servers (ManyToManyField): The MCP servers this agent is connected to.
         is_public (BooleanField): Whether this agent is publicly visible to other users in the organization.
         avatar_url (URLField): URL for the agent's avatar image.
 
@@ -90,6 +92,15 @@ class Agent(TimeStampedModel):
         help_text=_("The LLM model this agent uses for responses"),
         null=True,
         blank=True,
+    )
+
+    # MCP servers connected to this agent
+    mcp_servers = models.ManyToManyField(
+        MCPServer,
+        verbose_name=_("MCP Servers"),
+        related_name="agents",
+        blank=True,
+        help_text=_("The MCP servers this agent is connected to"),
     )
 
     # Agent visibility setting

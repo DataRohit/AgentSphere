@@ -57,7 +57,7 @@ class AgentAdmin(admin.ModelAdmin):
         (
             _("Configuration"),
             {
-                "fields": ["system_prompt", "llm", "is_public"],
+                "fields": ["system_prompt", "llm", "mcp_servers", "is_public"],
             },
         ),
         (
