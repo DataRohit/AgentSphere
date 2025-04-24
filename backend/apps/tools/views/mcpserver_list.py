@@ -51,13 +51,13 @@ class MCPServerListView(APIView):
     object_label = "mcpservers"
 
     # Override the handle_exception method to customize error responses
-    def handle_exception(self, exc):
+    def handle_exception(self, exc: Exception) -> Response:
         """Handle exceptions for the MCPServer list view.
 
         This method handles exceptions for the MCPServer list view.
 
         Args:
-            exc: The exception that occurred.
+            exc (Exception): The exception that occurred.
 
         Returns:
             Response: The HTTP response object.

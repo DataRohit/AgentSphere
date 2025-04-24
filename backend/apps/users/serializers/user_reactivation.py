@@ -184,7 +184,7 @@ class UserReactivationConfirmSerializer(serializers.Serializer):
     )
 
     # Validate the passwords
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Validate that passwords match and meet password requirements.
 
         Args:

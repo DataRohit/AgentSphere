@@ -212,16 +212,19 @@ class OrganizationOwnershipTransferInitSerializer(serializers.Serializer):
 
         # Try to get the new owner
         try:
-            # If user_id is provided, get the user by ID
+            # If user_id is provided
             if attrs.get("user_id"):
+                # Get the user by ID
                 self._new_owner = User.objects.get(id=attrs["user_id"])
 
-            # If email is provided, get the user by email
+            # If email is provided
             elif attrs.get("email"):
+                # Get the user by email
                 self._new_owner = User.objects.get(email=attrs["email"])
 
-            # If username is provided, get the user by username
+            # If username is provided
             elif attrs.get("username"):
+                # Get the user by username
                 self._new_owner = User.objects.get(username=attrs["username"])
 
         # If the user does not exist

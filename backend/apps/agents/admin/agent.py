@@ -1,3 +1,6 @@
+# Standard library imports
+from typing import Any
+
 # Third-party imports
 from django.contrib import admin
 from django.utils.html import format_html
@@ -117,7 +120,7 @@ class AgentAdmin(admin.ModelAdmin):
     avatar_preview.short_description = _("Avatar Preview")
 
     # Custom save method to ensure organization and user consistency
-    def save_model(self, request, obj, form, change):
+    def save_model(self, request: Any, obj: Agent, form: Any, change: Any):
         """Custom save method for Agent model.
 
         Ensures that when an agent is saved, the organization and user

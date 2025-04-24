@@ -1,6 +1,7 @@
 # Third-party imports
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+from PIL import ImageFile
 from rest_framework import serializers, status
 
 # Local application imports
@@ -29,11 +30,11 @@ class UserAvatarSerializer(serializers.Serializer):
     )
 
     # Validate the file type
-    def validate_avatar(self, value):
+    def validate_avatar(self, value: ImageFile) -> ImageFile:
         """Validate the avatar file.
 
         Args:
-            value: The avatar file to validate.
+            value (ImageFile): The avatar file to validate.
 
         Returns:
             ImageFile: The validated avatar file.

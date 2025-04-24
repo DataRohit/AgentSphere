@@ -1,5 +1,6 @@
 # Third-party imports
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -153,9 +154,6 @@ class Message(TimeStampedModel):
         Raises:
             ValidationError: If validation fails for chat or sender relationship.
         """
-
-        # Import for validation
-        from django.core.exceptions import ValidationError
 
         # Check if message belongs to exactly one chat
         if (self.single_chat and self.group_chat) or (not self.single_chat and not self.group_chat):

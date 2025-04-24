@@ -78,6 +78,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
 
         # If the agent id is not found
         if not self.agent_id:
+            # Return error message
             return "Error: Agent ID not found for single chat."
 
         try:

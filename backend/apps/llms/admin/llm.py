@@ -74,7 +74,7 @@ class LLMAdmin(admin.ModelAdmin):
     readonly_fields = ["created_at", "updated_at", "api_key_status"]
 
     # Check if an LLM instance has an API key stored in Vault
-    def has_api_key(self, obj):
+    def has_api_key(self, obj: LLM) -> str:
         """Check if an LLM instance has an API key stored in Vault.
 
         Args:

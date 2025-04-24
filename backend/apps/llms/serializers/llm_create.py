@@ -75,7 +75,7 @@ class LLMCreateSerializer(serializers.ModelSerializer):
         }
 
     # Validate the serializer data
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Validate the serializer data.
 
         This method validates that:

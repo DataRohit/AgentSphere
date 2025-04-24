@@ -29,7 +29,7 @@ class GenericJSONRenderer(JSONRenderer):
     # Override render method to customize response format
     def render(
         self,
-        data: Any,
+        data: dict[str, Any],
         accepted_media_type: str | None = None,
         renderer_context: dict[str, Any] | None = None,
     ) -> bytes:
@@ -39,9 +39,9 @@ class GenericJSONRenderer(JSONRenderer):
         in a consistent format with status code and appropriate object labeling.
 
         Args:
-            data (Any): The data to be rendered, typically from the serializer.
+            data (dict[str, Any]): The data to be rendered, typically from the serializer.
             accepted_media_type (str | None): The media type accepted by the request.
-            renderer_context (dict | None): Context dictionary from the renderer.
+            renderer_context (dict[str, Any] | None): Context dictionary from the renderer.
 
         Returns:
             bytes: JSON encoded response with standardized structure.

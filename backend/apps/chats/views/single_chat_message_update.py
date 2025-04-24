@@ -51,13 +51,13 @@ class SingleChatMessageUpdateView(APIView):
     object_label = "message"
 
     # Override the handle_exception method to customize error responses
-    def handle_exception(self, exc):
+    def handle_exception(self, exc: Exception) -> Response:
         """Handle exceptions for the single chat message update view.
 
         This method handles exceptions for the single chat message update view.
 
         Args:
-            exc: The exception that occurred.
+            exc (Exception): The exception that occurred.
 
         Returns:
             Response: The HTTP response object.

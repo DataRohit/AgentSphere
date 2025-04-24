@@ -37,7 +37,7 @@ class UserDeactivateSerializer(serializers.Serializer):
     )
 
     # Validate the passwords match and are correct
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Validate that passwords match and the current password is correct.
 
         Args:

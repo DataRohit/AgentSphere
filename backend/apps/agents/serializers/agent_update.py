@@ -173,6 +173,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
 
             # Check if the user has access to the LLM
             if llm.user and llm.user != user:
+                # Raise a validation error
                 raise serializers.ValidationError(
                     {
                         "llm_id": [
@@ -183,6 +184,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
 
             # Check if the LLM belongs to the same organization
             if agent.organization and llm.organization and agent.organization != llm.organization:
+                # Raise a validation error
                 raise serializers.ValidationError(
                     {
                         "llm_id": [

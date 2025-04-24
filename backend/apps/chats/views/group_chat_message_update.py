@@ -51,13 +51,13 @@ class GroupChatMessageUpdateView(APIView):
     object_label = "message"
 
     # Override the handle_exception method to customize error responses
-    def handle_exception(self, exc):
+    def handle_exception(self, exc: Exception) -> Response:
         """Handle exceptions for the group chat message update view.
 
         This method handles exceptions for the group chat message update view.
 
         Args:
-            exc: The exception that occurred.
+            exc (Exception): The exception that occurred.
 
         Returns:
             Response: The HTTP response object.
@@ -156,7 +156,6 @@ class GroupChatMessageUpdateView(APIView):
                     )
 
                 # If the message is from a user and the user is not the chat creator, deny permission
-                # (unless they are the organization owner)
                 if message.sender == Message.SenderType.USER and not is_chat_creator and not is_org_owner:
                     # Return a permission denied error
                     return Response(

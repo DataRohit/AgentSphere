@@ -57,11 +57,11 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
         }
 
     # Validate the API type
-    def validate_api_type(self, value):
+    def validate_api_type(self, value: str) -> str:
         """Validate the API type.
 
         Args:
-            value: The API type value.
+            value (str): The API type value.
 
         Returns:
             str: The validated API type.

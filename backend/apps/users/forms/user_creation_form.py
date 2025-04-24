@@ -43,6 +43,7 @@ class UserCreationForm(admin_forms.UserCreationForm):
         "duplicate_email": "A user with that email already exists.",
     }
 
+    # Clean the email
     def clean_email(self) -> str:
         """
         Validate that the email address is unique.
@@ -67,6 +68,7 @@ class UserCreationForm(admin_forms.UserCreationForm):
         # Return the email
         return email
 
+    # Clean the username
     def clean_username(self) -> str:
         """
         Validate that the username is unique.

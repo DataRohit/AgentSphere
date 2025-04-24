@@ -7,7 +7,6 @@ and asynchronous job execution.
 # Standard library imports
 import os
 from logging.config import dictConfig
-from typing import Any
 
 # Third-party imports
 from celery import Celery
@@ -29,7 +28,7 @@ app.autodiscover_tasks()
 
 # Logging configuration
 @setup_logging.connect
-def config_loggers(*args: Any, **kwargs: Any) -> None:
+def config_loggers(*args, **kwargs) -> None:
     """Configure Celery logging using Django settings.
 
     Args:

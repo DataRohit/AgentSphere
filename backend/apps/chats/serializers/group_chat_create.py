@@ -107,6 +107,7 @@ class GroupChatCreateSerializer(serializers.ModelSerializer):
 
         # Validate that at least one agent ID is provided
         if not agent_ids:
+            # Raise a validation error
             raise serializers.ValidationError(
                 {
                     "agent_ids": [

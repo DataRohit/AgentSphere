@@ -55,7 +55,7 @@ class OrganizationUpdateSerializer(serializers.ModelSerializer):
         }
 
     # Validate the serializer data
-    def validate_name(self, value):
+    def validate_name(self, value: str) -> str:
         """Validate the name field.
 
         This method validates that the user does not already have another

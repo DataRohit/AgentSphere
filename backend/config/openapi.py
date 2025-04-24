@@ -39,7 +39,7 @@ def preprocess_exclude_schema_endpoint(
     return result
 
 
-def filter_authentication(request, view):
+def filter_authentication(request: Any, view: Any) -> list[Any]:
     """Filter authentication classes to only include JWT for swagger docs.
 
     This function filters out SessionAuthentication to prevent the

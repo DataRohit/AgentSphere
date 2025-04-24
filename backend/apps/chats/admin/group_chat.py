@@ -118,7 +118,7 @@ class GroupChatAdmin(admin.ModelAdmin):
     filter_horizontal = ["agents"]
 
     # Method to get the number of agents in the group chat
-    def agent_count(self, obj):
+    def agent_count(self, obj: GroupChat) -> int:
         """Get the number of agents in the group chat.
 
         Args:

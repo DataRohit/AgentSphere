@@ -31,7 +31,7 @@ django_asgi_app = get_asgi_application()
 
 
 # Define a function to get the WebSocket application
-def get_websocket_application():
+def get_websocket_application() -> URLRouter:
     """Get the WebSocket application.
 
     This function is used to defer the import of the websocket_urlpatterns

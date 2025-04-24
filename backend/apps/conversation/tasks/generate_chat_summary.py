@@ -10,6 +10,7 @@ from django.db import transaction
 # Local application imports
 from apps.chats.models import GroupChat, Message, SingleChat
 from apps.conversation.autogen import api_type_to_client
+from apps.conversation.models import Session
 from apps.llms.models import LLM
 
 
@@ -31,7 +32,6 @@ def generate_chat_summary(session_id: str) -> str | None:
     Returns:
         str | None: The generated summary or None if no summary could be generated.
     """
-    from apps.conversation.models import Session
 
     try:
         # Convert the session ID to a UUID
@@ -96,8 +96,9 @@ def _generate_single_chat_summary(single_chat: SingleChat, llm: LLM) -> str | No
         # Get the last 16 messages for the chat
         messages = Message.objects.filter(single_chat=single_chat).order_by("-created_at")[:16]
 
-        # If there are no messages, return the existing summary
+        # If there are no messages
         if not messages.exists():
+            # Return the existing summary
             return existing_summary
 
         # Convert to list and reverse to get chronological order

@@ -1,4 +1,5 @@
 # Third-party imports
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
@@ -24,7 +25,7 @@ class OrganizationLogoSerializer(serializers.Serializer):
     )
 
     # Validate the logo field
-    def validate_logo(self, value):
+    def validate_logo(self, value: InMemoryUploadedFile) -> InMemoryUploadedFile:
         """Validate the logo field.
 
         This method validates that the file is a valid image (jpg/jpeg/png).

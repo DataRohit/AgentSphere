@@ -41,7 +41,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         ]
 
     # Validate the username to ensure it's unique
-    def validate_username(self, value):
+    def validate_username(self, value: str) -> str:
         """Validate that the username is unique.
 
         Args:

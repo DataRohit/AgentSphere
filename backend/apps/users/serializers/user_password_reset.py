@@ -30,7 +30,7 @@ class UserPasswordResetRequestSerializer(serializers.Serializer):
     )
 
     # Validate the email
-    def validate_email(self, value):
+    def validate_email(self, value: str) -> str:
         """Validate the email address.
 
         Checks if the email belongs to an existing user.
@@ -200,7 +200,7 @@ class UserPasswordResetConfirmSerializer(serializers.Serializer):
     )
 
     # Validate the passwords
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Validate that passwords match and meet password requirements.
 
         Args:

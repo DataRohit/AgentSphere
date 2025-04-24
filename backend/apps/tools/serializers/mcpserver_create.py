@@ -75,7 +75,7 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
         }
 
     # Validate the serializer data
-    def validate(self, attrs: dict):
+    def validate(self, attrs: dict) -> dict:
         """Validate the serializer data.
 
         This method validates that:
@@ -157,7 +157,7 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     # Create method to create a new MCP server
-    def create(self, validated_data: dict):
+    def create(self, validated_data: dict) -> MCPServer:
         """Create a new MCP server with the validated data.
 
         Args:

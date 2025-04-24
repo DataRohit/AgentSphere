@@ -48,13 +48,13 @@ class OrganizationOwnershipTransferInitView(APIView):
     object_label = "transfer"
 
     # Override the handle_exception method to customize error responses
-    def handle_exception(self, exc):
+    def handle_exception(self, exc: Exception) -> Response:
         """Handle exceptions for the organization ownership transfer initialization view.
 
         This method handles exceptions for the organization ownership transfer initialization view.
 
         Args:
-            exc: The exception that occurred.
+            exc (Exception): The exception that occurred.
 
         Returns:
             Response: The HTTP response object.
@@ -107,7 +107,6 @@ class OrganizationOwnershipTransferInitView(APIView):
             Response: The HTTP response object.
         """
 
-        # Try to get the organization by ID
         try:
             # Get the organization
             organization = Organization.objects.get(id=organization_id)

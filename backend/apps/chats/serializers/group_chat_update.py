@@ -166,6 +166,7 @@ class GroupChatUpdateSerializer(serializers.ModelSerializer):
 
             # Store the agents in attrs for later use
             attrs["agents"] = agents
+
             # Remove the agent_ids from attrs
             del attrs["agent_ids"]
 
