@@ -7,6 +7,7 @@ from apps.organization.models import Organization
 
 # Local application imports
 from apps.tools.models import MCPServer
+from apps.tools.serializers.mcptool import MCPToolSerializer
 
 # Get the User model
 User = get_user_model()
@@ -115,6 +116,7 @@ class MCPServerSerializer(serializers.ModelSerializer):
         tags (str): Comma-separated tags for categorizing the server.
         organization (dict): Organization details including id and name.
         user (dict): User details including id, username, and email.
+        tools (list): List of tools associated with this MCP server.
         created_at (datetime): The date and time the server was created.
         updated_at (datetime): The date and time the server was last updated.
 
@@ -173,6 +175,25 @@ class MCPServerSerializer(serializers.ModelSerializer):
         help_text=_("Date and time when the MCP server was last updated."),
     )
 
+    # Tools field - nested serializer
+    tools = serializers.SerializerMethodField(
+        help_text=_("List of tools associated with this MCP server."),
+    )
+
+    # Get the tools for the MCP server
+    def get_tools(self, obj: MCPServer) -> list:
+        """Get the tools for the MCP server.
+
+        Args:
+            obj (MCPServer): The MCP server instance.
+
+        Returns:
+            list: List of tools associated with this MCP server.
+        """
+
+        # Return the tools for the MCP server
+        return MCPToolSerializer(obj.tools.all(), many=True).data
+
     # Meta class for MCPServerSerializer configuration
     class Meta:
         """Meta class for MCPServerSerializer configuration.
@@ -195,6 +216,7 @@ class MCPServerSerializer(serializers.ModelSerializer):
             "tags",
             "organization",
             "user",
+            "tools",
             "created_at",
             "updated_at",
         ]

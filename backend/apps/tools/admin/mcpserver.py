@@ -3,7 +3,26 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
 # Local application imports
-from apps.tools.models import MCPServer
+from apps.tools.models import MCPServer, MCPTool
+
+
+# Inline admin for MCPTool model
+class MCPToolInline(admin.TabularInline):
+    """Inline admin for the MCPTool model.
+
+    This class defines how MCPTool models are displayed inline
+    within the MCPServer admin interface.
+
+    Attributes:
+        model (MCPTool): The model class.
+        extra (int): Number of extra empty forms to display.
+    """
+
+    # Model to use for the inline
+    model = MCPTool
+
+    # Number of extra empty forms
+    extra = 1
 
 
 # Admin configuration for the MCPServer model
@@ -20,6 +39,7 @@ class MCPServerAdmin(admin.ModelAdmin):
         search_fields (list): Fields to search in the list view.
         fieldsets (list): Fieldsets to display in the detail view.
         readonly_fields (list): Fields to display as read-only in the detail view.
+        inlines (list): Inline models to display in the detail view.
     """
 
     # Fields to display in the list view
@@ -63,3 +83,6 @@ class MCPServerAdmin(admin.ModelAdmin):
 
     # Fields that cannot be modified
     readonly_fields = ["created_at", "updated_at"]
+
+    # Inlines
+    inlines = [MCPToolInline]

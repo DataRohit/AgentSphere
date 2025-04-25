@@ -9,14 +9,14 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('llms', '0001_initial'),
+        ('chats', '0001_initial'),
         ('organization', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='llm',
+            model_name='groupchat',
             name='organization',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='llm_configs', to='organization.organization', verbose_name='Organization'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_chats', to='organization.organization', verbose_name='Organization'),
         ),
     ]

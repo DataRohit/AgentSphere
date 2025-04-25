@@ -29,6 +29,7 @@ from apps.tools.serializers.mcpserver_update import (
     MCPServerUpdateSerializer,
     MCPServerUpdateSuccessResponseSerializer,
 )
+from apps.tools.serializers.mcptool import MCPToolSerializer
 
 # Exports
 __all__ = [
@@ -52,4 +53,5 @@ __all__ = [
     "MCPServerUpdateErrorResponseSerializer",
     "MCPServerUpdateSerializer",
     "MCPServerUpdateSuccessResponseSerializer",
+    "MCPToolSerializer",
 ]
