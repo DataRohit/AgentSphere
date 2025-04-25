@@ -242,3 +242,4 @@ networks:
     agentsphere-network:
         name: agentsphere-network
         driver: bridge
+        external: true
