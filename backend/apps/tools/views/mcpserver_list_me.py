@@ -20,6 +20,7 @@ from apps.tools.serializers import (
     MCPServerListNotFoundResponseSerializer,
     MCPServerSerializer,
 )
+from apps.tools.utils.mcp_client import fetch_mcp_tools
 
 # Get the User model
 User = get_user_model()
@@ -171,8 +172,16 @@ class MCPServerListMeView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Convert queryset to list to avoid re-fetching from database
+        mcpserver_list = list(queryset)
+
+        # Traverse the MCP servers
+        for mcpserver in mcpserver_list:
+            # Fetch tools from the MCP server
+            fetch_mcp_tools(mcpserver)
+
         # Serialize the MCP servers
-        serializer = MCPServerSerializer(queryset, many=True)
+        serializer = MCPServerSerializer(mcpserver_list, many=True)
 
         # Return the serialized MCP servers directly
         return Response(

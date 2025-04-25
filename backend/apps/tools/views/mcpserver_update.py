@@ -21,6 +21,7 @@ from apps.tools.serializers import (
     MCPServerUpdateSerializer,
     MCPServerUpdateSuccessResponseSerializer,
 )
+from apps.tools.utils.mcp_client import fetch_mcp_tools
 
 # Get the User model
 User = get_user_model()
@@ -140,6 +141,9 @@ class MCPServerUpdateView(APIView):
             if serializer.is_valid():
                 # Save the updated MCP server
                 updated_mcpserver = serializer.save()
+
+                # Re-fetch tools for the updated MCP server
+                fetch_mcp_tools(updated_mcpserver)
 
                 # Serialize the updated MCP server for response
                 response_serializer = MCPServerSerializer(updated_mcpserver)

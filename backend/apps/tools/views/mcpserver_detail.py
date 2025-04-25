@@ -19,6 +19,7 @@ from apps.tools.serializers import (
     MCPServerDetailSuccessResponseSerializer,
     MCPServerSerializer,
 )
+from apps.tools.utils.mcp_client import fetch_mcp_tools
 
 # Get the User model
 User = get_user_model()
@@ -111,6 +112,9 @@ class MCPServerDetailView(APIView):
 
             # Check if the user created the MCP server
             if user == mcpserver.user:
+                # Re-fetch tools for the MCP server
+                fetch_mcp_tools(mcpserver)
+
                 # Return the MCP server details
                 return Response(
                     MCPServerSerializer(mcpserver).data,
