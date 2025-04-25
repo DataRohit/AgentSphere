@@ -110,7 +110,6 @@ class MCPServerSerializer(serializers.ModelSerializer):
     Attributes:
         id (UUID): The server's ID.
         name (str): The server's name.
-        tool_name (str): The name of the tool provided by this MCP server.
         description (str): The server's description.
         url (str): The server's URL.
         tags (str): Comma-separated tags for categorizing the server.
@@ -135,12 +134,6 @@ class MCPServerSerializer(serializers.ModelSerializer):
         help_text=_("Name of the MCP server."),
     )
 
-    # Tool name field
-    tool_name = serializers.CharField(
-        help_text=_("Name of the tool provided by this MCP server."),
-        allow_blank=True,
-    )
-
     # Description field
     description = serializers.CharField(
         help_text=_("Description of the MCP server."),
@@ -149,7 +142,7 @@ class MCPServerSerializer(serializers.ModelSerializer):
 
     # URL field
     url = serializers.URLField(
-        help_text=_("URL of the MCP server."),
+        help_text=_("URL of the MCP server. Must be unique."),
     )
 
     # Tags field
@@ -197,7 +190,6 @@ class MCPServerSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
-            "tool_name",
             "description",
             "url",
             "tags",

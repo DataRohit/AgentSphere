@@ -26,7 +26,6 @@ class MCPServerAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "name",
-        "tool_name",
         "url",
         "organization",
         "user",
@@ -37,14 +36,14 @@ class MCPServerAdmin(admin.ModelAdmin):
     list_filter = ["created_at", "organization", "tags"]
 
     # Fields that can be searched
-    search_fields = ["id", "name", "tool_name", "description", "url", "tags", "user__username", "user__email"]
+    search_fields = ["id", "name", "description", "url", "tags", "user__username", "user__email"]
 
     # Field sets for the detail view
     fieldsets = [
         (
             _("Basic Information"),
             {
-                "fields": ["name", "tool_name", "description", "url", "tags"],
+                "fields": ["name", "description", "url", "tags"],
             },
         ),
         (

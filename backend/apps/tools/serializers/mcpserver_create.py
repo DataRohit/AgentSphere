@@ -21,7 +21,6 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
     Attributes:
         organization_id (UUIDField): The ID of the organization to create the server in.
         name (CharField): The name of the server.
-        tool_name (CharField): The name of the tool provided by this MCP server.
         description (TextField): A description of the server.
         url (URLField): The URL of the server.
         tags (CharField): Optional tags for categorizing the server.
@@ -62,7 +61,6 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
         fields = [
             "organization_id",
             "name",
-            "tool_name",
             "description",
             "url",
             "tags",
@@ -71,9 +69,8 @@ class MCPServerCreateSerializer(serializers.ModelSerializer):
         # Extra kwargs
         extra_kwargs = {
             "name": {"required": True},
-            "tool_name": {"required": False},
             "description": {"required": False},
-            "url": {"required": True},
+            "url": {"required": True, "help_text": _("URL of the MCP server. Must be unique.")},
             "tags": {"required": False},
         }
 
@@ -249,7 +246,7 @@ class MCPServerCreateErrorResponseSerializer(GenericResponseSerializer):
         url = serializers.ListField(
             child=serializers.CharField(),
             required=False,
-            help_text=_("Errors related to the URL field."),
+            help_text=_("Errors related to the URL field, including uniqueness violations."),
         )
 
         # Non-field errors
