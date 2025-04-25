@@ -103,3 +103,4 @@ autogen-ext==0.5.3
 autogen-ext[openai]==0.5.3
 autogen-ext[gemini]==0.5.3
 autogen-ext[mcp]==0.5.3
+mcp==1.6.0
