@@ -87,6 +87,36 @@ class AgentLLMSerializer(serializers.Serializer):
     )
 
 
+# Agent MCPTool nested serializer for API documentation
+class AgentMCPToolSerializer(serializers.Serializer):
+    """Agent MCPTool serializer for use in agent responses.
+
+    Attributes:
+        id (UUID): MCPTool's unique identifier.
+        name (str): Name of the MCPTool.
+        description (str): Description of the MCPTool.
+    """
+
+    # ID field
+    id = serializers.UUIDField(
+        help_text=_("Unique identifier for the MCP Tool."),
+        read_only=True,
+    )
+
+    # Name field
+    name = serializers.CharField(
+        help_text=_("Name of the MCP Tool."),
+        read_only=True,
+    )
+
+    # Description field
+    description = serializers.CharField(
+        help_text=_("Description of the MCP Tool."),
+        read_only=True,
+        allow_blank=True,
+    )
+
+
 # Agent MCPServer nested serializer for API documentation
 class AgentMCPServerSerializer(serializers.Serializer):
     """Agent MCPServer serializer for use in agent responses.
@@ -94,8 +124,8 @@ class AgentMCPServerSerializer(serializers.Serializer):
     Attributes:
         id (UUID): MCPServer's unique identifier.
         name (str): Name of the MCPServer.
-        tool_name (str): Name of the tool provided by this MCP server.
         url (str): URL of the MCPServer.
+        tools (list): List of tools provided by this MCP server.
     """
 
     # ID field
@@ -110,15 +140,16 @@ class AgentMCPServerSerializer(serializers.Serializer):
         read_only=True,
     )
 
-    # Tool name field
-    tool_name = serializers.CharField(
-        help_text=_("Name of the tool provided by this MCP server."),
-        read_only=True,
-    )
-
     # URL field
     url = serializers.URLField(
         help_text=_("URL of the MCP Server."),
+        read_only=True,
+    )
+
+    # Tools field
+    tools = AgentMCPToolSerializer(
+        many=True,
+        help_text=_("List of tools provided by this MCP server."),
         read_only=True,
     )
 
@@ -303,21 +334,40 @@ class AgentSerializer(serializers.ModelSerializer):
             obj (Agent): The agent instance.
 
         Returns:
-            list: A list of MCP servers details including id, name, tool_name, and url.
+            list: A list of MCP servers details including id, name, url, and tools.
         """
 
         # If the agent has MCP servers
         if obj.mcp_servers.exists():
-            # Return the MCP servers details
-            return [
-                {
+            # Get all MCP servers for this agent
+            servers = obj.mcp_servers.all()
+
+            # Create a list to store the serialized servers
+            result = []
+
+            # For each server
+            for server in servers:
+                # Create a server data dictionary
+                server_data = {
                     "id": str(server.id),
                     "name": server.name,
-                    "tool_name": server.tool_name,
                     "url": server.url,
                 }
-                for server in obj.mcp_servers.all()
-            ]
+
+                # Get all tools for this server
+                tools = server.tools.all()
+
+                # Serialize the tools using the AgentMCPToolSerializer
+                tool_serializer = AgentMCPToolSerializer(tools, many=True)
+
+                # Add the serialized tools to the server data
+                server_data["tools"] = tool_serializer.data
+
+                # Add the server data to the result
+                result.append(server_data)
+
+            # Return the result
+            return result
 
         # Return an empty list if the agent has no MCP servers
         return []
