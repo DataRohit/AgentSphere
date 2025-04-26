@@ -204,8 +204,35 @@ class SessionCreateSerializer(serializers.ModelSerializer):
 
             # Traverse through the agents
             for agent in validated_data["group_chat"].agents.all():
-                # Add the agent to the selector prompt
-                selector_prompt += f"{agent.name} - {agent.description}\n"
+                # Add the agent name and description to the selector prompt
+                selector_prompt += f"Agent: {agent.name}\n"
+                selector_prompt += f"Description: {agent.description}\n"
+
+                # Check if the agent has MCP servers
+                if agent.mcp_servers.exists():
+                    # Add MCP servers section
+                    selector_prompt += "MCP Servers:\n"
+
+                    # Traverse through the MCP servers
+                    for server in agent.mcp_servers.all():
+                        # Add the server name
+                        selector_prompt += f"  - {server.name}\n"
+
+                        # Check if the server has tools
+                        if server.tools.exists():
+                            # Add tools section
+                            selector_prompt += "    Tools:\n"
+
+                            # Traverse through the tools
+                            for tool in server.tools.all():
+                                # Add the tool name and description
+                                selector_prompt += f"      * {tool.name}: {tool.description}\n"
+
+                # Add a separator between agents
+                selector_prompt += "\n"
+
+            # Strip the selector prompt
+            selector_prompt = selector_prompt.strip()
 
         # Remove llm_id and chat_id from validated_data as they're not fields in the Session model
         validated_data.pop("llm_id", None)
