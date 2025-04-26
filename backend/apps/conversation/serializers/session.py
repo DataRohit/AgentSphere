@@ -124,12 +124,6 @@ class SessionLLMSerializer(serializers.Serializer):
         read_only=True,
     )
 
-    # API type display field
-    api_type_display = serializers.CharField(
-        help_text=_("Human-readable display name for the API type."),
-        read_only=True,
-    )
-
 
 # Session response schema
 class SessionResponseSchema(serializers.ModelSerializer):
@@ -264,7 +258,6 @@ class SessionResponseSchema(serializers.ModelSerializer):
                 "id": str(obj.llm.id),
                 "api_type": obj.llm.api_type,
                 "model": obj.llm.model,
-                "api_type_display": obj.llm.get_api_type_display(),
             }
 
         # Return None if the session has no LLM

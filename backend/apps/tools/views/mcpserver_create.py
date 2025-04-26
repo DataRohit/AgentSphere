@@ -19,6 +19,7 @@ from apps.tools.serializers import (
     MCPServerCreateSuccessResponseSerializer,
     MCPServerSerializer,
 )
+from apps.tools.utils.mcp_client import fetch_mcp_tools
 
 # Get the User model
 User = get_user_model()
@@ -114,6 +115,9 @@ class MCPServerCreateView(APIView):
         if serializer.is_valid():
             # Save the MCP server instance
             mcpserver = serializer.save()
+
+            # Fetch tools from the MCP server
+            fetch_mcp_tools(mcpserver)
 
             # Serialize the created MCP server for the response body
             response_serializer = MCPServerSerializer(mcpserver)

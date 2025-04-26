@@ -6,6 +6,8 @@ from typing import Any
 # Third-party imports
 from asgiref.sync import sync_to_async
 from autogen_agentchat.messages import TextMessage
+from autogen_core import FunctionCall
+from autogen_core.models import FunctionExecutionResult
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
 
@@ -31,6 +33,8 @@ from apps.conversation.autogen.messages import (
     send_connection_confirmation,
     send_direct_response,
     send_error_message,
+    send_function_call,
+    send_function_execution_result,
 )
 from apps.conversation.models import Session
 from apps.conversation.tasks.generate_chat_summary import generate_chat_summary
@@ -268,7 +272,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json(event["message"])
 
     # Receive JSON method
-    async def receive_json(self, request: dict[str, Any], **kwargs) -> None:
+    async def receive_json(self, request: dict[str, Any], **kwargs) -> None:  # noqa: C901
         """Handle incoming JSON WebSocket messages.
 
         This method is called when a JSON WebSocket message is received.
@@ -319,17 +323,47 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
                     previous_messages = await get_previous_messages(self.session)
 
                     # Define a callback to handle each message as it arrives
-                    async def message_callback(agent_id, source, response_content):
-                        # Send direct response to client immediately
-                        await send_direct_response(self, source, response_content)
+                    async def message_callback(
+                        agent_id: str,
+                        source: str,
+                        response_content: str | list[FunctionCall] | list[FunctionExecutionResult],
+                    ) -> None:
+                        """Handle each message as it arrives.
 
-                        # Save the message to the database
-                        await save_message(
-                            self.session,
-                            content=response_content,
-                            sender=Message.SenderType.AGENT,
-                            agent_id=agent_id,
-                        )
+                        Args:
+                            agent_id (str): The ID of the agent that sent the message.
+                            source (str): The source of the message.
+                            response_content (str | list[FunctionCall] | list[FunctionExecutionResult]): The content of the message.
+                        """  # noqa: E501
+
+                        # Check if this is a function call or execution result message
+                        is_function_message = not isinstance(response_content, str)
+
+                        # Only save non-function messages to the database
+                        if not is_function_message:
+                            # Send direct response to client immediately
+                            await send_direct_response(self, source, str(response_content))
+
+                            # Save the message to the database
+                            await save_message(
+                                self.session,
+                                content=response_content,
+                                sender=Message.SenderType.AGENT,
+                                agent_id=agent_id,
+                            )
+
+                        else:
+                            # Traverse over the response content
+                            for item in response_content:
+                                # If the item is a function call
+                                if isinstance(item, FunctionCall):
+                                    # Send function call to client immediately
+                                    await send_function_call(self, item)
+
+                                # If the item is a function execution result
+                                elif isinstance(item, FunctionExecutionResult):
+                                    # Send function execution result to client immediately
+                                    await send_function_execution_result(self, item)
 
                     # Process the user message with agents, passing the callback
                     agent_response = await process_with_agents(

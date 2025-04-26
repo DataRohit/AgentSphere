@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 # Local application imports
 from apps.common.models.timestamped import TimeStampedModel
 from apps.organization.models import Organization
-from apps.tools.utils.mcp_client import fetch_mcp_tools
 
 # Get the User model
 User = get_user_model()
@@ -113,21 +112,3 @@ class MCPServer(TimeStampedModel):
 
         # Return the name of the MCPServer
         return self.name
-
-    # Save the MCPServer instance
-    def save(self, *args, **kwargs):
-        """Save the MCPServer instance.
-
-        This method overrides the default save method to fetch tools
-        from the MCP server when a new server is created.
-
-        Args:
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
-        """
-
-        # Save the instance
-        super().save(*args, **kwargs)
-
-        # Fetch tools from the MCP server
-        fetch_mcp_tools(self)

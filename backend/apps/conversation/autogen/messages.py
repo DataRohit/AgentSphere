@@ -2,7 +2,9 @@
 from contextlib import suppress
 
 # Third party imports
-from autogen_agentchat.messages import TextMessage
+from autogen_agentchat.messages import TextMessage, ToolCallExecutionEvent, ToolCallRequestEvent
+from autogen_core import FunctionCall
+from autogen_core.models import FunctionExecutionResult
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 
@@ -77,3 +79,46 @@ async def send_direct_response(
     with suppress(Exception):
         # Send the message directly to the client
         await consumer.send_json(TextMessage(content=content, source=source, metadata={"error": "false"}).model_dump())
+
+
+# Send function call
+async def send_function_call(consumer: AsyncJsonWebsocketConsumer, function_call: FunctionCall) -> None:
+    """Send a function call to the client.
+
+    Args:
+        consumer (AsyncJsonWebsocketConsumer): The WebSocket consumer.
+        function_call (FunctionCall): The function call to send.
+    """
+
+    with suppress(Exception):
+        # Send the function call to the client
+        await consumer.send_json(
+            ToolCallRequestEvent(
+                content=[function_call],
+                source="server",
+                metadata={"error": "false"},
+            ).model_dump(),
+        )
+
+
+# Send function execution result
+async def send_function_execution_result(
+    consumer: AsyncJsonWebsocketConsumer,
+    function_execution_result: FunctionExecutionResult,
+) -> None:
+    """Send a function execution result to the client.
+
+    Args:
+        consumer (AsyncJsonWebsocketConsumer): The WebSocket consumer.
+        function_execution_result (FunctionExecutionResult): The function execution result to send.
+    """
+
+    with suppress(Exception):
+        # Send the function execution result to the client
+        await consumer.send_json(
+            ToolCallExecutionEvent(
+                content=[function_execution_result],
+                source="server",
+                metadata={"error": "false"},
+            ).model_dump(),
+        )

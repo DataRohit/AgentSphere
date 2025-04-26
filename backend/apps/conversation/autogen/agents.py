@@ -22,22 +22,28 @@ from apps.conversation.autogen.database import get_llm_details, get_llm_details_
 from apps.conversation.autogen.mcp import get_mcp_tools_for_agent
 from apps.conversation.models import Session
 
-# Disable autogen logging
+# Disable autogen and SSE logging
 for logger_name in [
+    # Autogen loggers
     "autogen_agentchat",
     "autogen_core",
     "_single_threaded_agent_runtime",
     "autogen_runtime_core",
     "autogen_agentchat.teams",
     "autogen_agentchat.agents",
+    # SSE loggers
+    "sse",
+    "mcp.client.sse",
+    "mcp.client.session",
+    "autogen_ext.tools.mcp",
 ]:
     # Initialize the logger
     logger = logging.getLogger(logger_name)
 
-    # Set the logger level to critical
+    # Set the logger level to critical (only show critical errors)
     logger.setLevel(logging.CRITICAL)
 
-    # Set the logger propagate to false
+    # Set the logger propagate to false (don't pass messages to parent loggers)
     logger.propagate = False
 
 
@@ -322,7 +328,7 @@ async def _process_message_stream(
             # Initialize the agent found flag
             agent_found = False
 
-            # Initialize the agnet id
+            # Initialize the agent id
             agent_id = None
 
             # Set the message source & content
@@ -358,9 +364,10 @@ async def _process_message_stream(
 
             # If a callback was provided
             if message_callback and agent_id:
-                # Call the call back function with message
+                # Call the callback function with message
                 await message_callback(*response_tuple)
 
+    # Return the list of agent responses
     return agent_responses
 
 

@@ -1,6 +1,7 @@
 # Standard library imports
 import asyncio
 import types
+from urllib.parse import urlparse
 
 # Third-party imports
 from django.db import transaction
@@ -37,8 +38,11 @@ class MCPClient:
             ValueError: If the server URL does not start with http:// or https://.
         """
 
+        # Get the parsed server URL
+        parsed_server_url = urlparse(server_url)
+
         # Validate the server URL
-        if not server_url.startswith(("http://", "https://")):
+        if parsed_server_url.scheme not in ("http", "https"):
             # Set the error message
             error_message = "Server URL must start with http:// or https://"
 
@@ -49,9 +53,9 @@ class MCPClient:
         self.server_url = server_url
 
         # Initialize connection attributes
-        self._sse_context = None
-        self._session = None
-        self._streams = None
+        self._sse_context: sse_client | None = None
+        self._session: ClientSession | None = None
+        self._streams: tuple[asyncio.StreamReader, asyncio.StreamWriter] | None = None
 
     # Enter the async context manager
     async def __aenter__(self) -> "MCPClient":
@@ -176,14 +180,15 @@ async def _fetch_tools_from_server(server_url: str) -> list[mcp_types.Tool] | No
         # Enter the client
         await client.__aenter__()
 
-        # Connect to the server
-        async with client:
-            # Get the tools & return them
-            return await client.list_tools().tools
+        # Get the tools
+        list_tools_response = await client.list_tools()
 
     # Return None if an error occurred
     except (RuntimeError, Exception):
         return None
+
+    # Return the tools
+    return list_tools_response.tools
 
 
 # Fetch tools from an MCP server and create MCPTool objects
