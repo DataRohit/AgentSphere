@@ -60,7 +60,7 @@ services:
             - .envs/.postgres.env
             - .envs/.flower.env
         volumes:
-            - .:/app:z
+            - ./backend:/app:z
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
             interval: 30s

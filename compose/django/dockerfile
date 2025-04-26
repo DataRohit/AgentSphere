@@ -91,11 +91,11 @@ RUN chmod +x /start-flower
 
 
 # Copy application code to WORKDIR
-COPY . ${APP_HOME}
+COPY ./backend ${APP_HOME}
 
 
 # Update the current working directory to the backend directory
-WORKDIR ${APP_HOME}/backend
+WORKDIR ${APP_HOME}
 
 
 # Define entrypoint
