@@ -53,12 +53,21 @@ def get_user(token_key: str) -> tuple[Any, bool]:
         is_authenticated = user is not None
 
     except (InvalidToken, TokenError):
-        # Return AnonymousUser if token is invalid
+        # Set user to AnonymousUser
         user = AnonymousUser()
+
+        # Set is_authenticated to False
+        is_authenticated = False
 
     except (ValueError, TypeError, AttributeError):
         # Log the exception
         traceback.print_exc()
+
+        # Set user to AnonymousUser
+        user = AnonymousUser()
+
+        # Set is_authenticated to False
+        is_authenticated = False
 
     # Return the user and is_authenticated
     return user, is_authenticated

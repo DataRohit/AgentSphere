@@ -177,8 +177,17 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         if the session exists and is active and the user is authenticated.
         """
 
-        # Get the user from the scope
+        # Get the user and authentication status from the scope
         self.user = self.scope.get("user", AnonymousUser())
+        self.is_authenticated = self.scope.get("is_authenticated", False)
+
+        # Check if the user is authenticated
+        if not self.is_authenticated:
+            # Reject the connection if the user is not authenticated
+            await self.close(code=4003)
+
+            # Return
+            return
 
         # Get the session ID from the URL route
         self.session_id = self.scope["url_route"]["kwargs"]["session_id"]
