@@ -9,7 +9,8 @@ FROM python AS python-build-stage
 # Install apt packages required for building Python packages and psycopg dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    libpq-dev
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # Copy requirements files to the build stage
@@ -29,26 +30,37 @@ ARG APP_HOME=/app
 
 
 # Set environment variables for Python
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONFAULTHANDLER=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VERSION=1.7.1 \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_CACHE_DIR='/var/cache/pypoetry'
 
 
-# Set working directory
+# Create a non-root user to run the application
+RUN addgroup --system django \
+    && adduser --system --ingroup django django
+
+
+# Set working directory and give ownership to django user
 WORKDIR ${APP_HOME}
+RUN chown django:django ${APP_HOME}
 
 
-# Install required system dependencies
+# Install required system dependencies - combine all apt operations
 RUN apt-get update && apt-get install --no-install-recommends -y \
     libpq-dev \
     gettext \
     curl \
     wget \
+    git \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/*
-
-
-# Install git
-RUN apt-get update && apt-get install -y git
 
 
 # Copy python dependency wheels from python-build-stage
@@ -60,42 +72,28 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
     && rm -rf /wheels/
 
 
-# Copy entrypoint script and set permissions
+# Copy scripts and set permissions - combine operations to reduce layers
 COPY ./compose/django/entrypoint /entrypoint
-RUN sed -i 's/\r$//g' /entrypoint
-RUN chmod +x /entrypoint
-
-
-# Copy start script and set permissions
 COPY ./compose/django/start /start
-RUN sed -i 's/\r$//g' /start
-RUN chmod +x /start
-
-
-# Copy Celery worker start script and set permissions
 COPY ./compose/django/celery/worker/start /start-celeryworker
-RUN sed -i 's/\r$//g' /start-celeryworker
-RUN chmod +x /start-celeryworker
-
-
-# Copy Celery beat start script and set permissions
 COPY ./compose/django/celery/beat/start /start-celerybeat
-RUN sed -i 's/\r$//g' /start-celerybeat
-RUN chmod +x /start-celerybeat
-
-
-# Copy Celery Flower start script and set permissions
 COPY ./compose/django/celery/flower/start /start-flower
-RUN sed -i 's/\r$//g' /start-flower
-RUN chmod +x /start-flower
+
+
+RUN sed -i 's/\r$//g' /entrypoint /start /start-celeryworker /start-celerybeat /start-flower \
+    && chmod +x /entrypoint /start /start-celeryworker /start-celerybeat /start-flower
 
 
 # Copy application code to WORKDIR
-COPY ./backend ${APP_HOME}
+COPY --chown=django:django ./backend ${APP_HOME}
 
 
 # Update the current working directory to the backend directory
 WORKDIR ${APP_HOME}
+
+
+# Switch to non-root user for better security
+USER django
 
 
 # Define entrypoint
