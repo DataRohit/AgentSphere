@@ -32,12 +32,20 @@ help:
 	@echo -e "$(GREEN)make lint-py$(NC)           - \xF0\x9F\x94\x8E Run ruff linter on Python code"
 	@echo -e "$(GREEN)make format-py$(NC)         - \xF0\x9F\x92\x85 Format Python code with ruff"
 	@echo -e "$(GREEN)make fix-py$(NC)            - \xF0\x9F\x94\xA7 Fix auto-fixable issues with ruff"
+	@echo -e "$(YELLOW)===== NextJS Commands =====$(NC)"
+	@echo -e "$(GREEN)make nextjs-dev$(NC)        - \xF0\x9F\x9A\x80 Start NextJS development server"
+	@echo -e "$(GREEN)make nextjs-build$(NC)      - \xF0\x9F\x94\xA8 Build NextJS application"
+	@echo -e "$(GREEN)make nextjs-start$(NC)      - \xF0\x9F\x8F\x81 Start NextJS production server"
+	@echo -e "$(GREEN)make nextjs-lint$(NC)       - \xF0\x9F\x94\x8E Run ESLint on NextJS code"
 
 # Docker Commands
 .PHONY: up down ps logs build clean restart restart-app restart-infra
 
 # Python Code Quality Commands
 .PHONY: lint-py format-py fix-py
+
+# NextJS Commands
+.PHONY: nextjs-dev nextjs-build nextjs-start nextjs-lint
 
 # Infrastructure Services
 INFRA_SERVICES := postgres-service pgadmin-service vault-service minio-service dicebear-service redis-service mailpit-service
@@ -136,3 +144,27 @@ fix-py:
 	@echo -e "$(PURPLE)\xF0\x9F\x94\xA7 Fixing auto-fixable issues...$(NC)"
 	ruff check --fix .
 	@echo -e "$(GREEN)[OK] Auto-fixes applied!$(NC)"
+
+# Start NextJS development server
+nextjs-dev:
+	@echo -e "$(BLUE)\xF0\x9F\x9A\x80 Starting NextJS development server...$(NC)"
+	cd frontend && pnpm dev
+	@echo -e "$(GREEN)[OK] NextJS development server started!$(NC)"
+
+# Build NextJS application
+nextjs-build:
+	@echo -e "$(PURPLE)\xF0\x9F\x94\xA8 Building NextJS application...$(NC)"
+	cd frontend && pnpm build
+	@echo -e "$(GREEN)[OK] NextJS application built!$(NC)"
+
+# Start NextJS production server
+nextjs-start:
+	@echo -e "$(BLUE)\xF0\x9F\x8F\x81 Starting NextJS production server...$(NC)"
+	cd frontend && pnpm start
+	@echo -e "$(GREEN)[OK] NextJS production server started!$(NC)"
+
+# Run ESLint on NextJS code
+nextjs-lint:
+	@echo -e "$(PURPLE)\xF0\x9F\x94\x8E Running ESLint on NextJS code...$(NC)"
+	cd frontend && pnpm lint
+	@echo -e "$(GREEN)[OK] ESLint completed!$(NC)"

@@ -80,6 +80,7 @@ COPY ./compose/django/celery/beat/start /start-celerybeat
 COPY ./compose/django/celery/flower/start /start-flower
 
 
+# Set permissions
 RUN sed -i 's/\r$//g' /entrypoint /start /start-celeryworker /start-celerybeat /start-flower \
     && chmod +x /entrypoint /start /start-celeryworker /start-celerybeat /start-flower
 

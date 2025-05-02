@@ -32,6 +32,9 @@ volumes:
     dicebear-data:
         name: dicebear-data
         driver: local
+    nextjs-node-modules:
+        name: nextjs-node-modules
+        driver: local
 
 services:
     nginx-service:
@@ -46,6 +49,35 @@ services:
         depends_on:
             django-service:
                 condition: service_healthy
+            nextjs-service:
+                condition: service_healthy
+        networks:
+            - agentsphere-network
+
+    nextjs-service:
+        build:
+            context: .
+            dockerfile: compose/nextjs/dockerfile
+        container_name: nextjs-service
+        command: /start
+        env_file:
+            - .envs/.nextjs.env
+        volumes:
+            - ./frontend:/app:z
+            - nextjs-node-modules:/app/node_modules
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "-q",
+                    "--spider",
+                    "http://localhost:3000/api/health",
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
         networks:
             - agentsphere-network
 

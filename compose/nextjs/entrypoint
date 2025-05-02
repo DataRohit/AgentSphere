@@ -1,0 +1,13 @@
+#!/bin/sh
+
+
+# Set bash to exit immediately if a command fails
+set -o errexit
+# Return a non-zero exit status if any part of a pipeline fails
+set -o pipefail
+# Treat unset variables as an error when expanding them
+set -o nounset
+
+
+# Execute the command provided as arguments to the script
+exec "$@"
