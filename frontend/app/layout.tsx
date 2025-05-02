@@ -1,3 +1,5 @@
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
@@ -23,7 +25,12 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${jetbrainsMono.className} antialiased`}>
-                <Providers>{children}</Providers>
+                <Providers>
+                    <TooltipProvider>
+                        <Toaster />
+                        {children}
+                    </TooltipProvider>
+                </Providers>
             </body>
         </html>
     );
