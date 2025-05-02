@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
     --font-sans: var(--font-jetbrains-mono);
     --font-mono: var(--font-jetbrains-mono);
@@ -133,7 +131,7 @@ body {
     color: var(--foreground);
 }
 
-@theme inline {
+:root {
     --color-sidebar: var(--sidebar);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
@@ -144,11 +142,12 @@ body {
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
+* {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
 }
