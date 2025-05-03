@@ -172,7 +172,10 @@ export function DashboardNavbar() {
                                     </p>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-(--border) h-[1px] my-2" />
-                                <DropdownMenuItem className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1">
+                                <DropdownMenuItem
+                                    className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1"
+                                    onClick={() => router.push("/profile")}
+                                >
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Profile</span>
                                 </DropdownMenuItem>
