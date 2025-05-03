@@ -10,40 +10,40 @@ import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-interface SignupFormValues {
-    username: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    password: string;
-    re_password: string;
+interface PasswordResetConfirmFormValues {
+    new_password: string;
+    re_new_password: string;
 }
 
-export default function SignupPage() {
+export default function PasswordResetConfirmPage() {
     const router = useRouter();
+    const params = useParams();
+    const { uid, token } = params;
+
     const [showPassword, setShowPassword] = useState(false);
     const [showRePassword, setShowRePassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
 
+    // Clear auth cookies when visiting this page
     useEffect(() => {
-        const accessToken = Cookies.get("access_token");
-        if (accessToken) {
-            router.push("/dashboard");
-        }
-    }, [router]);
+        Cookies.remove("access_token");
+        Cookies.remove("refresh_token");
+    }, []);
 
+    // Reset progress when not submitting
     useEffect(() => {
         if (!isSubmitting) {
             setProgress(0);
         }
     }, [isSubmitting]);
 
+    // Simulate progress when submitting
     useEffect(() => {
         if (isSubmitting) {
             const timer = setTimeout(() => {
@@ -61,21 +61,17 @@ export default function SignupPage() {
         }
     }, [isSubmitting, progress]);
 
-    const form = useForm<SignupFormValues>({
+    const form = useForm<PasswordResetConfirmFormValues>({
         mode: "onTouched",
         defaultValues: {
-            username: "",
-            first_name: "",
-            last_name: "",
-            email: "",
-            password: "",
-            re_password: "",
+            new_password: "",
+            re_new_password: "",
         },
     });
 
-    const onSubmit = async (data: SignupFormValues) => {
+    const onSubmit = async (data: PasswordResetConfirmFormValues) => {
         // Check if passwords match before submitting
-        if (data.password !== data.re_password) {
+        if (data.new_password !== data.re_new_password) {
             toast.error("Passwords do not match", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -87,7 +83,7 @@ export default function SignupPage() {
         }
 
         // Check if password is at least 8 characters
-        if (data.password.length < 8) {
+        if (data.new_password.length < 8) {
             toast.error("Password must be at least 8 characters", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -101,13 +97,12 @@ export default function SignupPage() {
         setIsSubmitting(true);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-            const response = await fetch(`${apiUrl}/users/`, {
+            const response = await fetch(`${apiUrl}/users/password-reset/${uid}/${token}/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-                credentials: "include",
             });
 
             let result;
@@ -121,12 +116,15 @@ export default function SignupPage() {
                         border: "none",
                     },
                 });
+                setIsSubmitting(false);
                 return;
             }
+
             if (response.ok) {
+                // Set progress to 100% on success
                 setProgress(100);
 
-                toast.success("Account created successfully!", {
+                toast.success("Password reset successfully!", {
                     style: {
                         backgroundColor: "oklch(0.45 0.18 142.71)",
                         color: "white",
@@ -134,32 +132,65 @@ export default function SignupPage() {
                     },
                 });
 
+                // Redirect to login page after a short delay
                 setTimeout(() => {
                     router.push("/auth/login");
                 }, 2000);
             } else {
-                if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]) => {
-                        if (Array.isArray(errors) && errors.length > 0) {
-                            toast.error(`${field.replace("_", " ")}: ${errors[0]}`, {
-                                style: {
-                                    backgroundColor: "var(--destructive)",
-                                    color: "white",
-                                    border: "none",
-                                },
-                            });
+                if (response.status === 403) {
+                    toast.error(
+                        result.error || "Invalid or expired reset link. Please request a new one.",
+                        {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
                         }
-                    });
-                } else if (result.non_field_errors) {
-                    toast.error(result.non_field_errors[0], {
-                        style: {
-                            backgroundColor: "var(--destructive)",
-                            color: "white",
-                            border: "none",
-                        },
-                    });
+                    );
+                } else if (result.errors) {
+                    // Handle field errors
+                    if (result.errors.new_password && result.errors.new_password.length > 0) {
+                        toast.error(`New password: ${result.errors.new_password[0]}`, {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        });
+                    } else if (
+                        result.errors.re_new_password &&
+                        result.errors.re_new_password.length > 0
+                    ) {
+                        toast.error(`Confirm password: ${result.errors.re_new_password[0]}`, {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        });
+                    } else if (
+                        result.errors.non_field_errors &&
+                        result.errors.non_field_errors.length > 0
+                    ) {
+                        toast.error(result.errors.non_field_errors[0], {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        });
+                    } else {
+                        toast.error("Failed to reset password. Please try again.", {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        });
+                    }
                 } else {
-                    toast.error("Failed to create account. Please try again.", {
+                    toast.error("Failed to reset password. Please try again.", {
                         style: {
                             backgroundColor: "var(--destructive)",
                             color: "white",
@@ -168,7 +199,7 @@ export default function SignupPage() {
                     });
                 }
             }
-        } catch {
+        } catch (error) {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -217,7 +248,7 @@ export default function SignupPage() {
                         <Card className="border shadow-lg">
                             <CardHeader>
                                 <CardTitle className="text-2xl font-bold text-center">
-                                    Create Account
+                                    Reset Your Password
                                 </CardTitle>
                                 {isSubmitting && (
                                     <div className="mt-2">
@@ -234,7 +265,7 @@ export default function SignupPage() {
                                         onSubmit={(e) => {
                                             // Check passwords match before form validation
                                             const data = form.getValues();
-                                            if (data.password !== data.re_password) {
+                                            if (data.new_password !== data.re_new_password) {
                                                 e.preventDefault();
                                                 toast.error("Passwords do not match", {
                                                     style: {
@@ -245,84 +276,45 @@ export default function SignupPage() {
                                                 });
                                                 return;
                                             }
+
+                                            // Check if password is at least 8 characters
+                                            if (data.new_password.length < 8) {
+                                                e.preventDefault();
+                                                toast.error(
+                                                    "Password must be at least 8 characters",
+                                                    {
+                                                        style: {
+                                                            backgroundColor: "var(--destructive)",
+                                                            color: "white",
+                                                            border: "none",
+                                                        },
+                                                    }
+                                                );
+                                                return;
+                                            }
+
                                             form.handleSubmit(onSubmit)(e);
                                         }}
                                         className="space-y-4"
                                     >
                                         <motion.div variants={itemVariants}>
-                                            <FormItem>
-                                                <FormLabel>Username</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Username"
-                                                        {...form.register("username", {
-                                                            required: true,
-                                                            minLength: 3,
-                                                        })}
-                                                    />
-                                                </FormControl>
-                                            </FormItem>
-                                        </motion.div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <motion.div variants={itemVariants}>
-                                                <FormItem>
-                                                    <FormLabel>First Name</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="First Name"
-                                                            {...form.register("first_name", {
-                                                                required: true,
-                                                            })}
-                                                        />
-                                                    </FormControl>
-                                                </FormItem>
-                                            </motion.div>
-
-                                            <motion.div variants={itemVariants}>
-                                                <FormItem>
-                                                    <FormLabel>Last Name</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Last Name"
-                                                            {...form.register("last_name", {
-                                                                required: true,
-                                                            })}
-                                                        />
-                                                    </FormControl>
-                                                </FormItem>
-                                            </motion.div>
-                                        </div>
-
-                                        <motion.div variants={itemVariants}>
-                                            <FormItem>
-                                                <FormLabel>Email</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="email"
-                                                        placeholder="Email"
-                                                        {...form.register("email", {
-                                                            required: true,
-                                                            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                                        })}
-                                                    />
-                                                </FormControl>
-                                            </FormItem>
+                                            <p className="text-sm text-(--muted-foreground) mb-4">
+                                                Please enter your new password below.
+                                            </p>
                                         </motion.div>
 
                                         <motion.div variants={itemVariants}>
                                             <FormItem>
-                                                <FormLabel>Password</FormLabel>
+                                                <FormLabel>New Password</FormLabel>
                                                 <FormControl>
                                                     <div className="relative">
                                                         <Input
                                                             type={
                                                                 showPassword ? "text" : "password"
                                                             }
-                                                            placeholder="Password"
-                                                            {...form.register("password", {
+                                                            placeholder="New Password"
+                                                            {...form.register("new_password", {
                                                                 required: true,
-                                                                minLength: 8,
                                                             })}
                                                         />
                                                         <button
@@ -346,22 +338,16 @@ export default function SignupPage() {
 
                                         <motion.div variants={itemVariants}>
                                             <FormItem>
-                                                <FormLabel>Confirm Password</FormLabel>
+                                                <FormLabel>Confirm New Password</FormLabel>
                                                 <FormControl>
                                                     <div className="relative">
                                                         <Input
                                                             type={
                                                                 showRePassword ? "text" : "password"
                                                             }
-                                                            placeholder="Confirm Password"
-                                                            {...form.register("re_password", {
+                                                            placeholder="Confirm New Password"
+                                                            {...form.register("re_new_password", {
                                                                 required: true,
-                                                                validate: (value) =>
-                                                                    value ===
-                                                                        form.getValues(
-                                                                            "password"
-                                                                        ) ||
-                                                                    "Passwords do not match",
                                                             })}
                                                         />
                                                         <button
@@ -397,8 +383,8 @@ export default function SignupPage() {
                                                 >
                                                     <span className="relative z-10">
                                                         {isSubmitting
-                                                            ? "Creating Account..."
-                                                            : "Sign Up"}
+                                                            ? "Resetting Password..."
+                                                            : "Reset Password"}
                                                     </span>
                                                     <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                                 </Button>
@@ -409,7 +395,7 @@ export default function SignupPage() {
                                             variants={itemVariants}
                                             className="text-center text-sm text-(--muted-foreground) mt-4"
                                         >
-                                            Already have an account?{" "}
+                                            Remember your password?{" "}
                                             <Link
                                                 href="/auth/login"
                                                 className="text-(--primary) hover:underline"
