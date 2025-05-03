@@ -163,34 +163,61 @@ export function DashboardNavbar() {
                                 align="end"
                                 className="w-56 bg-(--background) border border-(--border) shadow-lg rounded-md p-2"
                             >
-                                <DropdownMenuLabel className="px-3">
-                                    <p className="text-sm font-medium">
-                                        {user.full_name || user.username}
-                                    </p>
-                                    <p className="text-xs text-(--muted-foreground) truncate">
-                                        {user.email}
-                                    </p>
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-(--border) h-[1px] my-2" />
-                                <DropdownMenuItem
-                                    className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1"
-                                    onClick={() => router.push("/profile")}
+                                <motion.div
+                                    initial={{ opacity: 0, y: -5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.2 }}
                                 >
-                                    <User className="mr-2 h-4 w-4" />
-                                    <span>Profile</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1">
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    <span>Settings</span>
-                                </DropdownMenuItem>
+                                    <DropdownMenuLabel className="px-3">
+                                        <p className="text-sm font-medium">
+                                            {user.full_name || user.username}
+                                        </p>
+                                        <p className="text-xs text-(--muted-foreground) truncate">
+                                            {user.email}
+                                        </p>
+                                    </DropdownMenuLabel>
+                                </motion.div>
                                 <DropdownMenuSeparator className="bg-(--border) h-[1px] my-2" />
-                                <DropdownMenuItem
-                                    className="cursor-pointer text-(--destructive) hover:bg-(--destructive)/10 focus:bg-(--destructive)/10 transition-colors duration-200 rounded-sm my-0.5 mx-1"
-                                    onClick={handleLogout}
+                                <motion.div
+                                    initial={{ opacity: 0, x: -5 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.2, delay: 0.1 }}
+                                    whileHover={{ x: 3 }}
                                 >
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    <span>Log out</span>
-                                </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1"
+                                        onClick={() => router.push("/profile")}
+                                    >
+                                        <User className="mr-2 h-4 w-4" />
+                                        <span>Profile</span>
+                                    </DropdownMenuItem>
+                                </motion.div>
+                                <motion.div
+                                    initial={{ opacity: 0, x: -5 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.2, delay: 0.2 }}
+                                    whileHover={{ x: 3 }}
+                                >
+                                    <DropdownMenuItem className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1">
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        <span>Settings</span>
+                                    </DropdownMenuItem>
+                                </motion.div>
+                                <DropdownMenuSeparator className="bg-(--border) h-[1px] my-2" />
+                                <motion.div
+                                    initial={{ opacity: 0, x: -5 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.2, delay: 0.3 }}
+                                    whileHover={{ x: 3 }}
+                                >
+                                    <DropdownMenuItem
+                                        className="cursor-pointer text-(--destructive) hover:bg-(--destructive)/10 focus:bg-(--destructive)/10 transition-colors duration-200 rounded-sm my-0.5 mx-1"
+                                        onClick={handleLogout}
+                                    >
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        <span>Log out</span>
+                                    </DropdownMenuItem>
+                                </motion.div>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}

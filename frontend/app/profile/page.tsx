@@ -322,176 +322,262 @@ export default function ProfilePage() {
                                 value="info"
                                 className="mt-6 data-[state=active]:animate-in data-[state=inactive]:animate-out data-[state=inactive]:fade-out-50 data-[state=active]:fade-in-50 duration-200"
                             >
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>User Information</CardTitle>
-                                        <CardDescription>
-                                            Update your personal information.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <Form {...form}>
-                                            <form
-                                                onSubmit={form.handleSubmit(onSubmit)}
-                                                className="space-y-6"
-                                            >
-                                                <FormField
-                                                    control={form.control}
-                                                    name="username"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Username</FormLabel>
-                                                            <FormControl>
-                                                                <Input
-                                                                    placeholder="Username"
-                                                                    {...field}
-                                                                />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 300,
+                                        damping: 30,
+                                        delay: 0.1,
+                                    }}
+                                >
+                                    <Card className="overflow-hidden border border-(--border) shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.2, duration: 0.3 }}
+                                        >
+                                            <CardHeader>
+                                                <CardTitle>User Information</CardTitle>
+                                                <CardDescription>
+                                                    Update your personal information.
+                                                </CardDescription>
+                                            </CardHeader>
+                                        </motion.div>
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.3, duration: 0.4 }}
+                                        >
+                                            <CardContent>
+                                                <Form {...form}>
+                                                    <form
+                                                        onSubmit={form.handleSubmit(onSubmit)}
+                                                        className="space-y-6"
+                                                    >
+                                                        <FormField
+                                                            control={form.control}
+                                                            name="username"
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel>Username</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            placeholder="Username"
+                                                                            {...field}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <FormField
-                                                        control={form.control}
-                                                        name="first_name"
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormLabel>First Name</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="First Name"
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="first_name"
+                                                                render={({ field }) => (
+                                                                    <FormItem>
+                                                                        <FormLabel>
+                                                                            First Name
+                                                                        </FormLabel>
+                                                                        <FormControl>
+                                                                            <Input
+                                                                                placeholder="First Name"
+                                                                                {...field}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
 
-                                                    <FormField
-                                                        control={form.control}
-                                                        name="last_name"
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormLabel>Last Name</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        placeholder="Last Name"
-                                                                        {...field}
-                                                                    />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </div>
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="last_name"
+                                                                render={({ field }) => (
+                                                                    <FormItem>
+                                                                        <FormLabel>
+                                                                            Last Name
+                                                                        </FormLabel>
+                                                                        <FormControl>
+                                                                            <Input
+                                                                                placeholder="Last Name"
+                                                                                {...field}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
 
-                                                <Button
-                                                    type="submit"
-                                                    disabled={isSubmitting}
-                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) px-8 h-12 cursor-pointer"
-                                                >
-                                                    <span className="relative z-10">
-                                                        {isSubmitting
-                                                            ? "Updating..."
-                                                            : "Update Profile"}
-                                                    </span>
-                                                    <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                                </Button>
-                                            </form>
-                                        </Form>
-                                    </CardContent>
-                                </Card>
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{
+                                                                delay: 0.6,
+                                                                duration: 0.3,
+                                                            }}
+                                                            whileHover={{ scale: 1.02 }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                        >
+                                                            <Button
+                                                                type="submit"
+                                                                disabled={isSubmitting}
+                                                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) px-8 h-12 cursor-pointer w-full"
+                                                            >
+                                                                <span className="relative z-10">
+                                                                    {isSubmitting
+                                                                        ? "Updating..."
+                                                                        : "Update Profile"}
+                                                                </span>
+                                                                <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                                            </Button>
+                                                        </motion.div>
+                                                    </form>
+                                                </Form>
+                                            </CardContent>
+                                        </motion.div>
+                                    </Card>
+                                </motion.div>
                             </TabsContent>
 
                             <TabsContent
                                 value="avatar"
                                 className="mt-6 data-[state=active]:animate-in data-[state=inactive]:animate-out data-[state=inactive]:fade-out-50 data-[state=active]:fade-in-50 duration-200"
                             >
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Avatar</CardTitle>
-                                        <CardDescription>
-                                            Update your profile picture.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-6">
-                                            <div className="flex flex-col items-center space-y-4">
-                                                <div className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-(--border)">
-                                                    {user?.avatar_url ? (
-                                                        <Image
-                                                            src={user.avatar_url}
-                                                            alt={user.username}
-                                                            fill
-                                                            className="object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="h-full w-full flex items-center justify-center bg-(--primary)/10 text-(--primary)">
-                                                            <User size={48} />
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 300,
+                                        damping: 30,
+                                        delay: 0.1,
+                                    }}
+                                >
+                                    <Card className="overflow-hidden border border-(--border) shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.2, duration: 0.3 }}
+                                        >
+                                            <CardHeader>
+                                                <CardTitle>Avatar</CardTitle>
+                                                <CardDescription>
+                                                    Update your profile picture.
+                                                </CardDescription>
+                                            </CardHeader>
+                                        </motion.div>
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.3, duration: 0.4 }}
+                                        >
+                                            <CardContent>
+                                                <div className="space-y-6">
+                                                    <div className="flex flex-col items-center space-y-4">
+                                                        <motion.div
+                                                            className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-(--border)"
+                                                            initial={{ scale: 0.8, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            transition={{
+                                                                type: "spring",
+                                                                stiffness: 300,
+                                                                damping: 20,
+                                                                delay: 0.4,
+                                                            }}
+                                                            whileHover={{
+                                                                scale: 1.05,
+                                                                borderColor: "var(--primary)",
+                                                            }}
+                                                        >
+                                                            {user?.avatar_url ? (
+                                                                <Image
+                                                                    src={user.avatar_url}
+                                                                    alt={user.username}
+                                                                    fill
+                                                                    className="object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="h-full w-full flex items-center justify-center bg-(--primary)/10 text-(--primary)">
+                                                                    <User size={48} />
+                                                                </div>
+                                                            )}
+                                                        </motion.div>
+
+                                                        <div className="text-center">
+                                                            <h3 className="font-medium">
+                                                                {user?.full_name || user?.username}
+                                                            </h3>
+                                                            <p className="text-sm text-(--muted-foreground)">
+                                                                {user?.email}
+                                                            </p>
                                                         </div>
-                                                    )}
+                                                    </div>
+
+                                                    <Separator />
+
+                                                    <div className="space-y-4">
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="avatar">
+                                                                Upload new avatar
+                                                            </Label>
+                                                            <p className="text-sm text-(--muted-foreground)">
+                                                                Supported formats: JPEG, PNG, GIF.
+                                                                Max size: 5MB.
+                                                            </p>
+                                                        </div>
+
+                                                        <input
+                                                            type="file"
+                                                            id="avatar"
+                                                            ref={fileInputRef}
+                                                            accept="image/*"
+                                                            onChange={handleAvatarUpload}
+                                                            className="hidden"
+                                                        />
+
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{
+                                                                delay: 0.6,
+                                                                duration: 0.3,
+                                                            }}
+                                                            whileHover={{ scale: 1.02 }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                        >
+                                                            <Button
+                                                                type="button"
+                                                                onClick={triggerFileInput}
+                                                                disabled={isUploading}
+                                                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) px-8 h-12 cursor-pointer w-full"
+                                                            >
+                                                                <span className="relative z-10 flex items-center">
+                                                                    {isUploading ? (
+                                                                        <>
+                                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                                            Uploading...
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Upload className="mr-2 h-4 w-4" />
+                                                                            Upload Avatar
+                                                                        </>
+                                                                    )}
+                                                                </span>
+                                                                <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                                            </Button>
+                                                        </motion.div>
+                                                    </div>
                                                 </div>
-
-                                                <div className="text-center">
-                                                    <h3 className="font-medium">
-                                                        {user?.full_name || user?.username}
-                                                    </h3>
-                                                    <p className="text-sm text-(--muted-foreground)">
-                                                        {user?.email}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <Separator />
-
-                                            <div className="space-y-4">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="avatar">
-                                                        Upload new avatar
-                                                    </Label>
-                                                    <p className="text-sm text-(--muted-foreground)">
-                                                        Supported formats: JPEG, PNG, GIF. Max size:
-                                                        5MB.
-                                                    </p>
-                                                </div>
-
-                                                <input
-                                                    type="file"
-                                                    id="avatar"
-                                                    ref={fileInputRef}
-                                                    accept="image/*"
-                                                    onChange={handleAvatarUpload}
-                                                    className="hidden"
-                                                />
-
-                                                <Button
-                                                    type="button"
-                                                    onClick={triggerFileInput}
-                                                    disabled={isUploading}
-                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) px-8 h-12 cursor-pointer"
-                                                >
-                                                    <span className="relative z-10 flex items-center">
-                                                        {isUploading ? (
-                                                            <>
-                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                                Uploading...
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Upload className="mr-2 h-4 w-4" />
-                                                                Upload Avatar
-                                                            </>
-                                                        )}
-                                                    </span>
-                                                    <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                            </CardContent>
+                                        </motion.div>
+                                    </Card>
+                                </motion.div>
                             </TabsContent>
                         </Tabs>
                     </div>
