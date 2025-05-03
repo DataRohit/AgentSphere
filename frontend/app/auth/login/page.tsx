@@ -1,5 +1,7 @@
 "use client";
 
+import { useAppDispatch } from "@/app/store/hooks";
+import { setUser, setUserError, setUserLoading } from "@/app/store/slices/userSlice";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,19 +17,15 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-interface SignupFormValues {
-    username: string;
-    first_name: string;
-    last_name: string;
+interface LoginFormValues {
     email: string;
     password: string;
-    re_password: string;
 }
 
-export default function SignupPage() {
+export default function LoginPage() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
-    const [showRePassword, setShowRePassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
 
@@ -61,23 +59,43 @@ export default function SignupPage() {
         }
     }, [isSubmitting, progress]);
 
-    const form = useForm<SignupFormValues>({
+    const form = useForm<LoginFormValues>({
         mode: "onTouched",
         defaultValues: {
-            username: "",
-            first_name: "",
-            last_name: "",
             email: "",
             password: "",
-            re_password: "",
         },
     });
 
-    const onSubmit = async (data: SignupFormValues) => {
+    const fetchUserData = async (accessToken: string) => {
+        dispatch(setUserLoading());
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+            const response = await fetch(`${apiUrl}/users/me/`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                dispatch(setUser(data.user));
+            } else {
+                const errorData = await response.json();
+                dispatch(setUserError(errorData.error || "Failed to fetch user data"));
+            }
+        } catch (error) {
+            dispatch(setUserError("An error occurred while fetching user data"));
+        }
+    };
+
+    const onSubmit = async (data: LoginFormValues) => {
         setIsSubmitting(true);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-            const response = await fetch(`${apiUrl}/users/`, {
+            const response = await fetch(`${apiUrl}/users/login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -99,10 +117,16 @@ export default function SignupPage() {
                 });
                 return;
             }
+
             if (response.ok) {
                 setProgress(100);
 
-                toast.success("Account created successfully!", {
+                Cookies.set("access_token", result.access, { expires: 0.25 });
+                Cookies.set("refresh_token", result.refresh, { expires: 1 });
+
+                await fetchUserData(result.access);
+
+                toast.success("Login successful!", {
                     style: {
                         backgroundColor: "oklch(0.45 0.18 142.71)",
                         color: "white",
@@ -111,23 +135,11 @@ export default function SignupPage() {
                 });
 
                 setTimeout(() => {
-                    router.push("/auth/login");
-                }, 2000);
+                    router.push("/dashboard");
+                }, 1000);
             } else {
-                if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]) => {
-                        if (Array.isArray(errors) && errors.length > 0) {
-                            toast.error(`${field.replace("_", " ")}: ${errors[0]}`, {
-                                style: {
-                                    backgroundColor: "var(--destructive)",
-                                    color: "white",
-                                    border: "none",
-                                },
-                            });
-                        }
-                    });
-                } else if (result.non_field_errors) {
-                    toast.error(result.non_field_errors[0], {
+                if (result.error) {
+                    toast.error(result.error, {
                         style: {
                             backgroundColor: "var(--destructive)",
                             color: "white",
@@ -135,7 +147,7 @@ export default function SignupPage() {
                         },
                     });
                 } else {
-                    toast.error("Failed to create account. Please try again.", {
+                    toast.error("Invalid email or password. Please try again.", {
                         style: {
                             backgroundColor: "var(--destructive)",
                             color: "white",
@@ -193,7 +205,7 @@ export default function SignupPage() {
                         <Card className="border shadow-lg">
                             <CardHeader>
                                 <CardTitle className="text-2xl font-bold text-center">
-                                    Create Account
+                                    Log In
                                 </CardTitle>
                                 {isSubmitting && (
                                     <div className="mt-2">
@@ -210,51 +222,6 @@ export default function SignupPage() {
                                         onSubmit={form.handleSubmit(onSubmit)}
                                         className="space-y-4"
                                     >
-                                        <motion.div variants={itemVariants}>
-                                            <FormItem>
-                                                <FormLabel>Username</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Username"
-                                                        {...form.register("username", {
-                                                            required: true,
-                                                            minLength: 3,
-                                                        })}
-                                                    />
-                                                </FormControl>
-                                            </FormItem>
-                                        </motion.div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <motion.div variants={itemVariants}>
-                                                <FormItem>
-                                                    <FormLabel>First Name</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="First Name"
-                                                            {...form.register("first_name", {
-                                                                required: true,
-                                                            })}
-                                                        />
-                                                    </FormControl>
-                                                </FormItem>
-                                            </motion.div>
-
-                                            <motion.div variants={itemVariants}>
-                                                <FormItem>
-                                                    <FormLabel>Last Name</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Last Name"
-                                                            {...form.register("last_name", {
-                                                                required: true,
-                                                            })}
-                                                        />
-                                                    </FormControl>
-                                                </FormItem>
-                                            </motion.div>
-                                        </div>
-
                                         <motion.div variants={itemVariants}>
                                             <FormItem>
                                                 <FormLabel>Email</FormLabel>
@@ -283,7 +250,6 @@ export default function SignupPage() {
                                                             placeholder="Password"
                                                             {...form.register("password", {
                                                                 required: true,
-                                                                minLength: 8,
                                                             })}
                                                         />
                                                         <button
@@ -295,45 +261,6 @@ export default function SignupPage() {
                                                             }
                                                         >
                                                             {showPassword ? (
-                                                                <EyeOff size={18} />
-                                                            ) : (
-                                                                <Eye size={18} />
-                                                            )}
-                                                        </button>
-                                                    </div>
-                                                </FormControl>
-                                            </FormItem>
-                                        </motion.div>
-
-                                        <motion.div variants={itemVariants}>
-                                            <FormItem>
-                                                <FormLabel>Confirm Password</FormLabel>
-                                                <FormControl>
-                                                    <div className="relative">
-                                                        <Input
-                                                            type={
-                                                                showRePassword ? "text" : "password"
-                                                            }
-                                                            placeholder="Confirm Password"
-                                                            {...form.register("re_password", {
-                                                                required: true,
-                                                                validate: (value) =>
-                                                                    value ===
-                                                                        form.getValues(
-                                                                            "password"
-                                                                        ) ||
-                                                                    "Passwords do not match",
-                                                            })}
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-(--muted-foreground) hover:text-(--primary) focus:text-(--primary) p-1.5 rounded-full hover:bg-(--accent) focus:bg-(--accent) transition-all duration-200 cursor-pointer"
-                                                            tabIndex={-1}
-                                                            onClick={() =>
-                                                                setShowRePassword((v) => !v)
-                                                            }
-                                                        >
-                                                            {showRePassword ? (
                                                                 <EyeOff size={18} />
                                                             ) : (
                                                                 <Eye size={18} />
@@ -357,9 +284,7 @@ export default function SignupPage() {
                                                     disabled={isSubmitting}
                                                 >
                                                     <span className="relative z-10">
-                                                        {isSubmitting
-                                                            ? "Creating Account..."
-                                                            : "Sign Up"}
+                                                        {isSubmitting ? "Logging in..." : "Log In"}
                                                     </span>
                                                     <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                                 </Button>
@@ -370,12 +295,12 @@ export default function SignupPage() {
                                             variants={itemVariants}
                                             className="text-center text-sm text-(--muted-foreground) mt-4"
                                         >
-                                            Already have an account?{" "}
+                                            Don&apos;t have an account?{" "}
                                             <Link
-                                                href="/auth/login"
+                                                href="/auth/signup"
                                                 className="text-(--primary) hover:underline"
                                             >
-                                                Log In
+                                                Sign Up
                                             </Link>
                                         </motion.div>
                                     </form>

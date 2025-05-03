@@ -47,7 +47,6 @@ export function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const pathname = usePathname();
 
-    // Check if we're on an auth page
     const isAuthPage = pathname?.startsWith("/auth");
 
     useEffect(() => {
