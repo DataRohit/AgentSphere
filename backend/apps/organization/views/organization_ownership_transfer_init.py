@@ -181,18 +181,10 @@ class OrganizationOwnershipTransferInitView(APIView):
             domain_part = settings.ACTIVATION_DOMAIN
 
             # Construct full accept URL
-            relative_accept_path = reverse(
-                "organization:organization-ownership-transfer-accept",
-                kwargs={"transfer_id": transfer.id},
-            )
-            accept_url = f"{scheme}://{domain_part}{relative_accept_path}"
+            accept_url = f"{scheme}://{domain_part}/organization/transfer/{transfer.id}/accept/"
 
             # Construct full reject URL
-            relative_reject_path = reverse(
-                "organization:organization-ownership-transfer-reject",
-                kwargs={"transfer_id": transfer.id},
-            )
-            reject_url = f"{scheme}://{domain_part}{relative_reject_path}"
+            reject_url = f"{scheme}://{domain_part}/organization/transfer/{transfer.id}/reject/"
 
             # Send an email to the new owner with accept and reject links
             context = {

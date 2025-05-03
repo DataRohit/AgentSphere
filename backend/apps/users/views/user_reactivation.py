@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -119,11 +118,7 @@ class UserReactivationRequestView(APIView):
         domain_part = settings.ACTIVATION_DOMAIN
 
         # Construct full reactivation URL
-        relative_reactivation_path = reverse(
-            "users:user-reactivation-confirm",
-            kwargs={"uid": uid, "token": token},
-        )
-        reactivation_url = f"{scheme}://{domain_part}{relative_reactivation_path}"
+        reactivation_url = f"{scheme}://{domain_part}/auth/reactivate/{uid}/{token}/"
 
         # Prepare email context
         context = {

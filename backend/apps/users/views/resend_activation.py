@@ -2,7 +2,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -119,11 +118,7 @@ class ResendActivationEmailView(APIView):
             domain_part = settings.ACTIVATION_DOMAIN
 
             # Construct full activation URL
-            relative_activation_path = reverse(
-                "users:user-activation",
-                kwargs={"uid": uid, "token": token},
-            )
-            activation_url = f"{scheme}://{domain_part}{relative_activation_path}"
+            activation_url = f"{scheme}://{domain_part}/auth/activate/{uid}/{token}/"
 
             # Prepare email context including domain_part
             context = {
