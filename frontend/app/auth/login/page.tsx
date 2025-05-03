@@ -271,6 +271,18 @@ export default function LoginPage() {
                                             </FormItem>
                                         </motion.div>
 
+                                        <motion.div
+                                            variants={itemVariants}
+                                            className="flex justify-end"
+                                        >
+                                            <Link
+                                                href="/auth/password-reset"
+                                                className="text-sm text-(--muted-foreground) hover:text-(--primary) transition-colors duration-200"
+                                            >
+                                                Forgot Password?
+                                            </Link>
+                                        </motion.div>
+
                                         <motion.div variants={itemVariants} className="pt-2">
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
