@@ -1,0 +1,387 @@
+"use client";
+
+import { Navbar } from "@/components/navbar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+interface SignupFormValues {
+    username: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    re_password: string;
+}
+
+export default function SignupPage() {
+    const router = useRouter();
+    const [showPassword, setShowPassword] = useState(false);
+    const [showRePassword, setShowRePassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [progress, setProgress] = useState(0);
+
+    // Reset progress when not submitting
+    useEffect(() => {
+        if (!isSubmitting) {
+            setProgress(0);
+        }
+    }, [isSubmitting]);
+
+    // Simulate progress when submitting
+    useEffect(() => {
+        if (isSubmitting) {
+            const timer = setTimeout(() => {
+                setProgress((oldProgress) => {
+                    // Increase progress gradually up to 95%
+                    // The remaining 5% will be filled when the request completes
+                    if (oldProgress < 95) {
+                        return Math.min(oldProgress + 5, 95);
+                    }
+                    return oldProgress;
+                });
+            }, 100);
+
+            return () => {
+                clearTimeout(timer);
+            };
+        }
+    }, [isSubmitting, progress]);
+
+    const form = useForm<SignupFormValues>({
+        mode: "onTouched",
+        defaultValues: {
+            username: "",
+            first_name: "",
+            last_name: "",
+            email: "",
+            password: "",
+            re_password: "",
+        },
+    });
+
+    const onSubmit = async (data: SignupFormValues) => {
+        setIsSubmitting(true);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+            const response = await fetch(`${apiUrl}/users/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+                credentials: "include",
+            });
+
+            let result;
+            try {
+                result = await response.json();
+            } catch {
+                toast.error("Unable to process server response. Please try again later.", {
+                    style: {
+                        backgroundColor: "var(--destructive)",
+                        color: "white",
+                        border: "none",
+                    },
+                });
+                return;
+            }
+            if (response.ok) {
+                // Set progress to 100% on success
+                setProgress(100);
+
+                toast.success("Account created successfully!", {
+                    style: {
+                        backgroundColor: "oklch(0.45 0.18 142.71)",
+                        color: "white",
+                        border: "none",
+                    },
+                });
+
+                setTimeout(() => {
+                    router.push("/auth/login");
+                }, 2000);
+            } else {
+                if (result.errors) {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
+                        if (Array.isArray(errors) && errors.length > 0) {
+                            toast.error(`${field.replace("_", " ")}: ${errors[0]}`, {
+                                style: {
+                                    backgroundColor: "var(--destructive)",
+                                    color: "white",
+                                    border: "none",
+                                },
+                            });
+                        }
+                    });
+                } else if (result.non_field_errors) {
+                    toast.error(result.non_field_errors[0], {
+                        style: {
+                            backgroundColor: "var(--destructive)",
+                            color: "white",
+                            border: "none",
+                        },
+                    });
+                } else {
+                    toast.error("Failed to create account. Please try again.", {
+                        style: {
+                            backgroundColor: "var(--destructive)",
+                            color: "white",
+                            border: "none",
+                        },
+                    });
+                }
+            }
+        } catch {
+            toast.error("An error occurred. Please try again later.", {
+                style: {
+                    backgroundColor: "var(--destructive)",
+                    color: "white",
+                    border: "none",
+                },
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+            },
+        },
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+            },
+        },
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col bg-(--background)">
+            <Navbar />
+            <div className="flex-1 flex items-center justify-center px-4 pt-16">
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="w-full max-w-md"
+                >
+                    <motion.div variants={itemVariants}>
+                        <Card className="border shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="text-2xl font-bold text-center">
+                                    Create Account
+                                </CardTitle>
+                                {isSubmitting && (
+                                    <div className="mt-2">
+                                        <Progress
+                                            value={progress}
+                                            className="h-1 bg-(--primary-foreground)/20"
+                                        />
+                                    </div>
+                                )}
+                            </CardHeader>
+                            <CardContent>
+                                <Form {...form}>
+                                    <form
+                                        onSubmit={form.handleSubmit(onSubmit)}
+                                        className="space-y-4"
+                                    >
+                                        <motion.div variants={itemVariants}>
+                                            <FormItem>
+                                                <FormLabel>Username</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Username"
+                                                        {...form.register("username", {
+                                                            required: true,
+                                                            minLength: 3,
+                                                        })}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        </motion.div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <motion.div variants={itemVariants}>
+                                                <FormItem>
+                                                    <FormLabel>First Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder="First Name"
+                                                            {...form.register("first_name", {
+                                                                required: true,
+                                                            })}
+                                                        />
+                                                    </FormControl>
+                                                </FormItem>
+                                            </motion.div>
+
+                                            <motion.div variants={itemVariants}>
+                                                <FormItem>
+                                                    <FormLabel>Last Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder="Last Name"
+                                                            {...form.register("last_name", {
+                                                                required: true,
+                                                            })}
+                                                        />
+                                                    </FormControl>
+                                                </FormItem>
+                                            </motion.div>
+                                        </div>
+
+                                        <motion.div variants={itemVariants}>
+                                            <FormItem>
+                                                <FormLabel>Email</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="email"
+                                                        placeholder="Email"
+                                                        {...form.register("email", {
+                                                            required: true,
+                                                            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                                        })}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        </motion.div>
+
+                                        <motion.div variants={itemVariants}>
+                                            <FormItem>
+                                                <FormLabel>Password</FormLabel>
+                                                <FormControl>
+                                                    <div className="relative">
+                                                        <Input
+                                                            type={
+                                                                showPassword ? "text" : "password"
+                                                            }
+                                                            placeholder="Password"
+                                                            {...form.register("password", {
+                                                                required: true,
+                                                                minLength: 8,
+                                                            })}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-(--muted-foreground) hover:text-(--primary) focus:text-(--primary) p-1.5 rounded-full hover:bg-(--accent) focus:bg-(--accent) transition-all duration-200 cursor-pointer"
+                                                            tabIndex={-1}
+                                                            onClick={() =>
+                                                                setShowPassword((v) => !v)
+                                                            }
+                                                        >
+                                                            {showPassword ? (
+                                                                <EyeOff size={18} />
+                                                            ) : (
+                                                                <Eye size={18} />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </FormControl>
+                                            </FormItem>
+                                        </motion.div>
+
+                                        <motion.div variants={itemVariants}>
+                                            <FormItem>
+                                                <FormLabel>Confirm Password</FormLabel>
+                                                <FormControl>
+                                                    <div className="relative">
+                                                        <Input
+                                                            type={
+                                                                showRePassword ? "text" : "password"
+                                                            }
+                                                            placeholder="Confirm Password"
+                                                            {...form.register("re_password", {
+                                                                required: true,
+                                                                validate: (value) =>
+                                                                    value ===
+                                                                        form.getValues(
+                                                                            "password"
+                                                                        ) ||
+                                                                    "Passwords do not match",
+                                                            })}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-(--muted-foreground) hover:text-(--primary) focus:text-(--primary) p-1.5 rounded-full hover:bg-(--accent) focus:bg-(--accent) transition-all duration-200 cursor-pointer"
+                                                            tabIndex={-1}
+                                                            onClick={() =>
+                                                                setShowRePassword((v) => !v)
+                                                            }
+                                                        >
+                                                            {showRePassword ? (
+                                                                <EyeOff size={18} />
+                                                            ) : (
+                                                                <Eye size={18} />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </FormControl>
+                                            </FormItem>
+                                        </motion.div>
+
+                                        <motion.div variants={itemVariants} className="pt-2">
+                                            <motion.div
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                className="w-full"
+                                            >
+                                                <Button
+                                                    type="submit"
+                                                    size="lg"
+                                                    className="w-full font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) px-8 h-12 cursor-pointer"
+                                                    disabled={isSubmitting}
+                                                >
+                                                    <span className="relative z-10">
+                                                        {isSubmitting
+                                                            ? "Creating Account..."
+                                                            : "Sign Up"}
+                                                    </span>
+                                                    <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                                </Button>
+                                            </motion.div>
+                                        </motion.div>
+
+                                        <motion.div
+                                            variants={itemVariants}
+                                            className="text-center text-sm text-(--muted-foreground) mt-4"
+                                        >
+                                            Already have an account?{" "}
+                                            <Link
+                                                href="/auth/login"
+                                                className="text-(--primary) hover:underline"
+                                            >
+                                                Log In
+                                            </Link>
+                                        </motion.div>
+                                    </form>
+                                </Form>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                </motion.div>
+            </div>
+        </div>
+    );
+}

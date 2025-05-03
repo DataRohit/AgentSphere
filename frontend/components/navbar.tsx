@@ -4,6 +4,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navVariants: Variants = {
@@ -44,6 +45,10 @@ const logoVariants: Variants = {
 
 export function Navbar() {
     const [scrolled, setScrolled] = useState(false);
+    const pathname = usePathname();
+
+    // Check if we're on an auth page
+    const isAuthPage = pathname?.startsWith("/auth");
 
     useEffect(() => {
         const handleScroll = () => {
@@ -86,50 +91,52 @@ export function Navbar() {
                     </Link>
                 </motion.div>
                 <div className="flex items-center space-x-4">
-                    <nav className="h-full hidden md:flex items-center space-x-6">
-                        <motion.div variants={itemVariants} className="flex items-center">
-                            <Link
-                                href="#features"
-                                className="relative text-sm font-medium transition-all duration-300 hover:text-(--primary) focus:outline-none focus:text-(--primary)"
-                            >
-                                <span>Features</span>
-                                <motion.span
-                                    className="absolute -bottom-2 left-0 h-0.5 bg-(--primary)"
-                                    initial={{ width: 0 }}
-                                    whileHover={{ width: "100%" }}
-                                    transition={{ duration: 0.3 }}
-                                ></motion.span>
-                            </Link>
-                        </motion.div>
-                        <motion.div variants={itemVariants} className="flex items-center">
-                            <Link
-                                href="#agents"
-                                className="relative text-sm font-medium transition-all duration-300 hover:text-(--primary) focus:outline-none focus:text-(--primary)"
-                            >
-                                <span>Agents</span>
-                                <motion.span
-                                    className="absolute -bottom-2 left-0 h-0.5 bg-(--primary)"
-                                    initial={{ width: 0 }}
-                                    whileHover={{ width: "100%" }}
-                                    transition={{ duration: 0.3 }}
-                                ></motion.span>
-                            </Link>
-                        </motion.div>
-                        <motion.div variants={itemVariants} className="flex items-center">
-                            <Link
-                                href="#use-cases"
-                                className="relative text-sm font-medium transition-all duration-300 hover:text-(--primary) focus:outline-none focus:text-(--primary)"
-                            >
-                                <span>Use Cases</span>
-                                <motion.span
-                                    className="absolute -bottom-2 left-0 h-0.5 bg-(--primary)"
-                                    initial={{ width: 0 }}
-                                    whileHover={{ width: "100%" }}
-                                    transition={{ duration: 0.3 }}
-                                ></motion.span>
-                            </Link>
-                        </motion.div>
-                    </nav>
+                    {!isAuthPage && (
+                        <nav className="h-full hidden md:flex items-center space-x-6">
+                            <motion.div variants={itemVariants} className="flex items-center">
+                                <Link
+                                    href="#features"
+                                    className="relative text-sm font-medium transition-all duration-300 hover:text-(--primary) focus:outline-none focus:text-(--primary)"
+                                >
+                                    <span>Features</span>
+                                    <motion.span
+                                        className="absolute -bottom-2 left-0 h-0.5 bg-(--primary)"
+                                        initial={{ width: 0 }}
+                                        whileHover={{ width: "100%" }}
+                                        transition={{ duration: 0.3 }}
+                                    ></motion.span>
+                                </Link>
+                            </motion.div>
+                            <motion.div variants={itemVariants} className="flex items-center">
+                                <Link
+                                    href="#agents"
+                                    className="relative text-sm font-medium transition-all duration-300 hover:text-(--primary) focus:outline-none focus:text-(--primary)"
+                                >
+                                    <span>Agents</span>
+                                    <motion.span
+                                        className="absolute -bottom-2 left-0 h-0.5 bg-(--primary)"
+                                        initial={{ width: 0 }}
+                                        whileHover={{ width: "100%" }}
+                                        transition={{ duration: 0.3 }}
+                                    ></motion.span>
+                                </Link>
+                            </motion.div>
+                            <motion.div variants={itemVariants} className="flex items-center">
+                                <Link
+                                    href="#use-cases"
+                                    className="relative text-sm font-medium transition-all duration-300 hover:text-(--primary) focus:outline-none focus:text-(--primary)"
+                                >
+                                    <span>Use Cases</span>
+                                    <motion.span
+                                        className="absolute -bottom-2 left-0 h-0.5 bg-(--primary)"
+                                        initial={{ width: 0 }}
+                                        whileHover={{ width: "100%" }}
+                                        transition={{ duration: 0.3 }}
+                                    ></motion.span>
+                                </Link>
+                            </motion.div>
+                        </nav>
+                    )}
                     <ModeToggle />
                 </div>
             </div>

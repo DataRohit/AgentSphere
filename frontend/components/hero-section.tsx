@@ -4,6 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, Search } from "lucide-react";
+import Link from "next/link";
 
 interface BlobAnimationProps {
     x: number;
@@ -116,22 +117,24 @@ export function HeroSection() {
                 </motion.p>
                 <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                        <Button
-                            size="lg"
-                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) px-8 w-40 h-12 cursor-pointer"
-                        >
-                            <span className="relative z-10 flex items-center">
-                                Get Started
-                                <motion.span
-                                    initial={{ x: 0 }}
-                                    whileHover={{ x: 5 }}
-                                    transition={{ type: "spring", stiffness: 400 }}
-                                >
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                </motion.span>
-                            </span>
-                            <span className="absolute inset-0 bg-(--primary-foreground)/80 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                        </Button>
+                        <Link href="/auth/signup">
+                            <Button
+                                size="lg"
+                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) px-8 w-40 h-12 cursor-pointer"
+                            >
+                                <span className="relative z-10 flex items-center">
+                                    Get Started
+                                    <motion.span
+                                        initial={{ x: 0 }}
+                                        whileHover={{ x: 5 }}
+                                        transition={{ type: "spring", stiffness: 400 }}
+                                    >
+                                        <ArrowRight className="ml-2 h-4 w-4" />
+                                    </motion.span>
+                                </span>
+                                <span className="absolute inset-0 bg-(--primary-foreground)/80 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                            </Button>
+                        </Link>
                     </motion.div>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                         <Button
