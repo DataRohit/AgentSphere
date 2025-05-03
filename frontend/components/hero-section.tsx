@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, Search } from "lucide-react";
 
+interface BlobAnimationProps {
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+}
+
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -30,26 +37,14 @@ const itemVariants: Variants = {
     },
 };
 
-const backgroundVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            duration: 0.8,
-            delay: 0.1,
-        },
-    },
-};
-
-// New: Animated blob variants
 const blobVariants: Variants = {
-    initial: (custom: any) => ({
+    initial: (custom: BlobAnimationProps) => ({
         opacity: 0.5,
         scale: 1,
         x: custom.x,
         y: custom.y,
     }),
-    animate: (custom: any) => ({
+    animate: (custom: BlobAnimationProps) => ({
         opacity: 0.6,
         scale: [1, 1.15, 1],
         x: [custom.x, custom.x + custom.dx, custom.x],
@@ -71,7 +66,6 @@ export function HeroSection() {
             className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
         >
             <Navbar />
-            {/* Gradient Overlay */}
             <motion.div
                 className="fixed inset-0 -z-30 pointer-events-none"
                 style={{
@@ -82,7 +76,6 @@ export function HeroSection() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1.2 }}
             />
-            {/* Animated Blobs */}
             <motion.div
                 className="fixed top-[-10%] left-[-10%] w-[350px] h-[350px] rounded-full bg-indigo-400 opacity-30 blur-3xl -z-20"
                 custom={{ x: 0, y: 0, dx: 60, dy: 40 }}

@@ -22,25 +22,18 @@ RUN pnpm install
 COPY ./frontend ./
 
 
-# Build the application
+# Build the application (Defaults to production mode)
 RUN pnpm build
 
 
-# Copy scripts and set permissions - combine operations to reduce layers
+# Copy scripts and set permissions
 COPY ./compose/nextjs/entrypoint /entrypoint
 COPY ./compose/nextjs/start /start
-
-
-# Set permissions
 RUN sed -i 's/\r$//g' /entrypoint /start && chmod +x /entrypoint /start
 
 
-# Set permissions
-RUN sed -i 's/\r$//g' /entrypoint /start
-
-
-# Set environment variables
-ENV NODE_ENV=production
+# Change ownership before switching user
+RUN chown -R node:node /app
 
 
 # Set the user to node

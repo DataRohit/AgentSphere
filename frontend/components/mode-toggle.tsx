@@ -82,7 +82,7 @@ const moonVariants: Variants = {
     },
 };
 
-const MotionButton = motion(Button);
+const MotionButton = motion.create(Button);
 
 export function ModeToggle() {
     const { resolvedTheme, setTheme } = useTheme();
