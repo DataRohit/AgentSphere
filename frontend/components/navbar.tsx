@@ -67,7 +67,7 @@ export function Navbar() {
                 scrolled ? "bg-(--background)/80 backdrop-blur-md border-b" : "bg-transparent"
             )}
         >
-            <div className="container mx-auto flex h-16 items-center justify-between">
+            <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <motion.div variants={logoVariants} className="flex">
                     <Link href="/" className="flex items-center space-x-2 group">
                         <motion.svg
