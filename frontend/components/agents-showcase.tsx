@@ -1,6 +1,86 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CloudIcon, MagnifyingGlassIcon, NewspaperIcon } from "@heroicons/react/24/outline";
+import { motion, Variants } from "framer-motion";
+
+const sectionVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            duration: 0.5,
+            when: "beforeChildren",
+        },
+    },
+};
+
+const titleVariants: Variants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.5,
+            type: "spring",
+            stiffness: 200,
+            damping: 20,
+            when: "beforeChildren",
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const cardContainerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15,
+            delayChildren: 0.2,
+        },
+    },
+};
+
+const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: "spring",
+            stiffness: 150,
+            damping: 20,
+        },
+    },
+};
+
+const iconVariants: Variants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: {
+        scale: 1,
+        opacity: 1,
+        transition: {
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+        },
+    },
+};
+
+const badgeVariants: Variants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: "spring",
+            stiffness: 300,
+            damping: 20,
+        },
+    },
+};
 
 const agents = [
     {
@@ -25,49 +105,115 @@ const agents = [
 
 export function AgentsShowcase() {
     return (
-        <section id="agents" className="py-20 md:py-28">
+        <motion.section
+            id="agents"
+            className="py-20 md:py-28"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={sectionVariants}
+        >
             <div className="container mx-auto px-4 md:px-6">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tighter mb-4">
+                <motion.div className="text-center mb-12" variants={titleVariants}>
+                    <motion.h2
+                        className="text-3xl md:text-4xl font-bold tracking-tighter mb-4"
+                        variants={titleVariants}
+                    >
                         Specialized Agents
-                    </h2>
-                    <p className="text-(--muted-foreground) max-w-[700px] mx-auto">
+                    </motion.h2>
+                    <motion.p
+                        className="text-(--muted-foreground) max-w-[700px] mx-auto"
+                        variants={titleVariants}
+                    >
                         Interact with purpose-built AI agents designed to handle specific tasks and
                         provide valuable information
-                    </p>
-                </div>
+                    </motion.p>
+                </motion.div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <motion.div
+                    className="grid grid-cols-1 xl:grid-cols-3 gap-8"
+                    variants={cardContainerVariants}
+                >
                     {agents.map((agent, index) => (
-                        <Card
+                        <motion.div
                             key={index}
-                            className="border bg-(--background) overflow-hidden transition-all hover:shadow-md"
+                            variants={cardVariants}
+                            whileHover={{
+                                y: -5,
+                                scale: 1.02,
+                                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+                                transition: { type: "spring", stiffness: 300 },
+                            }}
                         >
-                            <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
-                                    <agent.icon className="h-8 w-8 text-(--primary)" />
-                                    <div className="h-10 w-10 rounded-full bg-(--muted) flex items-center justify-center">
-                                        <span className="text-xs font-medium">AI</span>
+                            <Card className="border bg-(--background) overflow-hidden transition-all h-full">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <motion.div
+                                            variants={iconVariants}
+                                            whileHover={{
+                                                rotate: [0, -5, 5, 0],
+                                                scale: 1.1,
+                                                transition: { duration: 0.5 },
+                                            }}
+                                        >
+                                            <agent.icon className="h-8 w-8 text-(--primary)" />
+                                        </motion.div>
+                                        <motion.div
+                                            className="h-10 w-10 rounded-full bg-(--muted) flex items-center justify-center"
+                                            initial={{ scale: 0 }}
+                                            animate={{
+                                                scale: 1,
+                                                transition: {
+                                                    type: "spring",
+                                                    stiffness: 260,
+                                                    damping: 20,
+                                                    delay: 0.2 + index * 0.1,
+                                                },
+                                            }}
+                                        >
+                                            <span className="text-xs font-medium">AI</span>
+                                        </motion.div>
                                     </div>
-                                </div>
-                                <CardTitle className="text-xl mt-4">{agent.name}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <p className="text-(--muted-foreground) text-sm">
-                                    {agent.description}
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {agent.tags.map((tag, tagIndex) => (
-                                        <Badge key={tagIndex} variant="secondary">
-                                            {tag}
-                                        </Badge>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    <CardTitle className="text-xl mt-4">{agent.name}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <p className="text-(--muted-foreground) text-sm">
+                                        {agent.description}
+                                    </p>
+                                    <motion.div
+                                        className="flex flex-wrap gap-2"
+                                        initial="hidden"
+                                        animate="visible"
+                                        variants={{
+                                            hidden: { opacity: 0 },
+                                            visible: {
+                                                opacity: 1,
+                                                transition: {
+                                                    staggerChildren: 0.1,
+                                                    delayChildren: 0.3 + index * 0.1,
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        {agent.tags.map((tag, tagIndex) => (
+                                            <motion.div
+                                                key={tagIndex}
+                                                variants={badgeVariants}
+                                                whileHover={{
+                                                    scale: 1.05,
+                                                    transition: { type: "spring", stiffness: 300 },
+                                                }}
+                                            >
+                                                <Badge variant="secondary">{tag}</Badge>
+                                            </motion.div>
+                                        ))}
+                                    </motion.div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
-        </section>
+        </motion.section>
     );
 }

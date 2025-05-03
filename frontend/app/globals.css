@@ -71,18 +71,6 @@
     }
 }
 
-.bg-grid-pattern {
-    background-size: 100px 100px;
-    background-image: linear-gradient(to right, rgba(128, 128, 128, 0.1) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
-}
-
-.bg-grid-small-pattern {
-    background-size: 20px 20px;
-    background-image: linear-gradient(to right, rgba(128, 128, 128, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
-}
-
 @keyframes sun-shine {
     0% {
         transform: scale(1) rotate(0deg);

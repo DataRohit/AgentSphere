@@ -1,11 +1,88 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+const sunVariants: Variants = {
+    hidden: {
+        rotate: -360,
+        scale: 0,
+        opacity: 0,
+    },
+    visible: {
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+        transition: {
+            type: "spring",
+            duration: 0.7,
+            bounce: 0.3,
+        },
+    },
+    exit: {
+        rotate: 360,
+        scale: 0,
+        opacity: 0,
+        transition: {
+            duration: 0.4,
+        },
+    },
+    shine: {
+        scale: [1, 1.05, 1],
+        transition: {
+            repeat: Infinity,
+            repeatType: "reverse" as const,
+            duration: 2,
+            ease: "easeInOut",
+        },
+    },
+};
+
+const moonVariants: Variants = {
+    hidden: {
+        rotate: 360,
+        scale: 0,
+        opacity: 0,
+    },
+    visible: {
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+        transition: {
+            type: "spring",
+            duration: 0.7,
+            bounce: 0.3,
+        },
+    },
+    exit: {
+        rotate: -360,
+        scale: 0,
+        opacity: 0,
+        transition: {
+            duration: 0.4,
+        },
+    },
+    glow: {
+        filter: [
+            "drop-shadow(0 0 0px rgba(255, 255, 255, 0))",
+            "drop-shadow(0 0 2px rgba(255, 255, 255, 0.5))",
+            "drop-shadow(0 0 0px rgba(255, 255, 255, 0))",
+        ],
+        scale: [1, 1.05, 1],
+        rotate: [0, 3, 0, -3, 0],
+        transition: {
+            repeat: Infinity,
+            repeatType: "reverse" as const,
+            duration: 4,
+            ease: "easeInOut",
+        },
+    },
+};
+
+const MotionButton = motion(Button);
 
 export function ModeToggle() {
     const { resolvedTheme, setTheme } = useTheme();
@@ -32,33 +109,45 @@ export function ModeToggle() {
         );
     }
 
+    const isDark = resolvedTheme === "dark";
+
     return (
-        <Button
+        <MotionButton
             variant="ghost"
             size="icon"
             className="cursor-pointer hover:bg-(--accent) hover:text-(--accent-foreground) relative overflow-hidden p-0"
             onClick={toggleTheme}
             aria-label="Toggle theme"
+            whileTap={{ scale: 0.95 }}
         >
             <div className="relative h-9 w-9 flex items-center justify-center">
-                <Sun
-                    className={cn(
-                        "h-[1.2rem] w-[1.2rem] transition-all duration-700 ease-in-out absolute",
-                        resolvedTheme === "dark"
-                            ? "-rotate-[360deg] scale-0 opacity-0 transform-gpu"
-                            : "rotate-0 scale-100 opacity-100 transform-gpu animate-sun-shine"
+                <AnimatePresence mode="wait" initial={false}>
+                    {!isDark ? (
+                        <motion.div
+                            key="sun"
+                            className="absolute"
+                            initial="hidden"
+                            animate={["visible", "shine"]}
+                            exit="exit"
+                            variants={sunVariants}
+                        >
+                            <Sun className="h-[1.2rem] w-[1.2rem]" />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="moon"
+                            className="absolute"
+                            initial="hidden"
+                            animate={["visible", "glow"]}
+                            exit="exit"
+                            variants={moonVariants}
+                        >
+                            <Moon className="h-[1.2rem] w-[1.2rem]" />
+                        </motion.div>
                     )}
-                />
-                <Moon
-                    className={cn(
-                        "h-[1.2rem] w-[1.2rem] transition-all duration-700 ease-in-out absolute",
-                        resolvedTheme === "dark"
-                            ? "rotate-0 scale-100 opacity-100 transform-gpu animate-moon-glow"
-                            : "rotate-[360deg] scale-0 opacity-0 transform-gpu"
-                    )}
-                />
+                </AnimatePresence>
             </div>
             <span className="sr-only">Toggle theme</span>
-        </Button>
+        </MotionButton>
     );
 }
