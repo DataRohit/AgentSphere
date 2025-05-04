@@ -13,6 +13,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { Building2, Calendar, ExternalLink, Globe, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface OrganizationOwner {
     email: string;
@@ -45,6 +46,7 @@ interface OrganizationCardProps {
 }
 
 export function OrganizationCard({ organization, index }: OrganizationCardProps) {
+    const router = useRouter();
     const formattedDate = formatDistanceToNow(new Date(organization.created_at), {
         addSuffix: true,
     });
@@ -58,6 +60,13 @@ export function OrganizationCard({ organization, index }: OrganizationCardProps)
             .substring(0, 2);
     };
 
+    const handleCardClick = (e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).closest("a")) {
+            return;
+        }
+        router.push(`/organizations/${organization.id}`);
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -66,7 +75,10 @@ export function OrganizationCard({ organization, index }: OrganizationCardProps)
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
             className="h-full"
         >
-            <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer">
+            <Card
+                className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                onClick={handleCardClick}
+            >
                 <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">

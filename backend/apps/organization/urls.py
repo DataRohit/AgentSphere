@@ -11,6 +11,7 @@ from apps.organization.views import (
     OrganizationMemberAddView,
     OrganizationMemberListView,
     OrganizationMemberRemoveView,
+    OrganizationMembersListView,
     OrganizationOwnershipTransferAcceptView,
     OrganizationOwnershipTransferCancelView,
     OrganizationOwnershipTransferInitView,
@@ -61,6 +62,12 @@ urlpatterns = [
         "<str:organization_id>/members/remove/",
         OrganizationMemberRemoveView.as_view(),
         name="organization-member-remove",
+    ),
+    # Organization members list URL
+    path(
+        "<str:organization_id>/members/",
+        OrganizationMembersListView.as_view(),
+        name="organization-members-list",
     ),
     # Organization ownership transfer initialization URL
     path(

@@ -9,6 +9,7 @@ from apps.organization.views.organization_member_list import OrganizationMemberL
 from apps.organization.views.organization_member_remove import (
     OrganizationMemberRemoveView,
 )
+from apps.organization.views.organization_members_list import OrganizationMembersListView
 from apps.organization.views.organization_ownership_transfer_accept import (
     OrganizationOwnershipTransferAcceptView,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "OrganizationMemberAddView",
     "OrganizationMemberListView",
     "OrganizationMemberRemoveView",
+    "OrganizationMembersListView",
     "OrganizationOwnershipTransferAcceptView",
     "OrganizationOwnershipTransferCancelView",
     "OrganizationOwnershipTransferInitView",
