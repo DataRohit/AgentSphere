@@ -225,6 +225,7 @@ export default function ReactivateAccountPage() {
                                                 <FormLabel>Email</FormLabel>
                                                 <FormControl>
                                                     <Input
+                                                        className="bg-(--secondary)"
                                                         type="email"
                                                         placeholder="Email"
                                                         {...form.register("email", {

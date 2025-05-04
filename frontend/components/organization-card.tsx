@@ -76,7 +76,7 @@ export function OrganizationCard({ organization, index }: OrganizationCardProps)
             className="h-full"
         >
             <Card
-                className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                className="p-0 pt-6 h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
                 onClick={handleCardClick}
             >
                 <CardHeader className="pb-2">
@@ -146,7 +146,7 @@ export function OrganizationCard({ organization, index }: OrganizationCardProps)
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter className="pt-2 border-t bg-(--muted)/10">
+                <CardFooter className="pt-2 border-t bg-(--muted)/10 pb-6">
                     <div className="w-full flex justify-end">
                         <span className="text-xs text-(--muted-foreground)">
                             Last updated:{" "}

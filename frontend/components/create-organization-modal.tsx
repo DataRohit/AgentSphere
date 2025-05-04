@@ -162,7 +162,7 @@ export function CreateOrganizationModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px] bg-(--background) border-(--border) [&_[data-slot=dialog-close]]:hover:opacity-100 [&_[data-slot=dialog-close]]:cursor-pointer [&_[data-slot=dialog-close]]:transition-opacity [&_[data-slot=dialog-close]]:duration-200">
                 <DialogHeader>
-                    <DialogTitle>Create New Organization</DialogTitle>
+                    <DialogTitle className="pb-2">Create New Organization</DialogTitle>
                     <DialogDescription>
                         Create an organization to collaborate with others on projects.
                     </DialogDescription>
@@ -177,7 +177,11 @@ export function CreateOrganizationModal({
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="My Organization" {...field} />
+                                        <Input
+                                            placeholder="My Organization"
+                                            {...field}
+                                            className="bg-(--secondary)"
+                                        />
                                     </FormControl>
                                     <FormDescription>
                                         This is your organization's display name.
@@ -196,7 +200,7 @@ export function CreateOrganizationModal({
                                     <FormControl>
                                         <Textarea
                                             placeholder="Describe your organization..."
-                                            className="resize-none"
+                                            className="resize-none bg-(--secondary)"
                                             {...field}
                                         />
                                     </FormControl>
@@ -215,7 +219,11 @@ export function CreateOrganizationModal({
                                 <FormItem>
                                     <FormLabel>Website</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://example.com" {...field} />
+                                        <Input
+                                            placeholder="https://example.com"
+                                            {...field}
+                                            className="bg-(--secondary)"
+                                        />
                                     </FormControl>
                                     <FormDescription>
                                         Your organization's website (optional).

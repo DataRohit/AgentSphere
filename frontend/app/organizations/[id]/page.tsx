@@ -4,6 +4,7 @@ import { useAppSelector } from "@/app/store/hooks";
 import { selectUser } from "@/app/store/slices/userSlice";
 import { AddMemberModal } from "@/components/add-member-modal";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
+import { DeleteOrganizationDialog } from "@/components/delete-organization-dialog";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -130,6 +131,7 @@ export default function OrganizationDetailPage() {
     const [members, setMembers] = useState<OrganizationMember[]>([]);
     const [isFetchingMembers, setIsFetchingMembers] = useState(false);
     const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const currentUser = useAppSelector(selectUser);
 
@@ -482,7 +484,6 @@ export default function OrganizationDetailPage() {
                         },
                     });
 
-                    // Refresh the members list
                     fetchMembers();
                 }
             } catch (error) {
@@ -565,7 +566,6 @@ export default function OrganizationDetailPage() {
                                 className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#3b82f6] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    // Will be implemented later
                                     toast.info(
                                         "Transfer ownership functionality will be implemented soon",
                                         {
@@ -778,7 +778,7 @@ export default function OrganizationDetailPage() {
                                                     id="logo-upload"
                                                     type="file"
                                                     accept="image/*"
-                                                    className="hidden"
+                                                    className="hidden bg-(--secondary)"
                                                     onChange={handleLogoUpload}
                                                     disabled={isUploadingLogo}
                                                 />
@@ -967,7 +967,7 @@ export default function OrganizationDetailPage() {
                                     </span>
                                 </div>
 
-                                {!isLocked && (
+                                {!isLocked ? (
                                     <div className="flex space-x-3">
                                         <Button
                                             type="button"
@@ -994,11 +994,20 @@ export default function OrganizationDetailPage() {
                                             )}
                                         </Button>
                                     </div>
+                                ) : (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsDeleteDialogOpen(true)}
+                                        className="h-10 px-4 text-sm font-medium flex items-center cursor-pointer text-(--destructive) border-(--border) hover:bg-(--destructive)/10"
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete Organization
+                                    </Button>
                                 )}
                             </CardFooter>
                         </Card>
 
-                        {/* Members Section */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -1031,7 +1040,6 @@ export default function OrganizationDetailPage() {
                                     {members
                                         .filter(
                                             (member) =>
-                                                // Filter out the current user/owner
                                                 !currentUser ||
                                                 (member.email !== currentUser.email &&
                                                     member.username !== currentUser.username)
@@ -1059,6 +1067,13 @@ export default function OrganizationDetailPage() {
                 onOpenChange={setIsAddMemberModalOpen}
                 organizationId={organizationId}
                 onMemberAdded={handleMemberAdded}
+            />
+
+            <DeleteOrganizationDialog
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+                organizationId={organizationId}
+                organizationName={organization.name}
             />
         </ProtectedRoute>
     );

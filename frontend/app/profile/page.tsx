@@ -336,6 +336,7 @@ export default function ProfilePage() {
                                                                             <Input
                                                                                 placeholder="Username"
                                                                                 {...field}
+                                                                                className="bg-(--secondary)"
                                                                             />
                                                                         </FormControl>
                                                                         <FormMessage />
@@ -356,6 +357,7 @@ export default function ProfilePage() {
                                                                                 <Input
                                                                                     placeholder="First Name"
                                                                                     {...field}
+                                                                                    className="bg-(--secondary)"
                                                                                 />
                                                                             </FormControl>
                                                                             <FormMessage />
@@ -375,6 +377,7 @@ export default function ProfilePage() {
                                                                                 <Input
                                                                                     placeholder="Last Name"
                                                                                     {...field}
+                                                                                    className="bg-(--secondary)"
                                                                                 />
                                                                             </FormControl>
                                                                             <FormMessage />
@@ -508,7 +511,7 @@ export default function ProfilePage() {
                                                                 ref={fileInputRef}
                                                                 accept="image/*"
                                                                 onChange={handleAvatarUpload}
-                                                                className="hidden"
+                                                                className="hidden bg-(--secondary)"
                                                             />
 
                                                             <motion.div

@@ -301,6 +301,7 @@ export default function ReactivateAccountConfirmPage() {
                                                 <FormControl>
                                                     <div className="relative">
                                                         <Input
+                                                            className="bg-(--secondary)"
                                                             type={
                                                                 showPassword ? "text" : "password"
                                                             }
@@ -334,6 +335,7 @@ export default function ReactivateAccountConfirmPage() {
                                                 <FormControl>
                                                     <div className="relative">
                                                         <Input
+                                                            className="bg-(--secondary)"
                                                             type={
                                                                 showRePassword ? "text" : "password"
                                                             }

@@ -74,7 +74,6 @@ export default function SignupPage() {
     });
 
     const onSubmit = async (data: SignupFormValues) => {
-        // Check if passwords match before submitting
         if (data.password !== data.re_password) {
             toast.error("Passwords do not match", {
                 style: {
@@ -86,7 +85,6 @@ export default function SignupPage() {
             return;
         }
 
-        // Check if password is at least 8 characters
         if (data.password.length < 8) {
             toast.error("Password must be at least 8 characters", {
                 style: {
@@ -232,7 +230,6 @@ export default function SignupPage() {
                                 <Form {...form}>
                                     <form
                                         onSubmit={(e) => {
-                                            // Check passwords match before form validation
                                             const data = form.getValues();
                                             if (data.password !== data.re_password) {
                                                 e.preventDefault();
@@ -254,6 +251,7 @@ export default function SignupPage() {
                                                 <FormLabel>Username</FormLabel>
                                                 <FormControl>
                                                     <Input
+                                                        className="bg-(--secondary)"
                                                         placeholder="Username"
                                                         {...form.register("username", {
                                                             required: true,
@@ -270,6 +268,7 @@ export default function SignupPage() {
                                                     <FormLabel>First Name</FormLabel>
                                                     <FormControl>
                                                         <Input
+                                                            className="bg-(--secondary)"
                                                             placeholder="First Name"
                                                             {...form.register("first_name", {
                                                                 required: true,
@@ -284,6 +283,7 @@ export default function SignupPage() {
                                                     <FormLabel>Last Name</FormLabel>
                                                     <FormControl>
                                                         <Input
+                                                            className="bg-(--secondary)"
                                                             placeholder="Last Name"
                                                             {...form.register("last_name", {
                                                                 required: true,
@@ -299,6 +299,7 @@ export default function SignupPage() {
                                                 <FormLabel>Email</FormLabel>
                                                 <FormControl>
                                                     <Input
+                                                        className="bg-(--secondary)"
                                                         type="email"
                                                         placeholder="Email"
                                                         {...form.register("email", {
@@ -316,6 +317,7 @@ export default function SignupPage() {
                                                 <FormControl>
                                                     <div className="relative">
                                                         <Input
+                                                            className="bg-(--secondary)"
                                                             type={
                                                                 showPassword ? "text" : "password"
                                                             }
@@ -327,7 +329,7 @@ export default function SignupPage() {
                                                         />
                                                         <button
                                                             type="button"
-                                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-(--muted-foreground) hover:text-(--primary) focus:text-(--primary) p-1.5 rounded-full hover:bg-(--accent) focus:bg-(--accent) transition-all duration-200 cursor-pointer"
+                                                            className="bg-(--secondary) absolute right-2 top-1/2 -translate-y-1/2 text-(--muted-foreground) hover:text-(--primary) focus:text-(--primary) p-1.5 rounded-full hover:bg-(--accent) focus:bg-(--accent) transition-all duration-200 cursor-pointer"
                                                             tabIndex={-1}
                                                             onClick={() =>
                                                                 setShowPassword((v) => !v)
@@ -350,6 +352,7 @@ export default function SignupPage() {
                                                 <FormControl>
                                                     <div className="relative">
                                                         <Input
+                                                            className="bg-(--secondary)"
                                                             type={
                                                                 showRePassword ? "text" : "password"
                                                             }

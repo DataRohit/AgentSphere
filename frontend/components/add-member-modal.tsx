@@ -192,7 +192,7 @@ export function AddMemberModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px] bg-(--background) border-(--border) [&_[data-slot=dialog-close]]:hover:opacity-100 [&_[data-slot=dialog-close]]:cursor-pointer [&_[data-slot=dialog-close]]:transition-opacity [&_[data-slot=dialog-close]]:duration-200">
                 <DialogHeader>
-                    <DialogTitle>Add Member to Organization</DialogTitle>
+                    <DialogTitle className="pb-2">Add Member to Organization</DialogTitle>
                     <DialogDescription>
                         Invite a user to join your organization by email or username.
                     </DialogDescription>
@@ -227,7 +227,10 @@ export function AddMemberModal({
 
                     <TabsContent value="email" className="mt-4">
                         <Form {...emailForm}>
-                            <form onSubmit={emailForm.handleSubmit(onSubmitEmail)} className="space-y-6">
+                            <form
+                                onSubmit={emailForm.handleSubmit(onSubmitEmail)}
+                                className="space-y-6"
+                            >
                                 <FormField
                                     control={emailForm.control}
                                     name="email"
@@ -239,6 +242,7 @@ export function AddMemberModal({
                                                     placeholder="user@example.com"
                                                     type="email"
                                                     {...field}
+                                                    className="bg-(--secondary)"
                                                 />
                                             </FormControl>
                                             <FormDescription>
@@ -295,7 +299,11 @@ export function AddMemberModal({
                                         <FormItem>
                                             <FormLabel>Username</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="username" {...field} />
+                                                <Input
+                                                    placeholder="username"
+                                                    {...field}
+                                                    className="bg-(--secondary)"
+                                                />
                                             </FormControl>
                                             <FormDescription>
                                                 Enter the username of the user you want to add.

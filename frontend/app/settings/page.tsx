@@ -291,10 +291,9 @@ export default function SettingsPage() {
                                                                                 </FormLabel>
                                                                                 <FormControl>
                                                                                     <Input
-                                                                                        type="password"
                                                                                         placeholder="Enter your current password"
                                                                                         {...field}
-                                                                                        className="border-(--border) focus-visible:ring-(--destructive)/20"
+                                                                                        className="border-(--border) focus-visible:ring-(--destructive)/20 bg-(--secondary)"
                                                                                     />
                                                                                 </FormControl>
                                                                             </FormItem>
@@ -316,7 +315,7 @@ export default function SettingsPage() {
                                                                                         type="password"
                                                                                         placeholder="Confirm your password"
                                                                                         {...field}
-                                                                                        className="border-(--border) focus-visible:ring-(--destructive)/20"
+                                                                                        className="border-(--border) focus-visible:ring-(--destructive)/20 bg-(--secondary)"
                                                                                     />
                                                                                 </FormControl>
                                                                             </FormItem>

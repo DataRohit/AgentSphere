@@ -227,6 +227,7 @@ export default function LoginPage() {
                                                 <FormLabel>Email</FormLabel>
                                                 <FormControl>
                                                     <Input
+                                                        className="bg-(--secondary)"
                                                         type="email"
                                                         placeholder="Email"
                                                         {...form.register("email", {
@@ -244,6 +245,7 @@ export default function LoginPage() {
                                                 <FormControl>
                                                     <div className="relative">
                                                         <Input
+                                                            className="bg-(--secondary)"
                                                             type={
                                                                 showPassword ? "text" : "password"
                                                             }
