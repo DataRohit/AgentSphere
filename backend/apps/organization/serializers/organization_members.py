@@ -34,12 +34,12 @@ class OrganizationMembersListResponseSerializer(GenericResponseSerializer):
     )
 
 
-# Organization not owner response serializer
+# Organization access forbidden response serializer
 class OrganizationNotOwnerResponseSerializer(GenericResponseSerializer):
-    """Organization not owner response serializer.
+    """Organization access forbidden response serializer.
 
     This serializer defines the structure of the response when a user tries to
-    access an organization they don't own.
+    access an organization they don't have permission to access.
 
     Attributes:
         status_code (int): The status code of the response.
@@ -55,7 +55,7 @@ class OrganizationNotOwnerResponseSerializer(GenericResponseSerializer):
 
     # Error message
     error = serializers.CharField(
-        default=_("You are not the owner of this organization."),
+        default=_("You must be the owner or a member of this organization to view its members."),
         read_only=True,
         help_text=_("Error message explaining why access is forbidden."),
     )

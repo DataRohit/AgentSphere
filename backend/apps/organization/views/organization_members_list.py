@@ -50,7 +50,7 @@ class OrganizationMembersListView(APIView):
         summary="List members of an organization.",
         description="""
         Lists all members of an organization.
-        The authenticated user must be the owner of the organization.
+        The authenticated user must be either the owner or a member of the organization.
         """,
         responses={
             status.HTTP_200_OK: OrganizationMembersListResponseSerializer,
@@ -63,7 +63,7 @@ class OrganizationMembersListView(APIView):
         """List members of an organization.
 
         This method retrieves all members of an organization.
-        The authenticated user must be the owner of the organization.
+        The authenticated user must be either the owner or a member of the organization.
 
         Args:
             request (Request): The HTTP request object.
@@ -76,11 +76,15 @@ class OrganizationMembersListView(APIView):
         # Get the organization or return 404
         organization = get_object_or_404(Organization, id=organization_id)
 
-        # Check if the authenticated user is the owner
-        if organization.owner != request.user:
+        # Check if the authenticated user is the owner or a member
+        is_owner = organization.owner == request.user
+        is_member = request.user in organization.members.all()
+
+        # If the user is neither the owner nor a member
+        if not (is_owner or is_member):
             # Return 403 Forbidden with an error message
             return Response(
-                {"error": "You are not the owner of this organization."},
+                {"error": "You must be the owner or a member of this organization to view its members."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 

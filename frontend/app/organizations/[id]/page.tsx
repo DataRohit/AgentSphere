@@ -957,7 +957,7 @@ export default function OrganizationDetailPage() {
                                 </Form>
                             </CardContent>
 
-                            <CardFooter className="[.border-t]:py-4 px-6 border-t bg-(--background) flex justify-between items-center">
+                            <CardFooter className="[.border-t]:py-4 px-6 border-t bg-(--background) flex flex-col gap-6 md:flex-row md:gap-0 justify-between items-center">
                                 <div className="flex items-center">
                                     <span className="text-xs text-(--muted-foreground)">
                                         Last updated:{" "}
@@ -999,7 +999,7 @@ export default function OrganizationDetailPage() {
                                         type="button"
                                         variant="outline"
                                         onClick={() => setIsDeleteDialogOpen(true)}
-                                        className="h-10 px-4 text-sm font-medium flex items-center cursor-pointer text-(--destructive) border-(--border) hover:bg-(--destructive)/10"
+                                        className="h-9 px-4 text-sm font-medium flex items-center cursor-pointer text-(--destructive) border-(--border) hover:bg-(--destructive)/10"
                                     >
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         Delete Organization

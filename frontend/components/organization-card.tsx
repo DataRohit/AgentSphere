@@ -40,12 +40,17 @@ export interface Organization {
     updated_at: string;
 }
 
-interface OrganizationCardProps {
+export interface OrganizationCardProps {
     organization: Organization;
     index: number;
+    disableLink?: boolean;
 }
 
-export function OrganizationCard({ organization, index }: OrganizationCardProps) {
+export function OrganizationCard({
+    organization,
+    index,
+    disableLink = false,
+}: OrganizationCardProps) {
     const router = useRouter();
     const formattedDate = formatDistanceToNow(new Date(organization.created_at), {
         addSuffix: true,
@@ -61,7 +66,7 @@ export function OrganizationCard({ organization, index }: OrganizationCardProps)
     };
 
     const handleCardClick = (e: React.MouseEvent) => {
-        if ((e.target as HTMLElement).closest("a")) {
+        if ((e.target as HTMLElement).closest("a") || disableLink) {
             return;
         }
         router.push(`/organizations/${organization.id}`);
@@ -101,9 +106,13 @@ export function OrganizationCard({ organization, index }: OrganizationCardProps)
                         </div>
                         <Badge
                             variant="outline"
-                            className="bg-(--primary)/10 text-(--primary) border-(--primary)/20"
+                            className={
+                                disableLink
+                                    ? "bg-(--secondary)/50 text-(--muted-foreground) border-(--border)"
+                                    : "bg-(--primary)/10 text-(--primary) border-(--primary)/20"
+                            }
                         >
-                            Owner
+                            {disableLink ? "Member" : "Owner"}
                         </Badge>
                     </div>
                 </CardHeader>
