@@ -198,7 +198,10 @@ export function DashboardNavbar() {
                                     transition={{ duration: 0.2, delay: 0.2 }}
                                     whileHover={{ x: 3 }}
                                 >
-                                    <DropdownMenuItem className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1">
+                                    <DropdownMenuItem
+                                        className="cursor-pointer hover:bg-(--accent) focus:bg-(--accent) transition-colors duration-200 rounded-sm my-0.5 mx-1"
+                                        onClick={() => router.push("/settings")}
+                                    >
                                         <Settings className="mr-2 h-4 w-4" />
                                         <span>Settings</span>
                                     </DropdownMenuItem>

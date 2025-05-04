@@ -143,7 +143,7 @@ class UserDeletionRequestView(APIView):
         domain_part = settings.ACTIVATION_DOMAIN
 
         # Construct full deletion URL
-        deletion_url = f"{scheme}://{domain_part}/auth/deactivate/{uid}/{token}/"
+        deletion_url = f"{scheme}://{domain_part}/auth/delete/{uid}/{token}/"
 
         # Prepare email context
         context = {
