@@ -117,7 +117,7 @@ export function TransferRequestCard({
     };
 
     return (
-        <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--secondary) dark:bg-[#111827] relative group p-0">
+        <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--secondary) dark:bg-(--secondary) relative group p-0">
             <CardHeader className="pb-1 pt-4 px-4">
                 <div className="flex items-start space-x-3">
                     <Avatar className="h-10 w-10 border border-(--border) my-auto">
@@ -162,7 +162,7 @@ export function TransferRequestCard({
             </CardContent>
             <div className="flex w-full mt-auto border-t border-[#1e293b]">
                 <button
-                    className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#ef4444] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 h-12 bg-(--secondary) hover:bg-[#1e293b] text-[#ef4444] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleCancelTransfer}
                     disabled={isCancelling || isExpired}
                 >

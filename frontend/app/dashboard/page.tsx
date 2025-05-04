@@ -1,5 +1,7 @@
 "use client";
 
+import { useAppSelector } from "@/app/store/hooks";
+import { selectUser } from "@/app/store/slices/userSlice";
 import { CreateOrganizationModal } from "@/components/create-organization-modal";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import {
@@ -10,13 +12,15 @@ import {
 } from "@/components/organization-card";
 import { OrganizationDetailsModal } from "@/components/organization-details-modal";
 import { ProtectedRoute } from "@/components/protected-route";
+import { ReceivedTransfersSection } from "@/components/received-transfers-section";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
-import { AlertCircle, Building2, Users } from "lucide-react";
+import { AlertCircle, Building2, MailQuestion, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
+    const user = useAppSelector(selectUser);
     const [organizations, setOrganizations] = useState<Organization[]>([]);
     const [memberOrganizations, setMemberOrganizations] = useState<Organization[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -262,21 +266,28 @@ export default function DashboardPage() {
                         transition={{ duration: 0.5 }}
                         className="space-y-8"
                     >
-                        <div className="flex items-center space-x-3">
-                            <Building2 className="h-6 w-6 text-(--primary)" />
-                            <h2 className="text-2xl font-bold tracking-tight">
-                                Your Organizations
-                            </h2>
-                        </div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="space-y-6"
+                        >
+                            <div className="flex items-center space-x-3">
+                                <Building2 className="h-6 w-6 text-(--primary)" />
+                                <h2 className="text-2xl font-bold tracking-tight">
+                                    Your Organizations
+                                </h2>
+                            </div>
 
-                        {renderContent()}
+                            {renderContent()}
+                        </motion.div>
 
                         {shouldShowMembershipsSection && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="space-y-6 mt-12"
+                                className="space-y-6"
                             >
                                 <div className="flex items-center space-x-3">
                                     <Users className="h-6 w-6 text-(--primary)" />
@@ -288,6 +299,22 @@ export default function DashboardPage() {
                                 {renderMemberships()}
                             </motion.div>
                         )}
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
+                            className="space-y-6"
+                        >
+                            <div className="flex items-center space-x-3">
+                                <MailQuestion className="h-6 w-6 text-(--primary)" />
+                                <h2 className="text-2xl font-bold tracking-tight">
+                                    Pending Ownership Transfers
+                                </h2>
+                            </div>
+
+                            <ReceivedTransfersSection userId={user?.id || ""} />
+                        </motion.div>
                     </motion.div>
                 </div>
 

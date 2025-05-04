@@ -511,7 +511,7 @@ export default function OrganizationDetailPage() {
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 className="h-full"
             >
-                <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-[#111827] relative group p-0">
+                <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-(--secondary) relative group p-0">
                     <CardHeader className="pb-1 pt-4 px-4">
                         <div className="flex items-start space-x-3">
                             <Avatar className="h-10 w-10 border border-(--border) my-auto">
@@ -565,7 +565,7 @@ export default function OrganizationDetailPage() {
                     </CardContent>
                     <div className="flex w-full mt-auto border-t border-[#1e293b]">
                         <button
-                            className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#3b82f6] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
+                            className="flex-1 h-12 bg-(--secondary) hover:bg-[#1e293b] text-[#3b82f6] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setIsTransferDialogOpen(true);
@@ -576,7 +576,7 @@ export default function OrganizationDetailPage() {
                         </button>
                         <div className="w-px h-12 bg-[#1e293b]"></div>
                         <button
-                            className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#ef4444] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
+                            className="flex-1 h-12 bg-(--secondary) hover:bg-[#1e293b] text-[#ef4444] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setIsRemoveDialogOpen(true);
@@ -985,7 +985,7 @@ export default function OrganizationDetailPage() {
                                             variant="outline"
                                             onClick={handleCancel}
                                             disabled={isSubmitting}
-                                            className="h-9 px-4 text-sm font-medium border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) cursor-pointer"
+                                            className="h-9 px-4 text-sm font-medium border border-(--border) bg-(--secondary) text-(--foreground) hover:bg-(--muted) cursor-pointer"
                                         >
                                             Cancel
                                         </Button>
@@ -993,7 +993,7 @@ export default function OrganizationDetailPage() {
                                             type="submit"
                                             onClick={form.handleSubmit(onSubmit)}
                                             disabled={isSubmitting}
-                                            className="h-9 px-4 text-sm font-medium border border-(--primary) bg-(--primary) text-(--primary-foreground) hover:bg-(--primary)/90 cursor-pointer"
+                                            className="h-9 px-4 text-sm font-medium border border-(--primary) bg-(--secondary) text-(--primary-foreground) hover:bg-(--primary)/90 cursor-pointer"
                                         >
                                             {isSubmitting ? (
                                                 <>

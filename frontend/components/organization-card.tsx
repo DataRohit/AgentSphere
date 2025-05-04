@@ -81,10 +81,10 @@ export function OrganizationCard({
             className="h-full"
         >
             <Card
-                className="p-0 pt-6 h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                className="p-0 pt-6 h-full  border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer bg-(--secondary) dark:bg-(--secondary)"
                 onClick={handleCardClick}
             >
-                <CardHeader className="pb-2">
+                <CardHeader className="pb-2 ">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                             <Avatar className="h-10 w-10 border border-(--border)">
