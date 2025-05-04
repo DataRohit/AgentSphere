@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -215,8 +217,34 @@ class UserReactivationConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Get the user from the serializer
-        user = serializer.user
+        try:
+            # Get the activation token from the database with a single query that includes user data
+            activation_token = get_object_or_404(
+                UserActivationToken.objects.select_related("user"),
+                uid=uid,
+                token=token,
+            )
+
+        except Http404:
+            # Return 403 Forbidden with an error message
+            return Response(
+                {"error": "Invalid or already used reactivation link"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Check if the token has expired
+        if activation_token.is_expired:
+            # Delete the expired token
+            activation_token.delete()
+
+            # Return 403 Forbidden with error message
+            return Response(
+                {"error": "Reactivation link has expired"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Get the user associated with the token (already loaded with select_related)
+        user = activation_token.user
 
         # Get the new password from validated data
         new_password = serializer.validated_data["new_password"]

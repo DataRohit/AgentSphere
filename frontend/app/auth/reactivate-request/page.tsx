@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppDispatch } from "@/app/store/hooks";
-import { setUser, setUserError, setUserLoading } from "@/app/store/slices/userSlice";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,22 +8,19 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-interface LoginFormValues {
+interface ReactivateAccountFormValues {
     email: string;
-    password: string;
 }
 
-export default function LoginPage() {
+export default function ReactivateAccountPage() {
     const router = useRouter();
-    const dispatch = useAppDispatch();
-    const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
 
@@ -59,49 +54,23 @@ export default function LoginPage() {
         }
     }, [isSubmitting, progress]);
 
-    const form = useForm<LoginFormValues>({
+    const form = useForm<ReactivateAccountFormValues>({
         mode: "onTouched",
         defaultValues: {
             email: "",
-            password: "",
         },
     });
 
-    const fetchUserData = async (accessToken: string) => {
-        dispatch(setUserLoading());
-        try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-            const response = await fetch(`${apiUrl}/users/me/`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                dispatch(setUser(data.user));
-            } else {
-                const errorData = await response.json();
-                dispatch(setUserError(errorData.error || "Failed to fetch user data"));
-            }
-        } catch (error) {
-            dispatch(setUserError("An error occurred while fetching user data"));
-        }
-    };
-
-    const onSubmit = async (data: LoginFormValues) => {
+    const onSubmit = async (data: ReactivateAccountFormValues) => {
         setIsSubmitting(true);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-            const response = await fetch(`${apiUrl}/users/login/`, {
+            const response = await fetch(`${apiUrl}/users/reactivate/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-                credentials: "include",
             });
 
             let result;
@@ -115,18 +84,14 @@ export default function LoginPage() {
                         border: "none",
                     },
                 });
+                setIsSubmitting(false);
                 return;
             }
 
             if (response.ok) {
                 setProgress(100);
 
-                Cookies.set("access_token", result.access, { expires: 0.25 });
-                Cookies.set("refresh_token", result.refresh, { expires: 1 });
-
-                await fetchUserData(result.access);
-
-                toast.success("Login successful!", {
+                toast.success("Account reactivation email sent successfully!", {
                     style: {
                         backgroundColor: "oklch(0.45 0.18 142.71)",
                         color: "white",
@@ -135,19 +100,40 @@ export default function LoginPage() {
                 });
 
                 setTimeout(() => {
-                    router.push("/dashboard");
-                }, 1000);
+                    router.push("/auth/login");
+                }, 2000);
             } else {
-                if (result.error) {
-                    toast.error(result.error, {
-                        style: {
-                            backgroundColor: "var(--destructive)",
-                            color: "white",
-                            border: "none",
-                        },
-                    });
+                if (result.errors) {
+                    if (result.errors.email && result.errors.email.length > 0) {
+                        toast.error(`Email: ${result.errors.email[0]}`, {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        });
+                    } else if (
+                        result.errors.non_field_errors &&
+                        result.errors.non_field_errors.length > 0
+                    ) {
+                        toast.error(result.errors.non_field_errors[0], {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        });
+                    } else {
+                        toast.error("Failed to send reactivation email. Please try again.", {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        });
+                    }
                 } else {
-                    toast.error("Invalid email or password. Please try again.", {
+                    toast.error("Failed to send reactivation email. Please try again.", {
                         style: {
                             backgroundColor: "var(--destructive)",
                             color: "white",
@@ -156,7 +142,7 @@ export default function LoginPage() {
                     });
                 }
             }
-        } catch {
+        } catch (error) {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -204,9 +190,17 @@ export default function LoginPage() {
                     <motion.div variants={itemVariants}>
                         <Card className="border shadow-lg">
                             <CardHeader>
-                                <CardTitle className="text-2xl font-bold text-center">
-                                    Log In
-                                </CardTitle>
+                                <div className="flex items-center mb-2">
+                                    <Link
+                                        href="/auth/login"
+                                        className="text-(--muted-foreground) hover:text-(--primary) transition-colors duration-200 mr-2"
+                                    >
+                                        <ArrowLeft size={18} />
+                                    </Link>
+                                    <CardTitle className="text-2xl font-bold text-center flex-1 pr-6">
+                                        Reactivate Account
+                                    </CardTitle>
+                                </div>
                                 {isSubmitting && (
                                     <div className="mt-2">
                                         <Progress
@@ -223,6 +217,10 @@ export default function LoginPage() {
                                         className="space-y-4"
                                     >
                                         <motion.div variants={itemVariants}>
+                                            <p className="text-sm text-(--muted-foreground) mb-4">
+                                                Enter your email address below and we'll send you a
+                                                link to reactivate your account.
+                                            </p>
                                             <FormItem>
                                                 <FormLabel>Email</FormLabel>
                                                 <FormControl>
@@ -238,51 +236,6 @@ export default function LoginPage() {
                                             </FormItem>
                                         </motion.div>
 
-                                        <motion.div variants={itemVariants}>
-                                            <FormItem>
-                                                <FormLabel>Password</FormLabel>
-                                                <FormControl>
-                                                    <div className="relative">
-                                                        <Input
-                                                            type={
-                                                                showPassword ? "text" : "password"
-                                                            }
-                                                            placeholder="Password"
-                                                            {...form.register("password", {
-                                                                required: true,
-                                                            })}
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-(--muted-foreground) hover:text-(--primary) focus:text-(--primary) p-1.5 rounded-full hover:bg-(--accent) focus:bg-(--accent) transition-all duration-200 cursor-pointer"
-                                                            tabIndex={-1}
-                                                            onClick={() =>
-                                                                setShowPassword((v) => !v)
-                                                            }
-                                                        >
-                                                            {showPassword ? (
-                                                                <EyeOff size={18} />
-                                                            ) : (
-                                                                <Eye size={18} />
-                                                            )}
-                                                        </button>
-                                                    </div>
-                                                </FormControl>
-                                            </FormItem>
-                                        </motion.div>
-
-                                        <motion.div
-                                            variants={itemVariants}
-                                            className="flex justify-end"
-                                        >
-                                            <Link
-                                                href="/auth/password-reset"
-                                                className="text-sm text-(--muted-foreground) hover:text-(--primary) transition-colors duration-200"
-                                            >
-                                                Forgot Password?
-                                            </Link>
-                                        </motion.div>
-
                                         <motion.div variants={itemVariants} className="pt-2">
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
@@ -296,7 +249,9 @@ export default function LoginPage() {
                                                     disabled={isSubmitting}
                                                 >
                                                     <span className="relative z-10">
-                                                        {isSubmitting ? "Logging in..." : "Log In"}
+                                                        {isSubmitting
+                                                            ? "Sending..."
+                                                            : "Send Reactivation Link"}
                                                     </span>
                                                     <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                                 </Button>
@@ -307,25 +262,12 @@ export default function LoginPage() {
                                             variants={itemVariants}
                                             className="text-center text-sm text-(--muted-foreground) mt-4"
                                         >
-                                            Don&apos;t have an account?{" "}
+                                            Remember your password?{" "}
                                             <Link
-                                                href="/auth/signup"
+                                                href="/auth/login"
                                                 className="text-(--primary) hover:underline"
                                             >
-                                                Sign Up
-                                            </Link>
-                                        </motion.div>
-
-                                        <motion.div
-                                            variants={itemVariants}
-                                            className="text-center text-sm text-(--muted-foreground) mt-2"
-                                        >
-                                            Account deactivated?{" "}
-                                            <Link
-                                                href="/auth/reactivate-request"
-                                                className="text-(--primary) hover:underline"
-                                            >
-                                                Reactivate Account
+                                                Log In
                                             </Link>
                                         </motion.div>
                                     </form>
