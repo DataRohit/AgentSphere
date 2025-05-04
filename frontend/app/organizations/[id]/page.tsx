@@ -2,6 +2,7 @@
 
 import { useAppSelector } from "@/app/store/hooks";
 import { selectUser } from "@/app/store/slices/userSlice";
+import { ActiveTransfersSection } from "@/components/active-transfers-section";
 import { AddMemberModal } from "@/components/add-member-modal";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { DeleteOrganizationDialog } from "@/components/delete-organization-dialog";
@@ -513,7 +514,7 @@ export default function OrganizationDetailPage() {
                 <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-[#111827] relative group p-0">
                     <CardHeader className="pb-1 pt-4 px-4">
                         <div className="flex items-start space-x-3">
-                            <Avatar className="h-10 w-10 border border-(--border)">
+                            <Avatar className="h-10 w-10 border border-(--border) my-auto">
                                 {member.avatar_url ? (
                                     <AvatarImage src={member.avatar_url} alt={fullName} />
                                 ) : null}
@@ -1022,6 +1023,15 @@ export default function OrganizationDetailPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
+                            className="mt-8"
+                        >
+                            <ActiveTransfersSection organizationId={organizationId} />
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
                             className="mt-8"
                         >
                             <div className="flex items-center justify-between mb-4">
