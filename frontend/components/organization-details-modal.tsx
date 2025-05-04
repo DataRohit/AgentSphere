@@ -14,9 +14,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
 import Cookies from "js-cookie";
-import { AlertCircle, Calendar, ExternalLink, Globe, Loader2, Users } from "lucide-react";
+import { AlertCircle, Calendar, ExternalLink, Globe, Loader2, LogOut, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { LeaveOrganizationDialog } from "./leave-organization-dialog";
 import { Organization } from "./organization-card";
 
 interface Member {
@@ -46,6 +47,7 @@ export function OrganizationDetailsModal({
     const [members, setMembers] = useState<Member[]>([]);
     const [isLoadingMembers, setIsLoadingMembers] = useState(false);
     const [membersError, setMembersError] = useState<string | null>(null);
+    const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
 
     const fetchMembers = async () => {
         if (!organization) return;
@@ -114,6 +116,10 @@ export function OrganizationDetailsModal({
         organization.owner.first_name && organization.owner.last_name
             ? `${organization.owner.first_name} ${organization.owner.last_name}`
             : organization.owner.username;
+
+    const handleLeaveSuccess = () => {
+        onOpenChange(false);
+    };
 
     const renderMembersList = () => {
         if (isLoadingMembers) {
@@ -209,109 +215,127 @@ export function OrganizationDetailsModal({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] bg-(--background) border-(--border) [&_[data-slot=dialog-close]]:hover:opacity-100 [&_[data-slot=dialog-close]]:cursor-pointer [&_[data-slot=dialog-close]]:transition-opacity [&_[data-slot=dialog-close]]:duration-200">
-                <DialogHeader>
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12 border border-(--border)">
-                            {organization.logo_url ? (
-                                <AvatarImage src={organization.logo_url} alt={organization.name} />
-                            ) : null}
-                            <AvatarFallback className="bg-(--primary)/10 text-(--primary) text-lg">
-                                {getInitials(organization.name)}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <DialogTitle className="text-xl">{organization.name}</DialogTitle>
-                            <DialogDescription>Owned by {ownerFullName}</DialogDescription>
-                        </div>
-                    </div>
-                </DialogHeader>
-
-                <div className="space-y-6 py-4">
-                    {organization.description && (
-                        <div className="space-y-2">
-                            <h3 className="text-sm font-medium">Description</h3>
-                            <div className="p-3 rounded-md bg-(--secondary) text-sm">
-                                {organization.description}
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogContent className="sm:max-w-[500px] bg-(--background) border-(--border) [&_[data-slot=dialog-close]]:hover:opacity-100 [&_[data-slot=dialog-close]]:cursor-pointer [&_[data-slot=dialog-close]]:transition-opacity [&_[data-slot=dialog-close]]:duration-200">
+                    <DialogHeader>
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-12 w-12 border border-(--border)">
+                                {organization.logo_url ? (
+                                    <AvatarImage
+                                        src={organization.logo_url}
+                                        alt={organization.name}
+                                    />
+                                ) : null}
+                                <AvatarFallback className="bg-(--primary)/10 text-(--primary) text-lg">
+                                    {getInitials(organization.name)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <DialogTitle className="text-xl">{organization.name}</DialogTitle>
+                                <DialogDescription>Owned by {ownerFullName}</DialogDescription>
                             </div>
                         </div>
-                    )}
+                    </DialogHeader>
 
-                    {organization.website && (
-                        <div className="space-y-2">
-                            <h3 className="text-sm font-medium">Website</h3>
-                            <div className="p-3 rounded-md bg-(--secondary) text-sm">
-                                <a
-                                    href={
-                                        organization.website.startsWith("http")
-                                            ? organization.website
-                                            : `https://${organization.website}`
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-(--primary) hover:underline flex items-center"
-                                >
-                                    <Globe className="mr-2 h-4 w-4" />
-                                    <span>{organization.website.replace(/^https?:\/\//i, "")}</span>
-                                    <ExternalLink className="ml-1 h-3 w-3" />
-                                </a>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <h3 className="text-sm font-medium">Members</h3>
-                            <div className="p-3 rounded-md bg-(--secondary) text-sm flex items-center">
-                                <Users className="mr-2 h-4 w-4 text-(--muted-foreground)" />
-                                <span>
-                                    {organization.member_count}{" "}
-                                    {organization.member_count === 1 ? "member" : "members"}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="text-sm font-medium">Created</h3>
-                            <div className="p-3 rounded-md bg-(--secondary) text-sm flex items-center">
-                                <Calendar className="mr-2 h-4 w-4 text-(--muted-foreground)" />
-                                <span>
-                                    {formatDistanceToNow(new Date(organization.created_at), {
-                                        addSuffix: true,
-                                    })}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-medium">Member List</h3>
-                            {isLoadingMembers && (
-                                <div className="flex items-center text-xs text-(--muted-foreground)">
-                                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                                    Loading...
+                    <div className="space-y-6 py-4">
+                        {organization.description && (
+                            <div className="space-y-2">
+                                <h3 className="text-sm font-medium">Description</h3>
+                                <div className="p-3 rounded-md bg-(--secondary) text-sm">
+                                    {organization.description}
                                 </div>
-                            )}
-                        </div>
-                        <ScrollArea className="h-[200px] rounded-md border border-(--border) p-4">
-                            {renderMembersList()}
-                        </ScrollArea>
-                    </div>
-                </div>
+                            </div>
+                        )}
 
-                <DialogFooter className="flex flex-col sm:flex-row sm:justify-between w-full gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-full"
-                    >
-                        <span className="relative z-10">Close</span>
-                        <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                        {organization.website && (
+                            <div className="space-y-2">
+                                <h3 className="text-sm font-medium">Website</h3>
+                                <div className="p-3 rounded-md bg-(--secondary) text-sm">
+                                    <a
+                                        href={
+                                            organization.website.startsWith("http")
+                                                ? organization.website
+                                                : `https://${organization.website}`
+                                        }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-(--primary) hover:underline flex items-center"
+                                    >
+                                        <Globe className="mr-2 h-4 w-4" />
+                                        <span>
+                                            {organization.website.replace(/^https?:\/\//i, "")}
+                                        </span>
+                                        <ExternalLink className="ml-1 h-3 w-3" />
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <h3 className="text-sm font-medium">Members</h3>
+                                <div className="p-3 rounded-md bg-(--secondary) text-sm flex items-center">
+                                    <Users className="mr-2 h-4 w-4 text-(--muted-foreground)" />
+                                    <span>
+                                        {organization.member_count}{" "}
+                                        {organization.member_count === 1 ? "member" : "members"}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-sm font-medium">Created</h3>
+                                <div className="p-3 rounded-md bg-(--secondary) text-sm flex items-center">
+                                    <Calendar className="mr-2 h-4 w-4 text-(--muted-foreground)" />
+                                    <span>
+                                        {formatDistanceToNow(new Date(organization.created_at), {
+                                            addSuffix: true,
+                                        })}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-sm font-medium">Member List</h3>
+                                {isLoadingMembers && (
+                                    <div className="flex items-center text-xs text-(--muted-foreground)">
+                                        <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                                        Loading...
+                                    </div>
+                                )}
+                            </div>
+                            <ScrollArea className="h-[200px] rounded-md border border-(--border) p-4">
+                                {renderMembersList()}
+                            </ScrollArea>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="flex flex-col sm:flex-row sm:justify-between w-full gap-2">
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => setIsLeaveDialogOpen(true)}
+                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-(--destructive-foreground) dark:bg-(--destructive) dark:text-(--destructive-foreground) dark:border-(--destructive) h-10 cursor-pointer w-full"
+                        >
+                            <span className="relative z-10 flex items-center justify-center">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Leave Organization
+                            </span>
+                            <span className="absolute inset-0 bg-(--destructive-foreground)/10 dark:bg-(--destructive-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <LeaveOrganizationDialog
+                open={isLeaveDialogOpen}
+                onOpenChange={setIsLeaveDialogOpen}
+                organizationId={organization.id}
+                organizationName={organization.name}
+                onLeaveSuccess={handleLeaveSuccess}
+            />
+        </>
     );
 }
