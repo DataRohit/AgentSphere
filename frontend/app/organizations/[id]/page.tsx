@@ -6,6 +6,7 @@ import { AddMemberModal } from "@/components/add-member-modal";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { DeleteOrganizationDialog } from "@/components/delete-organization-dialog";
 import { ProtectedRoute } from "@/components/protected-route";
+import { TransferOwnershipDialog } from "@/components/transfer-ownership-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -430,6 +431,7 @@ export default function OrganizationDetailPage() {
 
         const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
         const [isRemoving, setIsRemoving] = useState(false);
+        const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
 
         const handleRemoveMember = async () => {
             setIsRemoving(true);
@@ -501,117 +503,117 @@ export default function OrganizationDetailPage() {
         };
 
         return (
-            <>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    className="h-full"
-                >
-                    <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-[#111827] relative group p-0">
-                        <CardHeader className="pb-1 pt-4 px-4">
-                            <div className="flex items-start space-x-3">
-                                <Avatar className="h-10 w-10 border border-(--border)">
-                                    {member.avatar_url ? (
-                                        <AvatarImage src={member.avatar_url} alt={fullName} />
-                                    ) : null}
-                                    <AvatarFallback className="bg-(--primary)/10 text-(--primary)">
-                                        {getInitials(fullName)}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="text-lg font-semibold">
-                                            {fullName}
-                                        </CardTitle>
-                                        {member.is_active ? (
-                                            <span className="text-xs font-medium text-green-500">
-                                                Active
-                                            </span>
-                                        ) : (
-                                            <span className="text-xs font-medium text-red-500">
-                                                Inactive
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-sm text-(--muted-foreground) mt-0.5">
-                                        {member.email}
-                                    </p>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                className="h-full"
+            >
+                <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-[#111827] relative group p-0">
+                    <CardHeader className="pb-1 pt-4 px-4">
+                        <div className="flex items-start space-x-3">
+                            <Avatar className="h-10 w-10 border border-(--border)">
+                                {member.avatar_url ? (
+                                    <AvatarImage src={member.avatar_url} alt={fullName} />
+                                ) : null}
+                                <AvatarFallback className="bg-(--primary)/10 text-(--primary)">
+                                    {getInitials(fullName)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg font-semibold">
+                                        {fullName}
+                                    </CardTitle>
+                                    {member.is_active ? (
+                                        <span className="text-xs font-medium text-green-500">
+                                            Active
+                                        </span>
+                                    ) : (
+                                        <span className="text-xs font-medium text-red-500">
+                                            Inactive
+                                        </span>
+                                    )}
                                 </div>
+                                <p className="text-sm text-(--muted-foreground) mt-0.5">
+                                    {member.email}
+                                </p>
                             </div>
-                        </CardHeader>
-                        <CardContent className="px-4 py-2 mt-auto text-xs text-(--muted-foreground) space-y-1.5">
-                            <div className="flex justify-between">
-                                <span className="text-[#64748b]">Joined:</span>
-                                <span className="text-right text-[#64748b]">
-                                    {formatDistanceToNow(new Date(member.date_joined), {
-                                        addSuffix: true,
-                                    })}
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-[#64748b]">Last login:</span>
-                                <span className="text-right text-[#64748b]">
-                                    {member.last_login
-                                        ? formatDistanceToNow(new Date(member.last_login), {
-                                              addSuffix: true,
-                                          })
-                                        : "Never"}
-                                </span>
-                            </div>
-                        </CardContent>
-                        <div className="flex w-full mt-auto border-t border-[#1e293b]">
-                            <button
-                                className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#3b82f6] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.info(
-                                        "Transfer ownership functionality will be implemented soon",
-                                        {
-                                            style: {
-                                                backgroundColor: "var(--primary)",
-                                                color: "white",
-                                                border: "none",
-                                            },
-                                        }
-                                    );
-                                }}
-                            >
-                                <Users className="h-4 w-4 mr-2" />
-                                <span>Transfer</span>
-                            </button>
-                            <div className="w-px h-12 bg-[#1e293b]"></div>
-                            <button
-                                className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#ef4444] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsRemoveDialogOpen(true);
-                                }}
-                            >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                <span>Remove</span>
-                            </button>
                         </div>
-                    </Card>
-                </motion.div>
+                    </CardHeader>
+                    <CardContent className="px-4 py-2 mt-auto text-xs text-(--muted-foreground) space-y-1.5">
+                        <div className="flex justify-between">
+                            <span className="text-[#64748b]">Joined:</span>
+                            <span className="text-right text-[#64748b]">
+                                {formatDistanceToNow(new Date(member.date_joined), {
+                                    addSuffix: true,
+                                })}
+                            </span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-[#64748b]">Last login:</span>
+                            <span className="text-right text-[#64748b]">
+                                {member.last_login
+                                    ? formatDistanceToNow(new Date(member.last_login), {
+                                          addSuffix: true,
+                                      })
+                                    : "Never"}
+                            </span>
+                        </div>
+                    </CardContent>
+                    <div className="flex w-full mt-auto border-t border-[#1e293b]">
+                        <button
+                            className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#3b82f6] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsTransferDialogOpen(true);
+                            }}
+                        >
+                            <Users className="h-4 w-4 mr-2" />
+                            <span>Transfer</span>
+                        </button>
+                        <div className="w-px h-12 bg-[#1e293b]"></div>
+                        <button
+                            className="flex-1 h-12 bg-[#111827] hover:bg-[#1e293b] text-[#ef4444] text-sm flex items-center justify-center cursor-pointer transition-colors duration-200"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsRemoveDialogOpen(true);
+                            }}
+                        >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            <span>Remove</span>
+                        </button>
+                    </div>
+                </Card>
 
                 <Dialog open={isRemoveDialogOpen} onOpenChange={setIsRemoveDialogOpen}>
                     <DialogContent className="sm:max-w-[425px] bg-(--background) border-(--border) [&_[data-slot=dialog-close]]:hover:opacity-100 [&_[data-slot=dialog-close]]:cursor-pointer [&_[data-slot=dialog-close]]:transition-opacity [&_[data-slot=dialog-close]]:duration-200">
                         <DialogHeader>
-                            <DialogTitle>Remove Member</DialogTitle>
+                            <DialogTitle className="flex items-center text-(--foreground) pb-2">
+                                <Trash2 className="mr-2 h-5 w-5 text-(--destructive)" />
+                                Remove Member
+                            </DialogTitle>
                             <DialogDescription>
-                                Are you sure you want to remove {fullName} from this organization?
-                                This action cannot be undone.
+                                Are you sure you want to remove this member from the organization?
                             </DialogDescription>
                         </DialogHeader>
-                        <DialogFooter>
+
+                        <div className="py-4">
+                            <p className="text-sm text-center">
+                                You are about to remove{" "}
+                                <span className="font-medium">{fullName}</span> from the
+                                organization.
+                            </p>
+                        </div>
+
+                        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between w-full gap-2">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsRemoveDialogOpen(false)}
                                 disabled={isRemoving}
-                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) px-6 h-10 cursor-pointer"
+                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-full sm:flex-1"
                             >
                                 <span className="relative z-10">Cancel</span>
                                 <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
@@ -621,7 +623,7 @@ export default function OrganizationDetailPage() {
                                 variant="destructive"
                                 onClick={handleRemoveMember}
                                 disabled={isRemoving}
-                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-(--destructive-foreground) dark:bg-(--destructive) dark:text-(--destructive-foreground) dark:border-(--destructive) px-6 h-10 cursor-pointer"
+                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-(--destructive-foreground) dark:bg-(--destructive) dark:text-(--destructive-foreground) dark:border-(--destructive) h-10 cursor-pointer w-full sm:flex-1"
                             >
                                 <span className="relative z-10">
                                     {isRemoving ? (
@@ -630,7 +632,7 @@ export default function OrganizationDetailPage() {
                                             Removing...
                                         </>
                                     ) : (
-                                        "Remove Member"
+                                        "Remove"
                                     )}
                                 </span>
                                 <span className="absolute inset-0 bg-(--destructive-foreground)/10 dark:bg-(--destructive-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
@@ -638,7 +640,15 @@ export default function OrganizationDetailPage() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </>
+
+                <TransferOwnershipDialog
+                    open={isTransferDialogOpen}
+                    onOpenChange={setIsTransferDialogOpen}
+                    organizationId={organizationId}
+                    organizationName={organization?.name || ""}
+                    member={member}
+                />
+            </motion.div>
         );
     }
 

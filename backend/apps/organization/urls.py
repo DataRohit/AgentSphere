@@ -16,6 +16,8 @@ from apps.organization.views import (
     OrganizationOwnershipTransferCancelView,
     OrganizationOwnershipTransferInitView,
     OrganizationOwnershipTransferRejectView,
+    OrganizationOwnershipTransfersListView,
+    UserReceivedOwnershipTransfersListView,
 )
 
 # Set application namespace
@@ -92,5 +94,17 @@ urlpatterns = [
         "transfer/<str:transfer_id>/reject/",
         OrganizationOwnershipTransferRejectView.as_view(),
         name="organization-ownership-transfer-reject",
+    ),
+    # Organization ownership transfers list URL
+    path(
+        "<str:organization_id>/transfers/",
+        OrganizationOwnershipTransfersListView.as_view(),
+        name="organization-ownership-transfers-list",
+    ),
+    # User received ownership transfers list URL
+    path(
+        "transfers/received/",
+        UserReceivedOwnershipTransfersListView.as_view(),
+        name="user-received-ownership-transfers-list",
     ),
 ]

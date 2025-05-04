@@ -19,6 +19,10 @@ from apps.organization.views.organization_ownership_transfer_cancel import (
 from apps.organization.views.organization_ownership_transfer_init import (
     OrganizationOwnershipTransferInitView,
 )
+from apps.organization.views.organization_ownership_transfer_list import (
+    OrganizationOwnershipTransfersListView,
+    UserReceivedOwnershipTransfersListView,
+)
 from apps.organization.views.organization_ownership_transfer_reject import (
     OrganizationOwnershipTransferRejectView,
 )
@@ -37,5 +41,7 @@ __all__ = [
     "OrganizationOwnershipTransferAcceptView",
     "OrganizationOwnershipTransferCancelView",
     "OrganizationOwnershipTransferInitView",
+    "OrganizationOwnershipTransfersListView",
     "OrganizationOwnershipTransferRejectView",
+    "UserReceivedOwnershipTransfersListView",
 ]
