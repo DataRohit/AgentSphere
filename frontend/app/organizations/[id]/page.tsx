@@ -1016,19 +1016,25 @@ export default function OrganizationDetailPage() {
                                                     `/organizations/${organizationId}/agent-studio`
                                                 )
                                             }
-                                            className="h-9 px-4 text-sm font-medium flex items-center cursor-pointer text-(--primary) border-(--border) hover:bg-(--primary)/10"
+                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer"
                                         >
-                                            <Bot className="mr-2 h-4 w-4" />
-                                            Agent Studio
+                                            <span className="relative z-10 flex items-center justify-center">
+                                                <Bot className="mr-2 h-4 w-4" />
+                                                Agent Studio
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                         </Button>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             onClick={() => setIsDeleteDialogOpen(true)}
-                                            className="h-9 px-4 text-sm font-medium flex items-center cursor-pointer text-(--destructive) border-(--border) hover:bg-(--destructive)/10"
+                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer"
                                         >
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            Delete Organization
+                                            <span className="relative z-10 flex items-center justify-center">
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Delete Organization
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                         </Button>
                                     </div>
                                 )}
