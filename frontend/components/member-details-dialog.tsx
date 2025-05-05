@@ -14,7 +14,18 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import Cookies from "js-cookie";
-import { AlertCircle, Calendar, Cpu, Key, Loader2, Server, User } from "lucide-react";
+import {
+    AlertCircle,
+    Calendar,
+    Cpu,
+    Globe,
+    Key,
+    Loader2,
+    Server,
+    Tag,
+    User,
+    Wrench,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -49,6 +60,32 @@ interface LLM {
     updated_at: string;
 }
 
+interface Tool {
+    id: string;
+    name: string;
+    description: string;
+}
+
+interface MCPServer {
+    id: string;
+    name: string;
+    description: string;
+    url: string;
+    tags: string;
+    organization: {
+        id: string;
+        name: string;
+    };
+    user: {
+        id: string;
+        username: string;
+        email: string;
+    };
+    tools: Tool[];
+    created_at: string;
+    updated_at: string;
+}
+
 interface MemberDetailsDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -63,14 +100,17 @@ export function MemberDetailsDialog({
     organizationId,
 }: MemberDetailsDialogProps) {
     const [llms, setLLMs] = useState<LLM[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [mcpServers, setMCPServers] = useState<MCPServer[]>([]);
+    const [isLoadingLLMs, setIsLoadingLLMs] = useState(false);
+    const [isLoadingMCPServers, setIsLoadingMCPServers] = useState(false);
+    const [llmsError, setLLMsError] = useState<string | null>(null);
+    const [mcpServersError, setMCPServersError] = useState<string | null>(null);
 
     const fetchMemberLLMs = async () => {
         if (!member || !organizationId) return;
 
-        setIsLoading(true);
-        setError(null);
+        setIsLoadingLLMs(true);
+        setLLMsError(null);
 
         try {
             const accessToken = Cookies.get("access_token");
@@ -108,7 +148,7 @@ export function MemberDetailsDialog({
         } catch (err) {
             const errorMessage =
                 err instanceof Error ? err.message : "An error occurred while fetching LLMs";
-            setError(errorMessage);
+            setLLMsError(errorMessage);
             toast.error(errorMessage, {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -117,13 +157,71 @@ export function MemberDetailsDialog({
                 },
             });
         } finally {
-            setIsLoading(false);
+            setIsLoadingLLMs(false);
+        }
+    };
+
+    const fetchMemberMCPServers = async () => {
+        if (!member || !organizationId) return;
+
+        setIsLoadingMCPServers(true);
+        setMCPServersError(null);
+
+        try {
+            const accessToken = Cookies.get("access_token");
+            if (!accessToken) {
+                throw new Error("Authentication token not found");
+            }
+
+            const response = await fetch(
+                `http://localhost:8080/api/v1/tools/mcpserver/list/?organization_id=${organizationId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    setMCPServers([]);
+                    return;
+                }
+                throw new Error(data.error || "Failed to fetch MCP servers");
+            }
+
+            const memberMCPServers = data.mcpservers.filter(
+                (server: MCPServer) =>
+                    server.user.email === member.email ||
+                    server.user.username === member.username ||
+                    server.user.id === member.username // Fallback in case ID is used
+            );
+
+            setMCPServers(memberMCPServers || []);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error ? err.message : "An error occurred while fetching MCP servers";
+            setMCPServersError(errorMessage);
+            toast.error(errorMessage, {
+                style: {
+                    backgroundColor: "var(--destructive)",
+                    color: "white",
+                    border: "none",
+                },
+            });
+        } finally {
+            setIsLoadingMCPServers(false);
         }
     };
 
     useEffect(() => {
         if (open && member) {
             fetchMemberLLMs();
+            fetchMemberMCPServers();
         }
     }, [open, member, organizationId]);
 
@@ -144,7 +242,7 @@ export function MemberDetailsDialog({
             : member.username;
 
     const renderLLMsList = () => {
-        if (isLoading) {
+        if (isLoadingLLMs) {
             return (
                 <div className="flex justify-center items-center p-8">
                     <Loader2 className="h-8 w-8 animate-spin text-(--muted-foreground)" />
@@ -152,14 +250,14 @@ export function MemberDetailsDialog({
             );
         }
 
-        if (error) {
+        if (llmsError) {
             return (
                 <div className="flex flex-col items-center justify-center p-4 text-center">
                     <div className="h-10 w-10 rounded-full bg-(--destructive)/10 flex items-center justify-center mb-3">
                         <AlertCircle className="h-5 w-5 text-(--destructive)" />
                     </div>
                     <h3 className="text-sm font-medium mb-1">Failed to load LLMs</h3>
-                    <p className="text-xs text-(--muted-foreground) mb-3">{error}</p>
+                    <p className="text-xs text-(--muted-foreground) mb-3">{llmsError}</p>
                     <Button
                         onClick={fetchMemberLLMs}
                         variant="outline"
@@ -229,6 +327,130 @@ export function MemberDetailsDialog({
                                         addSuffix: true,
                                     })}
                                 </span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const renderMCPServersList = () => {
+        if (isLoadingMCPServers) {
+            return (
+                <div className="flex justify-center items-center p-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-(--muted-foreground)" />
+                </div>
+            );
+        }
+
+        if (mcpServersError) {
+            return (
+                <div className="flex flex-col items-center justify-center p-4 text-center">
+                    <div className="h-10 w-10 rounded-full bg-(--destructive)/10 flex items-center justify-center mb-3">
+                        <AlertCircle className="h-5 w-5 text-(--destructive)" />
+                    </div>
+                    <h3 className="text-sm font-medium mb-1">Failed to load MCP Servers</h3>
+                    <p className="text-xs text-(--muted-foreground) mb-3">{mcpServersError}</p>
+                    <Button
+                        onClick={fetchMemberMCPServers}
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs"
+                    >
+                        Retry
+                    </Button>
+                </div>
+            );
+        }
+
+        if (mcpServers.length === 0) {
+            return (
+                <div className="flex flex-col items-center justify-center p-4 text-center">
+                    <p className="text-sm text-(--muted-foreground)">
+                        No MCP Servers created by this member.
+                    </p>
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-4">
+                {mcpServers.map((server) => (
+                    <div
+                        key={server.id}
+                        className="p-4 rounded-md border border-(--border) bg-(--secondary) hover:bg-(--muted) transition-colors duration-200"
+                    >
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="flex items-center">
+                                <Server className="h-4 w-4 text-(--primary) mr-2" />
+                                <h3 className="font-medium">{server.name}</h3>
+                            </div>
+                        </div>
+                        <div className="flex flex-col space-y-2 text-sm">
+                            {server.description && (
+                                <div className="text-xs text-(--muted-foreground)">
+                                    {server.description}
+                                </div>
+                            )}
+                            <div className="flex items-center text-xs text-(--muted-foreground)">
+                                <Globe className="mr-1 h-3 w-3" />
+                                <span>URL: {server.url}</span>
+                            </div>
+                            <div className="flex items-center text-xs text-(--muted-foreground)">
+                                <Calendar className="mr-1 h-3 w-3" />
+                                <span>
+                                    Created{" "}
+                                    {formatDistanceToNow(new Date(server.created_at), {
+                                        addSuffix: true,
+                                    })}
+                                </span>
+                            </div>
+                            <div className="flex items-center text-xs text-(--muted-foreground)">
+                                <Calendar className="mr-1 h-3 w-3" />
+                                <span>
+                                    Updated{" "}
+                                    {formatDistanceToNow(new Date(server.updated_at), {
+                                        addSuffix: true,
+                                    })}
+                                </span>
+                            </div>
+                            <div className="flex items-center text-xs">
+                                <Tag className="mr-1 h-3 w-3 text-(--muted-foreground)" />
+                                <span className="text-(--muted-foreground) mr-2">Tags:</span>
+                                <div className="flex flex-wrap gap-1">
+                                    {server.tags.split(",").map((tag, index) => (
+                                        <Badge
+                                            key={`${server.id}-tag-${index}`}
+                                            variant="outline"
+                                            className="bg-(--primary)/10 text-(--primary) border-(--primary)/20 text-xs"
+                                        >
+                                            {tag.trim()}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex flex-col space-y-1 text-xs">
+                                <div className="flex items-center">
+                                    <Wrench className="mr-1 h-3 w-3 text-(--muted-foreground)" />
+                                    <span className="text-(--muted-foreground)">Tools:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1 ml-4">
+                                    {server.tools.map((tool, index) => (
+                                        <Badge
+                                            key={`${server.id}-tool-${index}`}
+                                            variant="outline"
+                                            className="bg-(--primary)/10 text-(--primary) border-(--primary)/20 text-xs"
+                                        >
+                                            {tool.name}
+                                        </Badge>
+                                    ))}
+                                    {server.tools.length === 0 && (
+                                        <span className="text-xs text-(--muted-foreground)">
+                                            No tools available
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -337,7 +559,7 @@ export function MemberDetailsDialog({
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-medium">LLMs Created by {fullName}</h3>
-                            {isLoading && (
+                            {isLoadingLLMs && (
                                 <div className="flex items-center text-xs text-(--muted-foreground)">
                                     <Loader2 className="h-3 w-3 animate-spin mr-1" />
                                     Loading...
@@ -346,6 +568,23 @@ export function MemberDetailsDialog({
                         </div>
                         <ScrollArea className="h-[250px] rounded-md border border-(--border) p-4">
                             {renderLLMsList()}
+                        </ScrollArea>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-medium">
+                                MCP Servers Created by {fullName}
+                            </h3>
+                            {isLoadingMCPServers && (
+                                <div className="flex items-center text-xs text-(--muted-foreground)">
+                                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                                    Loading...
+                                </div>
+                            )}
+                        </div>
+                        <ScrollArea className="h-[250px] rounded-md border border-(--border) p-4">
+                            {renderMCPServersList()}
                         </ScrollArea>
                     </div>
                 </div>
