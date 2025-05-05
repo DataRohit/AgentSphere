@@ -52,7 +52,6 @@ class MCPServer(TimeStampedModel):
     url = models.URLField(
         verbose_name=_("URL"),
         max_length=255,
-        unique=True,
     )
 
     # Optional tags

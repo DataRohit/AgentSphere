@@ -325,7 +325,6 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
         }
     }, [organizationId]);
 
-    // Reset form when dialog is closed
     useEffect(() => {
         if (!isDialogOpen) {
             form.reset({
@@ -452,13 +451,25 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                                         {llm.api_type.charAt(0).toUpperCase() +
                                             llm.api_type.slice(1)}
                                     </CardTitle>
-                                    <div className="flex items-center text-xs text-(--muted-foreground)">
-                                        <Calendar className="mr-1 h-3 w-3" />
-                                        <span>
-                                            {formatDistanceToNow(new Date(llm.created_at), {
-                                                addSuffix: true,
-                                            })}
-                                        </span>
+                                    <div className="flex flex-col space-y-1">
+                                        <div className="flex items-center text-xs text-(--muted-foreground)">
+                                            <Calendar className="mr-1 h-3 w-3" />
+                                            <span>
+                                                Created{" "}
+                                                {formatDistanceToNow(new Date(llm.created_at), {
+                                                    addSuffix: true,
+                                                })}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center text-xs text-(--muted-foreground)">
+                                            <Calendar className="mr-1 h-3 w-3" />
+                                            <span>
+                                                Updated{" "}
+                                                {formatDistanceToNow(new Date(llm.updated_at), {
+                                                    addSuffix: true,
+                                                })}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </CardHeader>
@@ -727,7 +738,6 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                     onOpenChange={(open) => {
                         setIsDeleteDialogOpen(open);
                         if (!open) {
-                            // Reset the delete state when dialog is closed
                             setTimeout(() => setLlmToDelete(null), 300);
                         }
                     }}
@@ -742,7 +752,6 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                     onOpenChange={(open) => {
                         setIsUpdateDialogOpen(open);
                         if (!open) {
-                            // Reset the update state when dialog is closed
                             setTimeout(() => setLlmToUpdate(null), 300);
                         }
                     }}

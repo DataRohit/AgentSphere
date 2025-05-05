@@ -6,6 +6,7 @@ import { ActiveTransfersSection } from "@/components/active-transfers-section";
 import { AddMemberModal } from "@/components/add-member-modal";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { DeleteOrganizationDialog } from "@/components/delete-organization-dialog";
+import { MemberDetailsDialog } from "@/components/member-details-dialog";
 import { ProtectedRoute } from "@/components/protected-route";
 import { TransferOwnershipDialog } from "@/components/transfer-ownership-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -212,14 +213,12 @@ export default function OrganizationDetailPage() {
                     throw new Error(data.error || "Failed to fetch organization details");
                 }
 
-                // Check if current user is the owner
                 if (
                     currentUser &&
                     data.organization.owner &&
                     currentUser.id !== data.organization.owner.id &&
                     currentUser.email !== data.organization.owner.email
                 ) {
-                    // User is not the owner, redirect to dashboard
                     toast.error(
                         "You don't have permission to access this page. Only organization owners can access organization details.",
                         {
@@ -456,6 +455,7 @@ export default function OrganizationDetailPage() {
         const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
         const [isRemoving, setIsRemoving] = useState(false);
         const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+        const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
         const handleRemoveMember = async () => {
             setIsRemoving(true);
@@ -534,7 +534,10 @@ export default function OrganizationDetailPage() {
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 className="h-full"
             >
-                <Card className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-(--secondary) relative group p-0">
+                <Card
+                    className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-(--secondary) relative group p-0 cursor-pointer"
+                    onClick={() => setIsDetailsDialogOpen(true)}
+                >
                     <CardHeader className="pb-1 pt-4 px-4">
                         <div className="flex items-start space-x-3">
                             <Avatar className="h-10 w-10 border border-(--border) my-auto">
@@ -671,6 +674,13 @@ export default function OrganizationDetailPage() {
                     organizationId={organizationId}
                     organizationName={organization?.name || ""}
                     member={member}
+                />
+
+                <MemberDetailsDialog
+                    open={isDetailsDialogOpen}
+                    onOpenChange={setIsDetailsDialogOpen}
+                    member={member}
+                    organizationId={organizationId}
                 />
             </motion.div>
         );

@@ -62,7 +62,6 @@ export default function AgentStudioPage() {
 
                 const organization = data.organization as Organization;
 
-                // Check if current user is the owner
                 if (currentUser && organization.owner) {
                     setIsOwner(
                         currentUser.id === organization.owner.id ||
