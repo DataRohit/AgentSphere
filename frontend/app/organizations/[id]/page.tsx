@@ -1039,7 +1039,7 @@ export default function OrganizationDetailPage() {
                                         </Button>
                                     </div>
                                 ) : (
-                                    <div className="flex space-x-3">
+                                    <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -1048,7 +1048,7 @@ export default function OrganizationDetailPage() {
                                                     `/organizations/${organizationId}/agent-studio`
                                                 )
                                             }
-                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer"
+                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full md:w-auto"
                                         >
                                             <span className="relative z-10 flex items-center justify-center">
                                                 <Bot className="mr-2 h-4 w-4" />
@@ -1060,7 +1060,7 @@ export default function OrganizationDetailPage() {
                                             type="button"
                                             variant="outline"
                                             onClick={() => setIsDeleteDialogOpen(true)}
-                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer"
+                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full md:w-auto"
                                         >
                                             <span className="relative z-10 flex items-center justify-center">
                                                 <Trash2 className="mr-2 h-4 w-4" />

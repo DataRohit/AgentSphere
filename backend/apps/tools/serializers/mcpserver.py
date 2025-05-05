@@ -1,11 +1,11 @@
 # Third-party imports
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.organization.models import Organization
-
 # Local application imports
+from apps.organization.models import Organization
 from apps.tools.models import MCPServer
 from apps.tools.serializers.mcptool import MCPToolSerializer
 
@@ -181,6 +181,7 @@ class MCPServerSerializer(serializers.ModelSerializer):
     )
 
     # Get the tools for the MCP server
+    @extend_schema_field(MCPToolSerializer(many=True))
     def get_tools(self, obj: MCPServer) -> list:
         """Get the tools for the MCP server.
 

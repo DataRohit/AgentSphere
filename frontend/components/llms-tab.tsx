@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -445,13 +444,17 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                                 </Button>
                             </div>
                             <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center">
                                     <CardTitle className="flex items-center text-lg font-semibold">
                                         <Server className="mr-2 h-5 w-5 text-(--primary)" />
                                         {llm.api_type.charAt(0).toUpperCase() +
                                             llm.api_type.slice(1)}
                                     </CardTitle>
-                                    <div className="flex flex-col space-y-1">
+                                </div>
+                            </CardHeader>
+                            <CardContent className="flex-1 px-6">
+                                <div className="space-y-3">
+                                    <div className="flex flex-col space-y-2">
                                         <div className="flex items-center text-xs text-(--muted-foreground)">
                                             <Calendar className="mr-1 h-3 w-3" />
                                             <span>
@@ -471,10 +474,6 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                                             </span>
                                         </div>
                                     </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex-1 px-6">
-                                <div className="space-y-3">
                                     <div className="flex items-center text-sm">
                                         <Cpu className="mr-2 h-4 w-4 text-(--primary)" />
                                         <p className="font-medium">Model:</p>
@@ -492,47 +491,39 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                                 </div>
                             </CardContent>
                             <CardFooter className="pt-2 border-t bg-(--muted)/10 pb-4 mt-auto">
-                                <div className="w-full flex flex-col space-y-3 xl:flex-row xl:justify-between xl:items-center xl:space-y-0">
-                                    <Badge
+                                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <Button
                                         variant="outline"
-                                        className="bg-(--primary)/10 text-(--primary) border-(--primary)/20 w-fit"
+                                        size="sm"
+                                        className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setLlmToUpdate(llm);
+                                            setIsUpdateDialogOpen(true);
+                                        }}
                                     >
-                                        {llm.model}
-                                    </Badge>
-                                    <div className="flex space-x-2 w-full xl:w-auto">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer flex-1 xl:flex-initial"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setLlmToUpdate(llm);
-                                                setIsUpdateDialogOpen(true);
-                                            }}
-                                        >
-                                            <span className="relative z-10 flex items-center justify-center w-full">
-                                                <Pencil className="mr-1 h-3 w-3" />
-                                                Update
-                                            </span>
-                                            <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer flex-1 xl:flex-initial"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setLlmToDelete(llm);
-                                                setIsDeleteDialogOpen(true);
-                                            }}
-                                        >
-                                            <span className="relative z-10 flex items-center justify-center w-full">
-                                                <Trash2 className="mr-1 h-3 w-3" />
-                                                Delete
-                                            </span>
-                                            <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                        </Button>
-                                    </div>
+                                        <span className="relative z-10 flex items-center justify-center w-full">
+                                            <Pencil className="mr-1 h-3 w-3" />
+                                            Update
+                                        </span>
+                                        <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setLlmToDelete(llm);
+                                            setIsDeleteDialogOpen(true);
+                                        }}
+                                    >
+                                        <span className="relative z-10 flex items-center justify-center w-full">
+                                            <Trash2 className="mr-1 h-3 w-3" />
+                                            Delete
+                                        </span>
+                                        <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                    </Button>
                                 </div>
                             </CardFooter>
                         </Card>
