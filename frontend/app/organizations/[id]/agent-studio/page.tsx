@@ -1,5 +1,7 @@
 "use client";
 
+import { useAppSelector } from "@/app/store/hooks";
+import { selectUser } from "@/app/store/slices/userSlice";
 import { AgentsTab } from "@/components/agents-tab";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { LLMsTab } from "@/components/llms-tab";
@@ -9,13 +11,86 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import Cookies from "js-cookie";
 import { ArrowLeft, Bot, Cpu, Server } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+interface Organization {
+    id: string;
+    name: string;
+    owner: {
+        id: string;
+        username: string;
+        email: string;
+    };
+}
 
 export default function AgentStudioPage() {
     const router = useRouter();
     const params = useParams();
     const organizationId = params.id as string;
+    const currentUser = useAppSelector(selectUser);
+    const [isOwner, setIsOwner] = useState<boolean | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const checkOwnership = async () => {
+            setIsLoading(true);
+            try {
+                const accessToken = Cookies.get("access_token");
+                if (!accessToken) {
+                    throw new Error("Authentication token not found");
+                }
+
+                const response = await fetch(
+                    `http://localhost:8080/api/v1/organizations/${organizationId}/`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to fetch organization details");
+                }
+
+                const organization = data.organization as Organization;
+
+                // Check if current user is the owner
+                if (currentUser && organization.owner) {
+                    setIsOwner(
+                        currentUser.id === organization.owner.id ||
+                            currentUser.email === organization.owner.email
+                    );
+                } else {
+                    setIsOwner(false);
+                }
+            } catch (err) {
+                console.error(err);
+                setIsOwner(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (currentUser) {
+            checkOwnership();
+        }
+    }, [organizationId, currentUser]);
+
+    const handleBackClick = () => {
+        if (isOwner) {
+            router.push(`/organizations/${organizationId}`);
+        } else {
+            router.push("/dashboard");
+        }
+    };
 
     return (
         <ProtectedRoute>
@@ -31,10 +106,10 @@ export default function AgentStudioPage() {
                         <Button
                             variant="ghost"
                             className="flex items-center text-(--muted-foreground) hover:text-(--foreground)"
-                            onClick={() => router.push(`/organizations/${organizationId}`)}
+                            onClick={handleBackClick}
                         >
                             <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Organization
+                            {isOwner ? "Back to Organization" : "Back to Dashboard"}
                         </Button>
 
                         <motion.div

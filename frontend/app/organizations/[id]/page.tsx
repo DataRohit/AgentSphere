@@ -212,6 +212,28 @@ export default function OrganizationDetailPage() {
                     throw new Error(data.error || "Failed to fetch organization details");
                 }
 
+                // Check if current user is the owner
+                if (
+                    currentUser &&
+                    data.organization.owner &&
+                    currentUser.id !== data.organization.owner.id &&
+                    currentUser.email !== data.organization.owner.email
+                ) {
+                    // User is not the owner, redirect to dashboard
+                    toast.error(
+                        "You don't have permission to access this page. Only organization owners can access organization details.",
+                        {
+                            style: {
+                                backgroundColor: "var(--destructive)",
+                                color: "white",
+                                border: "none",
+                            },
+                        }
+                    );
+                    router.push("/dashboard");
+                    return;
+                }
+
                 setOrganization(data.organization);
                 form.reset({
                     name: data.organization.name,
