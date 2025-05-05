@@ -24,23 +24,19 @@ export default function PasswordResetPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    // Check if user is already logged in
     useEffect(() => {
         const accessToken = Cookies.get("access_token");
         if (accessToken) {
-            // User is already logged in, redirect to dashboard
             router.push("/dashboard");
         }
     }, [router]);
 
-    // Reset progress when not submitting
     useEffect(() => {
         if (!isSubmitting) {
             setProgress(0);
         }
     }, [isSubmitting]);
 
-    // Simulate progress when submitting
     useEffect(() => {
         if (isSubmitting) {
             const timer = setTimeout(() => {
@@ -93,7 +89,6 @@ export default function PasswordResetPage() {
             }
 
             if (response.ok) {
-                // Set progress to 100% on success
                 setProgress(100);
 
                 toast.success("Password reset email sent successfully!", {
@@ -104,13 +99,11 @@ export default function PasswordResetPage() {
                     },
                 });
 
-                // Redirect to login page after a short delay
                 setTimeout(() => {
                     router.push("/auth/login");
                 }, 2000);
             } else {
                 if (result.errors) {
-                    // Handle field errors
                     if (result.errors.email && result.errors.email.length > 0) {
                         toast.error(`Email: ${result.errors.email[0]}`, {
                             style: {

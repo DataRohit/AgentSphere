@@ -14,7 +14,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
 import Cookies from "js-cookie";
-import { AlertCircle, Calendar, ExternalLink, Globe, Loader2, LogOut, Users } from "lucide-react";
+import {
+    AlertCircle,
+    Bot,
+    Calendar,
+    ExternalLink,
+    Globe,
+    Loader2,
+    LogOut,
+    Users,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { LeaveOrganizationDialog } from "./leave-organization-dialog";
@@ -44,6 +54,7 @@ export function OrganizationDetailsModal({
     onOpenChange,
     organization,
 }: OrganizationDetailsModalProps) {
+    const router = useRouter();
     const [members, setMembers] = useState<Member[]>([]);
     const [isLoadingMembers, setIsLoadingMembers] = useState(false);
     const [membersError, setMembersError] = useState<string | null>(null);
@@ -119,6 +130,11 @@ export function OrganizationDetailsModal({
 
     const handleLeaveSuccess = () => {
         onOpenChange(false);
+    };
+
+    const handleAgentStudioClick = () => {
+        onOpenChange(false);
+        router.push(`/organizations/${organization.id}/agent-studio`);
     };
 
     const renderMembersList = () => {
@@ -313,18 +329,32 @@ export function OrganizationDetailsModal({
                     </div>
 
                     <DialogFooter className="flex flex-col sm:flex-row sm:justify-between w-full gap-2">
-                        <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={() => setIsLeaveDialogOpen(true)}
-                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-(--destructive-foreground) dark:bg-(--destructive) dark:text-(--destructive-foreground) dark:border-(--destructive) h-10 cursor-pointer w-full"
-                        >
-                            <span className="relative z-10 flex items-center justify-center">
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Leave Organization
-                            </span>
-                            <span className="absolute inset-0 bg-(--destructive-foreground)/10 dark:bg-(--destructive-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleAgentStudioClick}
+                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--background) text-(--primary) hover:bg-(--primary)/10 h-10 cursor-pointer w-full sm:flex-1"
+                            >
+                                <span className="relative z-10 flex items-center justify-center">
+                                    <Bot className="mr-2 h-4 w-4" />
+                                    Agent Studio
+                                </span>
+                                <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={() => setIsLeaveDialogOpen(true)}
+                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-(--destructive-foreground) dark:bg-(--destructive) dark:text-(--destructive-foreground) dark:border-(--destructive) h-10 cursor-pointer w-full sm:flex-1"
+                            >
+                                <span className="relative z-10 flex items-center justify-center">
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Leave Organization
+                                </span>
+                                <span className="absolute inset-0 bg-(--destructive-foreground)/10 dark:bg-(--destructive-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                            </Button>
+                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

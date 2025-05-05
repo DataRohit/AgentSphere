@@ -123,7 +123,7 @@ class LLMCreateSerializer(serializers.ModelSerializer):
                 ) from None
 
             # Validate model selection for Gemini
-            if api_type == ApiType.GEMINI:
+            if api_type == ApiType.GOOGLE:
                 # Check if the model is in the Gemini model choices
                 if model not in [choice[0] for choice in GoogleGeminiModel.choices]:
                     # Raise a validation error

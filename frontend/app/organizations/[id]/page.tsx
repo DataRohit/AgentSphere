@@ -43,6 +43,7 @@ import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import {
     ArrowLeft,
+    Bot,
     Calendar,
     ExternalLink,
     Globe,
@@ -1006,15 +1007,30 @@ export default function OrganizationDetailPage() {
                                         </Button>
                                     </div>
                                 ) : (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setIsDeleteDialogOpen(true)}
-                                        className="h-9 px-4 text-sm font-medium flex items-center cursor-pointer text-(--destructive) border-(--border) hover:bg-(--destructive)/10"
-                                    >
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        Delete Organization
-                                    </Button>
+                                    <div className="flex space-x-3">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() =>
+                                                router.push(
+                                                    `/organizations/${organizationId}/agent-studio`
+                                                )
+                                            }
+                                            className="h-9 px-4 text-sm font-medium flex items-center cursor-pointer text-(--primary) border-(--border) hover:bg-(--primary)/10"
+                                        >
+                                            <Bot className="mr-2 h-4 w-4" />
+                                            Agent Studio
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsDeleteDialogOpen(true)}
+                                            className="h-9 px-4 text-sm font-medium flex items-center cursor-pointer text-(--destructive) border-(--border) hover:bg-(--destructive)/10"
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Delete Organization
+                                        </Button>
+                                    </div>
                                 )}
                             </CardFooter>
                         </Card>

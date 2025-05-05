@@ -75,10 +75,8 @@ export function LeaveOrganizationDialog({
                 onLeaveSuccess();
             }
 
-            // Redirect to dashboard and reload the page
             router.push("/dashboard");
 
-            // Use a small timeout to ensure the navigation starts before reloading
             setTimeout(() => {
                 window.location.reload();
             }, 100);

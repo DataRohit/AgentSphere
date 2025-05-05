@@ -110,7 +110,7 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
         # If both api_type and model are provided, validate their compatibility
         if api_type and model:
             # Validate model selection for Gemini
-            if api_type == ApiType.GEMINI:
+            if api_type == ApiType.GOOGLE:
                 # Check if the model is in the Gemini model choices
                 if model not in [choice[0] for choice in GoogleGeminiModel.choices]:
                     # Raise a validation error
@@ -138,7 +138,7 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
                     )
 
         # If changing to Gemini but not providing a key
-        elif api_type == ApiType.GEMINI and not api_key and not self.instance.get_api_key():
+        elif api_type == ApiType.GOOGLE and not api_key and not self.instance.get_api_key():
             # Raise a validation error
             raise serializers.ValidationError(
                 {

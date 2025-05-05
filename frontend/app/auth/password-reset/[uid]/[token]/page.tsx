@@ -30,20 +30,17 @@ export default function PasswordResetConfirmPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    // Clear auth cookies when visiting this page
     useEffect(() => {
         Cookies.remove("access_token");
         Cookies.remove("refresh_token");
     }, []);
 
-    // Reset progress when not submitting
     useEffect(() => {
         if (!isSubmitting) {
             setProgress(0);
         }
     }, [isSubmitting]);
 
-    // Simulate progress when submitting
     useEffect(() => {
         if (isSubmitting) {
             const timer = setTimeout(() => {
@@ -70,7 +67,6 @@ export default function PasswordResetConfirmPage() {
     });
 
     const onSubmit = async (data: PasswordResetConfirmFormValues) => {
-        // Check if passwords match before submitting
         if (data.new_password !== data.re_new_password) {
             toast.error("Passwords do not match", {
                 style: {
@@ -82,7 +78,6 @@ export default function PasswordResetConfirmPage() {
             return;
         }
 
-        // Check if password is at least 8 characters
         if (data.new_password.length < 8) {
             toast.error("Password must be at least 8 characters", {
                 style: {
@@ -121,7 +116,6 @@ export default function PasswordResetConfirmPage() {
             }
 
             if (response.ok) {
-                // Set progress to 100% on success
                 setProgress(100);
 
                 toast.success("Password reset successfully!", {
@@ -132,7 +126,6 @@ export default function PasswordResetConfirmPage() {
                     },
                 });
 
-                // Redirect to login page after a short delay
                 setTimeout(() => {
                     router.push("/auth/login");
                 }, 2000);
@@ -149,7 +142,6 @@ export default function PasswordResetConfirmPage() {
                         }
                     );
                 } else if (result.errors) {
-                    // Handle field errors
                     if (result.errors.new_password && result.errors.new_password.length > 0) {
                         toast.error(`New password: ${result.errors.new_password[0]}`, {
                             style: {
@@ -263,7 +255,6 @@ export default function PasswordResetConfirmPage() {
                                 <Form {...form}>
                                     <form
                                         onSubmit={(e) => {
-                                            // Check passwords match before form validation
                                             const data = form.getValues();
                                             if (data.new_password !== data.re_new_password) {
                                                 e.preventDefault();
@@ -277,7 +268,6 @@ export default function PasswordResetConfirmPage() {
                                                 return;
                                             }
 
-                                            // Check if password is at least 8 characters
                                             if (data.new_password.length < 8) {
                                                 e.preventDefault();
                                                 toast.error(

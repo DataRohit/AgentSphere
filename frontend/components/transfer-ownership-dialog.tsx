@@ -55,7 +55,6 @@ export function TransferOwnershipDialog({
                 throw new Error("Authentication token not found");
             }
 
-            // Determine which field to use (username, email, or user_id)
             const payload = member.email ? { email: member.email } : { username: member.username };
 
             const response = await fetch(
@@ -97,7 +96,6 @@ export function TransferOwnershipDialog({
                 onTransferSuccess();
             }
 
-            // Reload the page to reflect the changes
             setTimeout(() => {
                 window.location.reload();
             }, 100);
