@@ -94,12 +94,10 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
             let queryParams = new URLSearchParams();
 
             if (filterByUsername) {
-                // If viewing a specific user's agents (member detail page)
                 endpoint = "http://localhost:8080/api/v1/agents/list/";
                 queryParams.append("organization_id", organizationId);
                 queryParams.append("username", filterByUsername);
             } else {
-                // If viewing the user's own agents (agent studio)
                 endpoint = "http://localhost:8080/api/v1/agents/list/me/";
                 queryParams.append("organization_id", organizationId);
             }
@@ -147,12 +145,16 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
     }, [organizationId]);
 
     const handleAgentClick = (agentId: string, e: React.MouseEvent) => {
-        // If the click is on the update or delete button, don't navigate
         if ((e.target as HTMLElement).closest(".agent-action-button")) {
             e.stopPropagation();
             return;
         }
-        router.push(`/agents/${agentId}`);
+
+        if (filterByUsername) {
+            router.push(`/agents/${agentId}?referrer=member-detail&username=${filterByUsername}`);
+        } else {
+            router.push(`/agents/${agentId}`);
+        }
     };
 
     const handleUpdateClick = (agent: Agent, e: React.MouseEvent) => {
@@ -254,7 +256,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                                             {agent.name}
                                         </CardTitle>
                                     </div>
-                                    {!readOnly && (
+                                    {!readOnly && !filterByUsername && (
                                         <div className="absolute top-2 right-2 flex space-x-1">
                                             <div className="group">
                                                 <Button

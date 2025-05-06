@@ -85,13 +85,21 @@ export default function AgentDetailPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     useEffect(() => {
-        // Store the referrer path
         if (typeof window !== "undefined") {
-            const prevPath = document.referrer;
-            if (prevPath.includes("/agent-studio")) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const referrerParam = urlParams.get("referrer");
+
+            if (referrerParam === "member-detail") {
+                setReferrer("member-detail");
+            } else if (referrerParam === "agent-studio") {
                 setReferrer("agent-studio");
-            } else if (prevPath.includes("/organizations/")) {
-                setReferrer("organization");
+            } else {
+                const prevPath = document.referrer;
+                if (prevPath.includes("/agent-studio")) {
+                    setReferrer("agent-studio");
+                } else if (prevPath.includes("/organizations/")) {
+                    setReferrer("organization");
+                }
             }
         }
 
@@ -142,28 +150,22 @@ export default function AgentDetailPage() {
                     },
                 });
 
-                // Handle fallback navigation based on error
                 if (currentUser) {
-                    // Check if the user is viewing their own agent (from agent studio)
                     if (
                         agent?.user.id === currentUser.id ||
                         agent?.user.username === currentUser.username
                     ) {
-                        // Fallback to agent studio
                         router.push(`/organizations/${agent?.organization.id}/agent-studio`);
                     } else {
-                        // Fallback to user detail page (for org owners)
                         if (agent?.user.username) {
                             router.push(
                                 `/organizations/${agent?.organization.id}/members/${agent.user.username}`
                             );
                         } else {
-                            // Fallback to organization page if username is not available
                             router.push(`/organizations/${agent?.organization.id}`);
                         }
                     }
                 } else {
-                    // Fallback to dashboard if user is not logged in
                     router.push("/dashboard");
                 }
             } finally {
@@ -179,30 +181,24 @@ export default function AgentDetailPage() {
     const handleBackClick = () => {
         if (agent) {
             if (referrer === "agent-studio") {
-                // If came from agent studio, go back there
                 router.push(`/organizations/${agent.organization.id}/agent-studio`);
-            } else if (referrer === "organization") {
-                // If came from organization page, go back to member detail page
+            } else if (referrer === "member-detail" || referrer === "organization") {
                 if (agent.user.username) {
                     router.push(
                         `/organizations/${agent.organization.id}/members/${agent.user.username}`
                     );
                 } else {
-                    // Fallback to organization page if username is not available
                     router.push(`/organizations/${agent.organization.id}`);
                 }
             } else if (
                 currentUser &&
                 (agent.user.id === currentUser.id || agent.user.username === currentUser.username)
             ) {
-                // If viewing own agent but referrer unknown, default to agent studio
                 router.push(`/organizations/${agent.organization.id}/agent-studio`);
             } else {
-                // If viewing someone else's agent but referrer unknown, default to organization
                 router.push(`/organizations/${agent.organization.id}`);
             }
         } else {
-            // Fallback to dashboard
             router.push("/dashboard");
         }
     };
@@ -214,8 +210,6 @@ export default function AgentDetailPage() {
     const handleDeleteClick = () => {
         setIsDeleteDialogOpen(true);
     };
-
-    // Remove unused getInitials function
 
     if (isLoading) {
         return (
@@ -274,8 +268,8 @@ export default function AgentDetailPage() {
                                 Back to{" "}
                                 {referrer === "agent-studio"
                                     ? "Agent Studio"
-                                    : referrer === "organization"
-                                    ? "Organization"
+                                    : referrer === "member-detail" || referrer === "organization"
+                                    ? "User Details"
                                     : currentUser &&
                                       (agent.user.id === currentUser.id ||
                                           agent.user.username === currentUser.username)
@@ -313,8 +307,8 @@ export default function AgentDetailPage() {
                                     </div>
 
                                     {currentUser &&
-                                        (agent.user.id === currentUser.id ||
-                                            agent.user.username === currentUser.username) && (
+                                        agent &&
+                                        currentUser.username === agent.user.username && (
                                             <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                                                 <Button
                                                     variant="ghost"
@@ -496,7 +490,6 @@ export default function AgentDetailPage() {
                                     onOpenChange={(open) => {
                                         setIsUpdateDialogOpen(open);
                                         if (!open) {
-                                            // Refresh agent details after update
                                             const fetchAgentDetails = async () => {
                                                 try {
                                                     const accessToken = Cookies.get("access_token");
@@ -533,7 +526,6 @@ export default function AgentDetailPage() {
                                         }
                                     }}
                                     onUpdateSuccess={() => {
-                                        // Refresh agent details after update
                                         const fetchAgentDetails = async () => {
                                             try {
                                                 const accessToken = Cookies.get("access_token");
@@ -574,7 +566,6 @@ export default function AgentDetailPage() {
                                     open={isDeleteDialogOpen}
                                     onOpenChange={setIsDeleteDialogOpen}
                                     onDeleteSuccess={() => {
-                                        // Navigate back after deletion
                                         handleBackClick();
                                     }}
                                 />

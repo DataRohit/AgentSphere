@@ -245,7 +245,6 @@ export function CreateAgentDialog({
             if (!response.ok) {
                 const errorData = data as ApiErrorResponse;
                 if (errorData.errors) {
-                    // Handle field errors
                     Object.entries(errorData.errors).forEach(([field, errors]) => {
                         if (errors && errors.length > 0) {
                             if (field === "non_field_errors") {
@@ -297,7 +296,6 @@ export function CreateAgentDialog({
                 onCreateSuccess();
             }
 
-            // Redirect to the agent detail page
             if (data.agent && data.agent.id) {
                 router.push(`/agents/${data.agent.id}`);
             }

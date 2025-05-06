@@ -594,14 +594,17 @@ export default function MemberDetailsPage() {
                                                 </p>
                                             </CardHeader>
                                             <CardContent>
-                                                <AgentsTab organizationId={organizationId} />
+                                                <AgentsTab
+                                                    organizationId={organizationId}
+                                                    filterByUsername={member?.username}
+                                                    readOnly={true}
+                                                />
                                             </CardContent>
                                         </Card>
                                     </motion.div>
                                 </TabsContent>
                             </Tabs>
 
-                            {/* Remove Member Dialog */}
                             {isRemoveDialogOpen && (
                                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                                     <div className="bg-(--background) rounded-lg p-6 max-w-md w-full">
@@ -646,7 +649,6 @@ export default function MemberDetailsPage() {
                                 </div>
                             )}
 
-                            {/* Transfer Ownership Dialog */}
                             {member && (
                                 <TransferOwnershipDialog
                                     open={isTransferDialogOpen}

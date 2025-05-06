@@ -21,7 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
-import { Bot, Check, Loader2, Pencil, Server } from "lucide-react";
+import { Check, Loader2, Pencil, Server } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -256,21 +256,23 @@ export function UpdateAgentDialog({
                 mcp_server_ids: values.mcp_server_ids || [],
             };
 
-            const response = await fetch(`http://localhost:8080/api/v1/agents/${agent.id}/update/`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(payload),
-            });
+            const response = await fetch(
+                `http://localhost:8080/api/v1/agents/${agent.id}/update/`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
             const data = await response.json();
 
             if (!response.ok) {
                 const errorData = data as ApiErrorResponse;
                 if (errorData.errors) {
-                    // Handle field errors
                     Object.entries(errorData.errors).forEach(([field, errors]) => {
                         if (errors && errors.length > 0) {
                             if (field === "non_field_errors") {
