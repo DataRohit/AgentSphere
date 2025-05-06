@@ -427,7 +427,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                         className="h-full"
                     >
-                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative">
+                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative gap-2">
                             {!readOnly && (
                                 <div className="absolute top-2 right-2 flex space-x-1">
                                     <div className="group">
@@ -471,28 +471,8 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                                     </CardTitle>
                                 </div>
                             </CardHeader>
-                            <CardContent className="px-6 pb-6">
+                            <CardContent className="px-6 pb-4">
                                 <div className="space-y-3">
-                                    <div className="flex flex-col space-y-2">
-                                        <div className="flex items-center text-xs text-(--muted-foreground)">
-                                            <Calendar className="mr-1 h-3 w-3" />
-                                            <span>
-                                                Created{" "}
-                                                {formatDistanceToNow(new Date(llm.created_at), {
-                                                    addSuffix: true,
-                                                })}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center text-xs text-(--muted-foreground)">
-                                            <Calendar className="mr-1 h-3 w-3" />
-                                            <span>
-                                                Updated{" "}
-                                                {formatDistanceToNow(new Date(llm.updated_at), {
-                                                    addSuffix: true,
-                                                })}
-                                            </span>
-                                        </div>
-                                    </div>
                                     <div className="flex items-center text-sm">
                                         <Cpu className="mr-2 h-4 w-4 text-(--primary)" />
                                         <p className="font-medium">Model:</p>
@@ -509,6 +489,28 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                                     </div>
                                 </div>
                             </CardContent>
+                            <div className="mt-auto border-t bg-(--muted)/10 px-6 py-3">
+                                <div className="w-full flex flex-col space-y-1">
+                                    <div className="flex items-center text-xs text-(--muted-foreground)">
+                                        <Calendar className="mr-1 h-3 w-3" />
+                                        <span>
+                                            Created{" "}
+                                            {formatDistanceToNow(new Date(llm.created_at), {
+                                                addSuffix: true,
+                                            })}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center text-xs text-(--muted-foreground)">
+                                        <Calendar className="mr-1 h-3 w-3" />
+                                        <span>
+                                            Updated{" "}
+                                            {formatDistanceToNow(new Date(llm.updated_at), {
+                                                addSuffix: true,
+                                            })}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </Card>
                     </motion.div>
                 ))}
@@ -523,7 +525,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                     >
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogTrigger asChild>
-                                <Card className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group">
+                                <Card className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group gap-2">
                                     <div className="flex flex-col items-center text-center">
                                         <div className="h-12 w-12 rounded-full bg-(--primary)/10 flex items-center justify-center mb-4 group-hover:bg-(--primary)/20 transition-colors duration-300">
                                             <Plus className="h-6 w-6 text-(--primary)" />

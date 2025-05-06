@@ -14,6 +14,7 @@ import {
     Bot,
     Calendar,
     Cpu,
+    FileText,
     Loader2,
     MessageSquare,
     Pencil,
@@ -238,7 +239,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                         className="h-full cursor-pointer"
                         onClick={(e) => handleAgentClick(agent.id, e)}
                     >
-                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative">
+                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative gap-2">
                             <CardHeader className="pb-2">
                                 <div className="flex items-center justify-between w-full">
                                     <div className="flex items-center">
@@ -291,36 +292,25 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                             <CardContent className="px-6 pb-6">
                                 <div className="space-y-3">
                                     {agent.description && (
-                                        <div className="text-sm text-(--muted-foreground) mb-2 line-clamp-2">
-                                            {agent.description}
+                                        <div>
+                                            <div className="flex items-center text-sm">
+                                                <FileText className="mr-2 h-4 w-4 text-(--primary)" />
+                                                <p className="font-medium">Details:</p>
+                                            </div>
+                                            <div className="mt-1 text-sm text-(--muted-foreground) line-clamp-2">
+                                                {agent.description}
+                                            </div>
                                         </div>
                                     )}
-                                    <div className="flex flex-col space-y-2">
-                                        <div className="flex items-center text-xs text-(--muted-foreground)">
-                                            <Calendar className="mr-1 h-3 w-3" />
-                                            <span>
-                                                Created{" "}
-                                                {formatDistanceToNow(new Date(agent.created_at), {
-                                                    addSuffix: true,
-                                                })}
-                                            </span>
+
+                                    <div>
+                                        <div className="flex items-center text-sm">
+                                            <MessageSquare className="mr-2 h-4 w-4 text-(--primary)" />
+                                            <p className="font-medium">System Prompt:</p>
                                         </div>
-                                        <div className="flex items-center text-xs text-(--muted-foreground)">
-                                            <Calendar className="mr-1 h-3 w-3" />
-                                            <span>
-                                                Updated{" "}
-                                                {formatDistanceToNow(new Date(agent.updated_at), {
-                                                    addSuffix: true,
-                                                })}
-                                            </span>
+                                        <div className="mt-1 text-sm text-(--muted-foreground) line-clamp-2">
+                                            {agent.system_prompt}
                                         </div>
-                                    </div>
-                                    <div className="flex items-center text-sm">
-                                        <MessageSquare className="mr-2 h-4 w-4 text-(--primary)" />
-                                        <p className="font-medium">System Prompt:</p>
-                                    </div>
-                                    <div className="text-sm text-(--muted-foreground) line-clamp-2">
-                                        {agent.system_prompt}
                                     </div>
                                     <div className="flex items-center text-sm">
                                         <Cpu className="mr-2 h-4 w-4 text-(--primary)" />
@@ -342,6 +332,28 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                                     )}
                                 </div>
                             </CardContent>
+                            <div className="mt-auto border-t bg-(--muted)/10 px-6 py-3">
+                                <div className="w-full flex flex-col space-y-1">
+                                    <div className="flex items-center text-xs text-(--muted-foreground)">
+                                        <Calendar className="mr-1 h-3 w-3" />
+                                        <span>
+                                            Created{" "}
+                                            {formatDistanceToNow(new Date(agent.created_at), {
+                                                addSuffix: true,
+                                            })}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center text-xs text-(--muted-foreground)">
+                                        <Calendar className="mr-1 h-3 w-3" />
+                                        <span>
+                                            Updated{" "}
+                                            {formatDistanceToNow(new Date(agent.updated_at), {
+                                                addSuffix: true,
+                                            })}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </Card>
                     </motion.div>
                 ))}
@@ -355,7 +367,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                         className="h-full"
                     >
                         <Card
-                            className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group"
+                            className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group gap-2"
                             onClick={() => setIsCreateDialogOpen(true)}
                         >
                             <div className="flex flex-col items-center text-center">
