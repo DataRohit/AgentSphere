@@ -18,7 +18,7 @@ app_name = "llms"
 urlpatterns = [
     # LLM creation URL
     path("", LLMCreateView.as_view(), name="llm-create"),
-    # LLM list URL - get all LLMs within an organization (organization_id required)
+    # LLM list URL - get LLMs by user within an organization (organization_id and user_id required)
     path("list/", LLMListView.as_view(), name="llm-list"),
     # LLM list me URL - get all LLMs created by the current user (organization_id required)
     path("list/me/", LLMListMeView.as_view(), name="llm-list-me"),
