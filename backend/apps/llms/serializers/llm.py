@@ -66,7 +66,7 @@ class LLMSerializer(serializers.ModelSerializer):
 
     Attributes:
         id (UUID): The LLM's ID.
-        api_type (str): The API provider type (Gemini).
+        base_url (str): The base URL for the LLM API.
         model (str): The specific model name.
         max_tokens (int): Maximum tokens for generation.
         organization (dict): Organization details including id and name.
@@ -106,7 +106,7 @@ class LLMSerializer(serializers.ModelSerializer):
         # Fields to include in the serializer
         fields = [
             "id",
-            "api_type",
+            "base_url",
             "model",
             "max_tokens",
             "organization",
@@ -173,8 +173,6 @@ class LLMSerializer(serializers.ModelSerializer):
     def to_representation(self, instance: LLM) -> dict:
         """Convert the LLM instance to its serialized representation.
 
-        Override to handle the API type display name.
-
         Args:
             instance (LLM): The LLM instance.
 
@@ -182,14 +180,8 @@ class LLMSerializer(serializers.ModelSerializer):
             dict: The serialized representation.
         """
 
-        # Get the standard representation
-        representation = super().to_representation(instance)
-
-        # Add the API type display name
-        representation["api_type_display"] = instance.get_api_type_display()
-
-        # Return the representation
-        return representation
+        # Get the standard representation and return it
+        return super().to_representation(instance)
 
 
 # Define explicit LLM response schema for Swagger documentation
@@ -200,8 +192,7 @@ class LLMResponseSchema(serializers.Serializer):
 
     Attributes:
         id (UUID): The LLM's ID.
-        api_type (str): The API provider type (Gemini).
-        api_type_display (str): The human-readable display name for the API type.
+        base_url (str): The base URL for the LLM API.
         model (str): The specific model name.
         max_tokens (int): Maximum tokens for generation.
         organization (LLMOrganizationSerializer): Organization details including id and name.
@@ -215,19 +206,14 @@ class LLMResponseSchema(serializers.Serializer):
         help_text=_("Unique identifier for the LLM."),
     )
 
-    # API type field
-    api_type = serializers.CharField(
-        help_text=_("API provider type code (gemini)."),
-    )
-
-    # API type display field
-    api_type_display = serializers.CharField(
-        help_text=_("Human-readable display name for the API type."),
+    # Base URL field
+    base_url = serializers.URLField(
+        help_text=_("Base URL for the LLM API."),
     )
 
     # Model field
     model = serializers.CharField(
-        help_text=_("Specific model name for the selected API type."),
+        help_text=_("Specific model name to use with this LLM API."),
     )
 
     # Max tokens field

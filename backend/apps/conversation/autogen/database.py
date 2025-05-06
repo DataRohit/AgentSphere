@@ -280,7 +280,7 @@ def get_llm_details(agent_id: uuid.UUID | str) -> dict[str, Any] | None:
 
         # Get the LLM details
         return {
-            "api_type": agent.llm.api_type,
+            "base_url": agent.llm.base_url,
             "model": agent.llm.model,
             "max_tokens": agent.llm.max_tokens,
             "api_key": agent.llm.get_api_key(),
@@ -318,7 +318,7 @@ def get_llm_details_by_llm_id(llm_id: uuid.UUID | str) -> dict[str, Any] | None:
 
         # Get the LLM details
         return {
-            "api_type": llm.api_type,
+            "base_url": llm.base_url,
             "model": llm.model,
             "max_tokens": llm.max_tokens,
             "api_key": llm.get_api_key(),

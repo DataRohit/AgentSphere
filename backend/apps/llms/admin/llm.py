@@ -26,7 +26,7 @@ class LLMAdmin(admin.ModelAdmin):
     # Fields to display in the list view
     list_display = [
         "id",
-        "api_type",
+        "base_url",
         "model",
         "max_tokens",
         "has_api_key",
@@ -36,17 +36,17 @@ class LLMAdmin(admin.ModelAdmin):
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["api_type", "created_at", "organization"]
+    list_filter = ["base_url", "model", "created_at", "organization"]
 
     # Fields that can be searched
-    search_fields = ["id", "api_type", "model", "user__username", "user__email"]
+    search_fields = ["id", "base_url", "model", "user__username", "user__email"]
 
     # Field sets for the detail view
     fieldsets = [
         (
             _("Basic Information"),
             {
-                "fields": ["api_type", "model"],
+                "fields": ["base_url", "model"],
             },
         ),
         (

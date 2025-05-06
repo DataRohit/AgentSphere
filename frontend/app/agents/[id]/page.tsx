@@ -6,7 +6,6 @@ import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { DeleteAgentDialog } from "@/components/delete-agent-dialog";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UpdateAgentDialog } from "@/components/update-agent-dialog";
@@ -46,7 +45,7 @@ interface MCPServer {
 
 interface LLM {
     id: string;
-    api_type: string;
+    base_url: string;
     model: string;
 }
 
@@ -346,28 +345,21 @@ export default function AgentDetailPage() {
                                             Language Model
                                         </h3>
                                         <div className="p-4 rounded-md bg-(--secondary)">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs md:text-sm font-medium">
-                                                    API Type:
+                                            <div className="flex flex-col mb-2">
+                                                <span className="text-xs md:text-sm font-medium mb-1">
+                                                    Base URL:
                                                 </span>
-                                                <Badge
-                                                    variant="outline"
-                                                    className="bg-(--primary)/10 text-(--primary) border-(--primary)/20"
-                                                >
-                                                    {agent.llm.api_type.charAt(0).toUpperCase() +
-                                                        agent.llm.api_type.slice(1)}
-                                                </Badge>
+                                                <span className="text-xs md:text-sm text-(--muted-foreground) truncate md:normal-case">
+                                                    {agent.llm.base_url}
+                                                </span>
                                             </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs md:text-sm font-medium">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs md:text-sm font-medium mb-1">
                                                     Model:
                                                 </span>
-                                                <Badge
-                                                    variant="outline"
-                                                    className="bg-(--primary)/10 text-(--primary) border-(--primary)/20"
-                                                >
+                                                <span className="text-xs md:text-sm text-(--muted-foreground)">
                                                     {agent.llm.model}
-                                                </Badge>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -378,16 +370,16 @@ export default function AgentDetailPage() {
                                             Timestamps
                                         </h3>
                                         <div className="p-4 rounded-md bg-(--secondary)">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs md:text-sm font-medium">
+                                            <div className="flex flex-col mb-2">
+                                                <span className="text-xs md:text-sm font-medium mb-1">
                                                     Created:
                                                 </span>
                                                 <span className="text-xs md:text-sm text-(--muted-foreground)">
                                                     {new Date(agent.created_at).toLocaleString()}
                                                 </span>
                                             </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs md:text-sm font-medium">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs md:text-sm font-medium mb-1">
                                                     Updated:
                                                 </span>
                                                 <span className="text-xs md:text-sm text-(--muted-foreground)">

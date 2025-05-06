@@ -11,16 +11,9 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
-import { Key, Loader2, Pencil } from "lucide-react";
+import { Cpu, Globe, Key, Loader2, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -28,21 +21,16 @@ import { z } from "zod";
 
 interface LLM {
     id: string;
-    api_type: string;
+    base_url: string;
     model: string;
     max_tokens: number;
     created_at: string;
 }
 
-interface LLMModel {
-    id: string;
-    name: string;
-}
-
 interface ApiErrorResponse {
     status_code: number;
     errors?: {
-        api_type?: string[];
+        base_url?: string[];
         model?: string[];
         api_key?: string[];
         max_tokens?: string[];
@@ -53,7 +41,7 @@ interface ApiErrorResponse {
 }
 
 const updateLLMSchema = z.object({
-    api_type: z.string().min(1, "API type is required"),
+    base_url: z.string().url("Base URL must be a valid URL").min(1, "Base URL is required"),
     model: z.string().min(1, "Model is required"),
     api_key: z.string().min(1, "API key is required"),
     max_tokens: z.number().int().positive("Max tokens must be a positive number"),
@@ -75,59 +63,16 @@ export function UpdateLLMDialog({
     onUpdateSuccess,
 }: UpdateLLMDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [apiTypes] = useState<string[]>(["google"]);
-    const [models, setModels] = useState<LLMModel[]>([]);
-    const [selectedApiType, setSelectedApiType] = useState<string>(llm.api_type);
-    const [isLoadingModels, setIsLoadingModels] = useState(false);
 
     const form = useForm<UpdateLLMValues>({
         resolver: zodResolver(updateLLMSchema),
         defaultValues: {
-            api_type: llm.api_type,
+            base_url: llm.base_url,
             model: llm.model,
             api_key: "",
             max_tokens: llm.max_tokens,
         },
     });
-
-    const fetchModels = async (apiType: string) => {
-        setIsLoadingModels(true);
-        try {
-            const accessToken = Cookies.get("access_token");
-            if (!accessToken) {
-                throw new Error("Authentication token not found");
-            }
-
-            const response = await fetch(`http://localhost:8080/api/v1/llms/models/${apiType}/`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to fetch models");
-            }
-
-            setModels(data.models || []);
-        } catch (err) {
-            const errorMessage =
-                err instanceof Error ? err.message : "An error occurred while fetching models";
-            toast.error(errorMessage, {
-                style: {
-                    backgroundColor: "var(--destructive)",
-                    color: "white",
-                    border: "none",
-                },
-            });
-            setModels([]);
-        } finally {
-            setIsLoadingModels(false);
-        }
-    };
 
     const onSubmit = async (values: UpdateLLMValues) => {
         setIsSubmitting(true);
@@ -145,7 +90,7 @@ export function UpdateLLMDialog({
             }
 
             const payload = {
-                api_type: values.api_type,
+                base_url: values.base_url,
                 model: values.model,
                 api_key: values.api_key,
                 max_tokens: values.max_tokens,
@@ -251,26 +196,13 @@ export function UpdateLLMDialog({
     useEffect(() => {
         if (open) {
             form.reset({
-                api_type: llm.api_type,
+                base_url: llm.base_url,
                 model: llm.model,
                 api_key: "",
                 max_tokens: llm.max_tokens,
             });
-            setSelectedApiType(llm.api_type);
         }
     }, [open, llm, form]);
-
-    useEffect(() => {
-        if (open && selectedApiType) {
-            fetchModels(selectedApiType);
-        }
-    }, [open, selectedApiType]);
-
-    const handleApiTypeChange = (value: string) => {
-        setSelectedApiType(value);
-        form.setValue("api_type", value);
-        form.setValue("model", "");
-    };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -287,31 +219,21 @@ export function UpdateLLMDialog({
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
                             control={form.control}
-                            name="api_type"
+                            name="base_url"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>API Type</FormLabel>
-                                    <Select
-                                        onValueChange={(value) => handleApiTypeChange(value)}
-                                        defaultValue={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="bg-(--secondary) w-full">
-                                                <SelectValue placeholder="Select API type" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent className="bg-(--background)">
-                                            {apiTypes.map((type) => (
-                                                <SelectItem
-                                                    key={type}
-                                                    value={type}
-                                                    className="hover:bg-(--secondary) focus:bg-(--secondary)"
-                                                >
-                                                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <FormLabel>Base URL</FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Input
+                                                type="url"
+                                                placeholder="https://api.example.com"
+                                                className="bg-(--secondary) pr-10"
+                                                {...field}
+                                            />
+                                            <Globe className="absolute right-3 top-2.5 h-4 w-4 text-(--muted-foreground) pointer-events-none" />
+                                        </div>
+                                    </FormControl>
                                 </FormItem>
                             )}
                         />
@@ -322,34 +244,17 @@ export function UpdateLLMDialog({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Model</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        disabled={!selectedApiType || isLoadingModels}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="bg-(--secondary) w-full">
-                                                <SelectValue
-                                                    placeholder={
-                                                        isLoadingModels
-                                                            ? "Loading models..."
-                                                            : "Select model"
-                                                    }
-                                                />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent className="bg-(--background)">
-                                            {models.map((model) => (
-                                                <SelectItem
-                                                    key={model.id}
-                                                    value={model.id}
-                                                    className="hover:bg-(--secondary) focus:bg-(--secondary)"
-                                                >
-                                                    {model.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Input
+                                                type="text"
+                                                placeholder="e.g., gpt-4, gemini-pro"
+                                                className="bg-(--secondary) pr-10"
+                                                {...field}
+                                            />
+                                            <Cpu className="absolute right-3 top-2.5 h-4 w-4 text-(--muted-foreground) pointer-events-none" />
+                                        </div>
+                                    </FormControl>
                                 </FormItem>
                             )}
                         />

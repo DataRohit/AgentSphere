@@ -4,13 +4,13 @@ import uuid
 
 # Third-party imports
 from autogen_core.models import UserMessage
+from autogen_ext.models.openai import OpenAIChatCompletionClient
 from celery import shared_task
 from django.db import transaction
 from django.db.models import QuerySet
 
 # Local application imports
 from apps.chats.models import GroupChat, Message, SingleChat
-from apps.conversation.autogen import api_type_to_client
 from apps.conversation.models import Session
 from apps.llms.models import LLM
 
@@ -295,9 +295,10 @@ The summary should be comprehensive enough to understand the conversation withou
         # Define the async function
         async def _generate_summary_async():
             # Get the client for the LLM
-            model_client = api_type_to_client[llm.api_type](
+            model_client = OpenAIChatCompletionClient(
                 model=llm.model,
-                api_key=llm.get_api_key(),
+                base_url=llm.base_url,
+                api_key=llm.get_api_key() or "placeholder",
                 max_tokens=32_768,
             )
 

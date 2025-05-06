@@ -41,7 +41,7 @@ interface MCPServer {
 
 interface LLM {
     id: string;
-    api_type: string;
+    base_url: string;
     model: string;
 }
 
@@ -315,10 +315,8 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                                     <div className="flex items-center text-sm">
                                         <Cpu className="mr-2 h-4 w-4 text-(--primary)" />
                                         <p className="font-medium">LLM:</p>
-                                        <p className="ml-2 text-(--muted-foreground)">
-                                            {agent.llm.api_type.charAt(0).toUpperCase() +
-                                                agent.llm.api_type.slice(1)}{" "}
-                                            / {agent.llm.model}
+                                        <p className="ml-2 text-(--muted-foreground) truncate">
+                                            {agent.llm.model}
                                         </p>
                                     </div>
                                     {agent.mcp_servers.length > 0 && (

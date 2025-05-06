@@ -42,7 +42,7 @@ interface MCPServer {
 
 interface LLM {
     id: string;
-    api_type: string;
+    base_url: string;
     model: string;
 }
 
@@ -431,9 +431,7 @@ export function UpdateAgentDialog({
                                                         value={llm.id}
                                                         className="hover:bg-(--secondary) focus:bg-(--secondary)"
                                                     >
-                                                        {llm.api_type.charAt(0).toUpperCase() +
-                                                            llm.api_type.slice(1)}{" "}
-                                                        / {llm.model}
+                                                        {llm.model}
                                                     </SelectItem>
                                                 ))
                                             )}

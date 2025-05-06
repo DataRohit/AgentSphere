@@ -4,7 +4,7 @@ from rest_framework import serializers, status
 
 # Local application imports
 from apps.common.serializers import GenericResponseSerializer
-from apps.llms.models import LLM, ApiType, GoogleGeminiModel
+from apps.llms.models import LLM
 from apps.llms.serializers.llm import LLMResponseSchema
 
 
@@ -16,9 +16,9 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
     can update the LLM.
 
     Attributes:
-        api_type (CharField): The API provider type (Gemini).
+        base_url (URLField): The base URL for the LLM API.
         model (CharField): The specific model name.
-        api_key (CharField): API key for authentication (required for Gemini).
+        api_key (CharField): API key for authentication.
         max_tokens (PositiveIntegerField): Maximum tokens for generation.
 
     Meta:
@@ -42,7 +42,7 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
 
         # Fields that can be updated
         fields = [
-            "api_type",
+            "base_url",
             "model",
             "api_key",
             "max_tokens",
@@ -50,35 +50,24 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
 
         # Extra kwargs
         extra_kwargs = {
-            "api_type": {"required": False},
+            "base_url": {"required": False},
             "model": {"required": False},
             "api_key": {"required": False, "write_only": True},
             "max_tokens": {"required": False},
         }
 
-    # Validate the API type
-    def validate_api_type(self, value: str) -> str:
-        """Validate the API type.
+    # Validate the base URL
+    def validate_base_url(self, value: str) -> str:
+        """Validate the base URL.
 
         Args:
-            value (str): The API type value.
+            value (str): The base URL value.
 
         Returns:
-            str: The validated API type.
-
-        Raises:
-            serializers.ValidationError: If the API type is invalid.
+            str: The validated base URL.
         """
 
-        # Check if the API type is valid
-        if value not in [choice[0] for choice in ApiType.choices]:
-            # Error message
-            error_message = _("Invalid API type.")
-
-            # Raise a validation error
-            raise serializers.ValidationError(error_message) from None
-
-        # Return the validated API type
+        # Return the validated base URL
         return value
 
     # Validate the model
@@ -86,8 +75,8 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
         """Validate the data before updating.
 
         This method validates that:
-        1. The model is compatible with the selected API type.
-        2. API key is provided when using Gemini API type.
+        1. The model name is provided if updating it.
+        2. API key is provided if not already stored.
 
         Args:
             attrs (dict): The attributes to validate.
@@ -100,49 +89,24 @@ class LLMUpdateSerializer(serializers.ModelSerializer):
         """
 
         # Get the submitted values or use the current instance values
-        api_type = attrs.get(
-            "api_type",
-            self.instance.api_type if self.instance else None,
-        )
         model = attrs.get("model", self.instance.model if self.instance else None)
         api_key = attrs.get("api_key")
 
-        # If both api_type and model are provided, validate their compatibility
-        if api_type and model:
-            # Validate model selection for Gemini
-            if api_type == ApiType.GOOGLE:
-                # Check if the model is in the Gemini model choices
-                if model not in [choice[0] for choice in GoogleGeminiModel.choices]:
-                    # Raise a validation error
-                    raise serializers.ValidationError(
-                        {
-                            "model": [
-                                _(
-                                    "Invalid model for Gemini API. Choose from: {}",
-                                ).format(
-                                    ", ".join(
-                                        [choice[0] for choice in GoogleGeminiModel.choices],
-                                    ),
-                                ),
-                            ],
-                        },
-                    )
+        # Validate model name if provided
+        if "model" in attrs and not model:
+            # Raise a validation error if model is empty
+            raise serializers.ValidationError(
+                {
+                    "model": [_("Model name is required.")],
+                },
+            )
 
-                # If API type is Gemini and api_key is not provided check if there's an existing API key
-                if not api_key and not self.instance.get_api_key():
-                    # Raise a validation error
-                    raise serializers.ValidationError(
-                        {
-                            "api_key": [_("API key is required for Gemini API.")],
-                        },
-                    )
-
-        # If changing to Gemini but not providing a key
-        elif api_type == ApiType.GOOGLE and not api_key and not self.instance.get_api_key():
+        # If API key is not provided, check if there's an existing API key
+        if "api_key" in attrs and not api_key and not self.instance.get_api_key():
             # Raise a validation error
             raise serializers.ValidationError(
                 {
-                    "api_key": [_("API key is required for Gemini API.")],
+                    "api_key": [_("API key is required.")],
                 },
             )
 
@@ -200,18 +164,18 @@ class LLMUpdateErrorResponseSerializer(GenericResponseSerializer):
         """LLM Update Errors detail serializer.
 
         Attributes:
-            api_type (list): Errors related to the API type field.
+            base_url (list): Errors related to the base URL field.
             model (list): Errors related to the model field.
             api_key (list): Errors related to the API key field.
             max_tokens (list): Errors related to the max tokens field.
             non_field_errors (list): Non-field specific errors.
         """
 
-        # API type field
-        api_type = serializers.ListField(
+        # Base URL field
+        base_url = serializers.ListField(
             child=serializers.CharField(),
             required=False,
-            help_text=_("Errors related to the API type field."),
+            help_text=_("Errors related to the base URL field."),
         )
 
         # Model field

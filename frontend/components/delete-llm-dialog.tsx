@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 interface LLM {
     id: string;
-    api_type: string;
+    base_url: string;
     model: string;
     max_tokens: number;
     created_at: string;
@@ -126,12 +126,12 @@ export function DeleteLLMDialog({
 
                     <div className="space-y-4">
                         <div className="flex justify-between gap-2">
-                            <span className="font-medium">API Type:</span>
+                            <span className="font-medium">Base URL:</span>
                             <Badge
                                 variant="outline"
                                 className="bg-(--primary)/10 text-(--primary) border-(--primary)/20 w-fit"
                             >
-                                {llm.api_type.charAt(0).toUpperCase() + llm.api_type.slice(1)}
+                                {llm.base_url}
                             </Badge>
                         </div>
                         <div className="flex justify-between gap-2">

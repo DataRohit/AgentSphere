@@ -344,9 +344,12 @@ export function MCPServersTab({
                         {!readOnly && (
                             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                 <DialogTrigger asChild>
-                                    <Button className="font-medium">
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add MCP Server
+                                    <Button className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer">
+                                        <span className="relative z-10 flex items-center">
+                                            <Plus className="mr-2 h-4 w-4" />
+                                            Add MCP Server
+                                        </span>
+                                        <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                     </Button>
                                 </DialogTrigger>
                                 {renderCreateMCPServerDialog()}

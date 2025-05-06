@@ -14,10 +14,10 @@ from autogen_agentchat.messages import TextMessage, UserInputRequestedEvent
 from autogen_agentchat.teams import RoundRobinGroupChat, SelectorGroupChat
 from autogen_core.memory import ListMemory, MemoryContent
 from autogen_core.model_context import BufferedChatCompletionContext
+from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 # Local application imports
 from apps.agents.models import Agent
-from apps.conversation.autogen.clients import api_type_to_client
 from apps.conversation.autogen.database import get_llm_details, get_llm_details_by_llm_id
 from apps.conversation.autogen.mcp import get_mcp_tools_for_agent
 from apps.conversation.models import Session
@@ -99,15 +99,15 @@ async def setup_agent_memory(
 
 
 def create_chat_completion_client(
-    llm_type: str,
+    base_url: str,
     llm_model: str,
     llm_api_key: str | None = None,
     llm_max_tokens: int | None = None,
 ) -> Any:
-    """Create a chat completion client based on LLM type.
+    """Create a chat completion client using OpenAIChatCompletionClient.
 
     Args:
-        llm_type (str): The type of LLM (ollama, google, etc.).
+        base_url (str): The base URL for the LLM API.
         llm_model (str): The model name.
         llm_api_key (str | None): The API key for the LLM.
         llm_max_tokens (int | None): Max tokens for completion.
@@ -116,20 +116,16 @@ def create_chat_completion_client(
         Any: A chat completion client instance.
     """
 
-    # If the LLM type is in the mapping
-    if llm_type in api_type_to_client:
-        # Get the client class from the mapping
-        client_class = api_type_to_client[llm_type]
+    # Create the chat completion client
+    with suppress(Exception):
+        return OpenAIChatCompletionClient(
+            model=llm_model,
+            base_url=base_url,
+            api_key=llm_api_key or "placeholder",
+            max_tokens=llm_max_tokens,
+        )
 
-        # Create the chat completion client
-        with suppress(Exception):
-            return client_class(
-                model=llm_model,
-                api_key=llm_api_key,
-                max_tokens=llm_max_tokens,
-            )
-
-    # Return None
+    # Return None if there was an exception
     return None
 
 
@@ -165,13 +161,13 @@ async def setup_autogen_agents(agents: list[Agent], previous_messages: list[dict
                 continue
 
             # Extract LLM details
-            llm_type = llm_details["api_type"]
+            base_url = llm_details["base_url"]
             llm_model = llm_details["model"]
             llm_max_tokens = llm_details["max_tokens"]
             llm_api_key = llm_details["api_key"]
 
             # Create the chat completion client
-            chat_completion_client = create_chat_completion_client(llm_type, llm_model, llm_api_key, llm_max_tokens)
+            chat_completion_client = create_chat_completion_client(base_url, llm_model, llm_api_key, llm_max_tokens)
 
             # If the chat completion client is not created
             if not chat_completion_client:
@@ -262,7 +258,7 @@ async def _create_chat_team(
 
             # Initialize the model client
             model_client = create_chat_completion_client(
-                llm_details["api_type"],
+                llm_details["base_url"],
                 llm_details["model"],
                 llm_details["api_key"],
                 llm_details["max_tokens"],

@@ -64,7 +64,7 @@ class AgentLLMSerializer(serializers.Serializer):
 
     Attributes:
         id (UUID): LLM's unique identifier.
-        api_type (str): Type of API used for this LLM.
+        base_url (str): Base URL for the LLM API.
         model (str): Model name for this LLM.
     """
 
@@ -74,9 +74,9 @@ class AgentLLMSerializer(serializers.Serializer):
         read_only=True,
     )
 
-    # API type field
-    api_type = serializers.CharField(
-        help_text=_("Type of API used for this LLM."),
+    # Base URL field
+    base_url = serializers.URLField(
+        help_text=_("Base URL for the LLM API."),
         read_only=True,
     )
 
@@ -168,7 +168,7 @@ class AgentSerializer(serializers.ModelSerializer):
         avatar_url (str): The URL to the agent's avatar.
         organization (dict): Organization details including id and name.
         user (dict): User details including id, username, and email.
-        llm (dict): LLM details including id, api_type, and model.
+        llm (dict): LLM details including id, base_url, and model.
         created_at (datetime): The date and time the agent was created.
         updated_at (datetime): The date and time the agent was last updated.
 
@@ -309,7 +309,7 @@ class AgentSerializer(serializers.ModelSerializer):
             obj (Agent): The agent instance.
 
         Returns:
-            dict: The LLM details including id, api_type, and model.
+            dict: The LLM details including id, base_url, and model.
         """
 
         # If the agent has an LLM
@@ -317,7 +317,7 @@ class AgentSerializer(serializers.ModelSerializer):
             # Return the LLM details with string UUID
             return {
                 "id": str(obj.llm.id),
-                "api_type": obj.llm.api_type,
+                "base_url": obj.llm.base_url,
                 "model": obj.llm.model,
             }
 
@@ -386,7 +386,7 @@ class AgentResponseSchema(serializers.Serializer):
         avatar_url (str): The URL to the agent's avatar.
         organization (AgentOrganizationSerializer): Organization details including id and name.
         user (UserSerializer): User details including id, username, and email.
-        llm (LLMSerializer): LLM details including id, api_type, and model.
+        llm (LLMSerializer): LLM details including id, base_url, and model.
         mcp_servers (list): List of MCP servers this agent is connected to.
         created_at (datetime): The date and time the agent was created.
         updated_at (datetime): The date and time the agent was last updated.

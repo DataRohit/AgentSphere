@@ -29,7 +29,7 @@ interface MCPServer {
 
 interface LLM {
     id: string;
-    api_type: string;
+    base_url: string;
     model: string;
 }
 
@@ -207,11 +207,7 @@ export function DeleteAgentDialog({
                         </p>
                         <p className="text-sm mb-1">
                             <span className="font-medium">LLM:</span>{" "}
-                            <span className="text-(--muted-foreground)">
-                                {agent.llm.api_type.charAt(0).toUpperCase() +
-                                    agent.llm.api_type.slice(1)}{" "}
-                                / {agent.llm.model}
-                            </span>
+                            <span className="text-(--muted-foreground)">{agent.llm.model}</span>
                         </p>
                         <p className="text-sm">
                             <span className="font-medium">MCP Servers:</span>{" "}

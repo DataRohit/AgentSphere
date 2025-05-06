@@ -4,7 +4,7 @@ from rest_framework import serializers, status
 
 # Local application imports
 from apps.common.serializers import GenericResponseSerializer
-from apps.llms.models import LLM, ApiType, GoogleGeminiModel
+from apps.llms.models import LLM
 from apps.llms.serializers.llm import LLMResponseSchema
 from apps.organization.models import Organization
 
@@ -14,14 +14,14 @@ class LLMCreateSerializer(serializers.ModelSerializer):
     """LLM creation serializer.
 
     This serializer handles the creation of new LLM configurations. It validates that
-    the user is a member of the specified organization and ensures the provided model
-    is valid for the selected API type.
+    the user is a member of the specified organization and ensures the required fields
+    are provided.
 
     Attributes:
         organization_id (UUIDField): The ID of the organization to associate the LLM with.
-        api_type (CharField): The API provider type (Gemini).
+        base_url (URLField): The base URL for the LLM API.
         model (CharField): The specific model name.
-        api_key (CharField): API key for authentication (required for Gemini).
+        api_key (CharField): API key for authentication.
         max_tokens (PositiveIntegerField): Maximum tokens for generation.
 
     Meta:
@@ -31,8 +31,8 @@ class LLMCreateSerializer(serializers.ModelSerializer):
 
     Raises:
         serializers.ValidationError: If user is not a member of the organization.
-        serializers.ValidationError: If the model is not valid for the API type.
-        serializers.ValidationError: If API key is missing for Gemini.
+        serializers.ValidationError: If the model is not provided.
+        serializers.ValidationError: If API key is missing.
 
     Returns:
         LLM: The newly created LLM instance.
@@ -60,7 +60,7 @@ class LLMCreateSerializer(serializers.ModelSerializer):
         # Fields to include in the serializer
         fields = [
             "organization_id",
-            "api_type",
+            "base_url",
             "model",
             "api_key",
             "max_tokens",
@@ -68,9 +68,9 @@ class LLMCreateSerializer(serializers.ModelSerializer):
 
         # Extra kwargs
         extra_kwargs = {
-            "api_type": {"required": True},
+            "base_url": {"required": True},
             "model": {"required": True},
-            "api_key": {"required": False, "write_only": True},
+            "api_key": {"required": True, "write_only": True},
             "max_tokens": {"required": False},
         }
 
@@ -80,8 +80,8 @@ class LLMCreateSerializer(serializers.ModelSerializer):
 
         This method validates that:
         1. The user is a member of the specified organization.
-        2. The model is valid for the selected API type.
-        3. API key is provided for Gemini API type.
+        2. The model name is provided.
+        3. API key is provided.
         4. The user has not exceeded the maximum number of LLM configurations they can create.
 
         Args:
@@ -100,8 +100,7 @@ class LLMCreateSerializer(serializers.ModelSerializer):
         # Get the organization ID
         organization_id = attrs.get("organization_id")
 
-        # Get the API type and model
-        api_type = attrs.get("api_type")
+        # Get the model name
         model = attrs.get("model")
 
         # Get the API key
@@ -122,31 +121,19 @@ class LLMCreateSerializer(serializers.ModelSerializer):
                     },
                 ) from None
 
-            # Validate model selection for Gemini
-            if api_type == ApiType.GOOGLE:
-                # Check if the model is in the Gemini model choices
-                if model not in [choice[0] for choice in GoogleGeminiModel.choices]:
-                    # Raise a validation error
-                    raise serializers.ValidationError(
-                        {
-                            "model": [
-                                _(
-                                    "Invalid model for Gemini API. Choose from: {}",
-                                ).format(
-                                    ", ".join(
-                                        [choice[0] for choice in GoogleGeminiModel.choices],
-                                    ),
-                                ),
-                            ],
-                        },
-                    ) from None
+            # Validate model name is provided
+            if not model:
+                # Raise a validation error
+                raise serializers.ValidationError(
+                    {"model": [_("Model name is required.")]},
+                ) from None
 
-                # Check if API key is provided for Gemini
-                if not api_key:
-                    # Raise a validation error
-                    raise serializers.ValidationError(
-                        {"api_key": [_("API key is required for Gemini API.")]},
-                    ) from None
+            # Check if API key is provided
+            if not api_key:
+                # Raise a validation error
+                raise serializers.ValidationError(
+                    {"api_key": [_("API key is required.")]},
+                ) from None
 
             # Store the organization in attrs for later use
             attrs["organization"] = organization
@@ -251,7 +238,7 @@ class LLMCreateErrorResponseSerializer(GenericResponseSerializer):
 
         Attributes:
             organization_id (list): Errors related to the organization ID field.
-            api_type (list): Errors related to the API type field.
+            base_url (list): Errors related to the base URL field.
             model (list): Errors related to the model field.
             api_key (list): Errors related to the API key field.
             max_tokens (list): Errors related to the max tokens field.
@@ -265,11 +252,11 @@ class LLMCreateErrorResponseSerializer(GenericResponseSerializer):
             help_text=_("Errors related to the organization ID field."),
         )
 
-        # API type field
-        api_type = serializers.ListField(
+        # Base URL field
+        base_url = serializers.ListField(
             child=serializers.CharField(),
             required=False,
-            help_text=_("Errors related to the API type field."),
+            help_text=_("Errors related to the base URL field."),
         )
 
         # Model field

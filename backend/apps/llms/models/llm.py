@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 # Local application imports
 from apps.common.models.timestamped import TimeStampedModel
 from apps.common.utils.vault import delete_api_key, get_api_key, store_api_key
-from apps.llms.models.choices import ApiType, GoogleGeminiModel
 from apps.organization.models import Organization
 
 # Get the User model
@@ -19,10 +18,10 @@ class LLM(TimeStampedModel):
     """Model for LLM configurations in the system.
 
     This model stores the configuration details for language models including
-    API type, model name, API key, and token limits.
+    base URL, model name, API key, and token limits.
 
     Attributes:
-        api_type (CharField): The API provider type (Gemini).
+        base_url (URLField): The base URL for the LLM API.
         model (CharField): The specific model name.
         api_key (CharField): Temporary field for API key input (not stored).
         max_tokens (PositiveIntegerField): Maximum tokens for generation.
@@ -36,18 +35,19 @@ class LLM(TimeStampedModel):
         db_table (str): The database table name.
     """
 
-    # API type (Gemini)
-    api_type = models.CharField(
-        verbose_name=_("API Type"),
-        max_length=10,
-        choices=ApiType.choices,
+    # Base URL for the LLM API
+    base_url = models.URLField(
+        verbose_name=_("Base URL"),
+        max_length=255,
+        help_text=_("The base URL for the LLM API"),
+        default="https://api.openai.com/v1",
     )
 
     # Model name
     model = models.CharField(
         verbose_name=_("Model"),
         max_length=100,
-        help_text=_("The specific model name for the selected API type"),
+        help_text=_("The specific model name to use with this LLM API"),
     )
 
     # API key for authentication - not stored in DB, temporary field for input
@@ -102,8 +102,8 @@ class LLM(TimeStampedModel):
         # Human-readable plural model name
         verbose_name_plural = _("LLMs")
 
-        # Default ordering by API type and model
-        ordering = ["api_type", "model"]
+        # Default ordering by model name
+        ordering = ["model"]
 
         # Specify the database table name
         db_table = "llms_llm"
@@ -116,8 +116,8 @@ class LLM(TimeStampedModel):
             str: A string representing the LLM configuration.
         """
 
-        # Return a formatted string with API type and model
-        return f"{self.get_api_type_display()} - {self.model}"
+        # Return a formatted string with model name
+        return f"{self.model}"
 
     # Save method to handle API key storage in Vault
     def save(self, *args, **kwargs):
@@ -183,37 +183,23 @@ class LLM(TimeStampedModel):
         # Call the parent delete method
         super().delete(*args, **kwargs)
 
-    # Clean method to validate model selection based on API type
+    # Clean method to validate model and API key
     def clean(self) -> None:
-        """Validate model selection based on API type.
+        """Validate model and API key.
 
-        Ensures that the selected model is compatible with the selected API type.
+        Ensures that the model name is provided and API key is available.
         """
 
-        # Validate model selection for Google Gemini
-        if self.api_type == ApiType.GOOGLE:
-            # Check if the model is in the Google Gemini model choices
-            if self.model not in [choice[0] for choice in GoogleGeminiModel.choices]:
-                # Raise a validation error
-                raise ValidationError(
-                    {
-                        "model": _(
-                            "Invalid model for Google Gemini API. Choose from: {}",
-                        ).format(
-                            ", ".join([choice[0] for choice in GoogleGeminiModel.choices]),
-                        ),
-                    },
-                )
+        # Check if model is provided
+        if not self.model:
+            # Raise a validation error if model is not provided
+            raise ValidationError({"model": _("Model name is required.")})
 
-            # Check if API key is provided for new Google Gemini instances or is available in Vault
-            if not self.pk and not self.api_key:
-                # Raise a validation error if API key is not provided for new instances
-                raise ValidationError(
-                    {"api_key": _("API key is required for Google Gemini API.")},
-                )
+        # Check if API key is provided for new instances or is available in Vault
+        if not self.pk and not self.api_key:
+            # Raise a validation error if API key is not provided for new instances
+            raise ValidationError({"api_key": _("API key is required.")})
 
-            if self.pk and not self.api_key and not self.get_api_key():
-                # Raise a validation error if API key is not available for existing instances
-                raise ValidationError(
-                    {"api_key": _("API key is required for Google Gemini API.")},
-                )
+        if self.pk and not self.api_key and not self.get_api_key():
+            # Raise a validation error if API key is not available for existing instances
+            raise ValidationError({"api_key": _("API key is required.")})

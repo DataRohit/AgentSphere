@@ -37,7 +37,7 @@ class AgentAdmin(admin.ModelAdmin):
     ]
 
     # Fields that can be used for filtering in the admin
-    list_filter = ["created_at", "organization", "llm__api_type"]
+    list_filter = ["created_at", "organization", "llm__base_url"]
 
     # Fields that can be searched
     search_fields = [

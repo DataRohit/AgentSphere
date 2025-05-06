@@ -79,7 +79,7 @@ class LLMCreateView(APIView):
         description="""
         Creates a new LLM configuration within an organization with the authenticated user as the creator.
         The user must be a member of the specified organization.
-        For Gemini API type, an API key is required.
+        An API key is required for all LLM configurations.
         """,
         request=LLMCreateSerializer,
         responses={

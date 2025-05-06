@@ -7,7 +7,6 @@ from apps.llms.views import (
     LLMDeleteView,
     LLMListMeView,
     LLMListView,
-    LLMModelsView,
     LLMUpdateView,
 )
 
@@ -22,8 +21,6 @@ urlpatterns = [
     path("list/", LLMListView.as_view(), name="llm-list"),
     # LLM list me URL - get all LLMs created by the current user (organization_id required)
     path("list/me/", LLMListMeView.as_view(), name="llm-list-me"),
-    # LLM models URL - get supported models for a specific API type
-    path("models/<str:api_type>/", LLMModelsView.as_view(), name="llm-models"),
     # LLM update URL - update an LLM by ID
     path("<str:llm_id>/update/", LLMUpdateView.as_view(), name="llm-update"),
     # LLM delete URL - delete an LLM by ID
