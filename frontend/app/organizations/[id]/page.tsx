@@ -997,7 +997,7 @@ export default function OrganizationDetailPage() {
                                 </Form>
                             </CardContent>
 
-                            <CardFooter className="[.border-t]:py-4 px-6 border-t bg-(--background) flex flex-col gap-6 md:flex-row md:gap-0 justify-between items-center">
+                            <CardFooter className="[.border-t]:py-4 px-6 border-t bg-(--background) flex flex-col gap-6 lg:flex-row lg:gap-0 justify-between items-center">
                                 <div className="flex items-center">
                                     <span className="text-xs text-(--muted-foreground)">
                                         Last updated:{" "}
@@ -1014,28 +1014,34 @@ export default function OrganizationDetailPage() {
                                             variant="outline"
                                             onClick={handleCancel}
                                             disabled={isSubmitting}
-                                            className="h-9 px-4 text-sm font-medium border border-(--border) bg-(--secondary) text-(--foreground) hover:bg-(--muted) cursor-pointer"
+                                            className="h-10 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) cursor-pointer w-[220px]"
                                         >
-                                            Cancel
+                                            <span className="relative z-10 flex items-center justify-center">
+                                                Cancel
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                         </Button>
                                         <Button
                                             type="submit"
                                             onClick={form.handleSubmit(onSubmit)}
                                             disabled={isSubmitting}
-                                            className="h-9 px-4 text-sm font-medium border border-(--primary) bg-(--secondary) text-(--primary-foreground) hover:bg-(--primary)/90 cursor-pointer"
+                                            className="h-10 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) hover:bg-(--primary)/90 cursor-pointer w-[220px]"
                                         >
-                                            {isSubmitting ? (
-                                                <>
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                    Saving...
-                                                </>
-                                            ) : (
-                                                "Save Changes"
-                                            )}
+                                            <span className="relative z-10 flex items-center justify-center">
+                                                {isSubmitting ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Saving...
+                                                    </>
+                                                ) : (
+                                                    "Save Changes"
+                                                )}
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--primary-foreground)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                         </Button>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                                    <div className="flex flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row gap-3 w-full lg:w-auto">
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -1044,7 +1050,7 @@ export default function OrganizationDetailPage() {
                                                     `/organizations/${organizationId}/agent-studio`
                                                 )
                                             }
-                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full md:w-auto"
+                                            className="h-10 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full md:w-full lg:w-[280px]"
                                         >
                                             <span className="relative z-10 flex items-center justify-center">
                                                 <Bot className="mr-2 h-4 w-4" />
@@ -1056,7 +1062,7 @@ export default function OrganizationDetailPage() {
                                             type="button"
                                             variant="outline"
                                             onClick={() => setIsDeleteDialogOpen(true)}
-                                            className="h-9 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full md:w-auto"
+                                            className="h-10 px-4 text-sm font-medium font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full md:w-full lg:w-[280px]"
                                         >
                                             <span className="relative z-10 flex items-center justify-center">
                                                 <Trash2 className="mr-2 h-4 w-4" />
