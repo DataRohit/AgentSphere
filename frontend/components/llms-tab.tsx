@@ -129,11 +129,19 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                 throw new Error("Authentication token not found");
             }
 
-            const endpoint = filterByUsername
-                ? `http://localhost:8080/api/v1/llms/list/?organization_id=${organizationId}`
-                : `http://localhost:8080/api/v1/llms/list/me?org_id=${organizationId}`;
+            let endpoint;
+            let queryParams = new URLSearchParams();
 
-            const response = await fetch(endpoint, {
+            if (filterByUsername) {
+                endpoint = "http://localhost:8080/api/v1/llms/list/";
+                queryParams.append("organization_id", organizationId);
+                queryParams.append("username", filterByUsername);
+            } else {
+                endpoint = "http://localhost:8080/api/v1/llms/list/me";
+                queryParams.append("organization_id", organizationId);
+            }
+
+            const response = await fetch(`${endpoint}?${queryParams.toString()}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -151,11 +159,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                 throw new Error(data.error || "Failed to fetch LLMs");
             }
 
-            let llmsData = data.llms || [];
-
-            if (filterByUsername && llmsData.length > 0) {
-                llmsData = llmsData.filter((llm: LLM) => llm.user.username === filterByUsername);
-            }
+            const llmsData = data.llms || [];
 
             setLLMs(llmsData);
         } catch (err) {

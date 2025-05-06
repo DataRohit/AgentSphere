@@ -30,7 +30,7 @@ class LLMListView(APIView):
     """LLM list view.
 
     This view allows organization owners to list LLM configurations within their organization.
-    It requires the organization_id and user_id parameters. Only the organization owner can
+    It requires the organization_id and username parameters. Only the organization owner can
     view LLMs created by other members of the organization.
 
     Attributes:
@@ -78,11 +78,11 @@ class LLMListView(APIView):
     # Define the schema for the list view
     @extend_schema(
         tags=["LLMs"],
-        summary="List LLM configurations within an organization by user ID.",
+        summary="List LLM configurations within an organization by username.",
         description="""
         Lists LLM configurations within the specified organization for a specific user.
         Only the organization owner can view LLMs created by other members.
-        Both organization_id and user_id parameters are mandatory.
+        Both organization_id and username parameters are mandatory.
         """,
         parameters=[
             OpenApiParameter(
@@ -92,8 +92,8 @@ class LLMListView(APIView):
                 type=str,
             ),
             OpenApiParameter(
-                name="user_id",
-                description="User ID to filter LLMs by creator (required)",
+                name="username",
+                description="Username to filter LLMs by creator (required)",
                 required=True,
                 type=str,
             ),
@@ -107,11 +107,11 @@ class LLMListView(APIView):
         },
     )
     def get(self, request: Request) -> Response:  # noqa: PLR0911
-        """List LLM configurations within an organization by user ID.
+        """List LLM configurations within an organization by username.
 
         This method lists LLM configurations within the specified organization for a specific user.
         Only the organization owner can view LLMs created by other members.
-        Both organization_id and user_id parameters are mandatory.
+        Both organization_id and username parameters are mandatory.
 
         Args:
             request (Request): The HTTP request object.
@@ -132,12 +132,12 @@ class LLMListView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Check if user_id is provided
-        user_id = request.query_params.get("user_id")
-        if not user_id:
-            # Return 400 Bad Request if user_id is not provided
+        # Check if username is provided
+        username = request.query_params.get("username")
+        if not username:
+            # Return 400 Bad Request if username is not provided
             return Response(
-                {"error": "Missing required parameter: user_id"},
+                {"error": "Missing required parameter: username"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -160,22 +160,22 @@ class LLMListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Check if the user is trying to view LLMs created by another user
-        if user.id != user_id:
-            # Only the organization owner can view LLMs created by other members
-            if organization.owner != user:
-                # Return 403 Forbidden if the user is not the organization owner
-                return Response(
-                    {"error": "Only the organization owner can view LLMs created by other members."},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-
         try:
             # Check if the target user exists
-            User.objects.get(id=user_id)
+            target_user = User.objects.get(username=username)
 
-            # Check if the user is a member of the organization
-            if not organization.members.filter(id=user_id).exists():
+            # Check if the user is trying to view LLMs created by another user
+            if user.username != username:
+                # Only the organization owner can view LLMs created by other members
+                if organization.owner != user:
+                    # Return 403 Forbidden if the user is not the organization owner
+                    return Response(
+                        {"error": "Only the organization owner can view LLMs created by other members."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+
+            # Check if the target user is a member of the organization
+            if not organization.members.filter(id=target_user.id).exists():
                 # Return 404 Not Found if the target user is not a member of the organization
                 return Response(
                     {"error": "The specified user is not a member of this organization."},
@@ -190,7 +190,7 @@ class LLMListView(APIView):
             )
 
         # Get LLMs created by the specified user in the organization
-        queryset = LLM.objects.filter(organization_id=organization_id, user_id=user_id)
+        queryset = LLM.objects.filter(organization_id=organization_id, user=target_user)
 
         # Check if any LLM configurations were found
         if not queryset.exists():
