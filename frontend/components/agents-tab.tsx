@@ -228,7 +228,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
         }
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex flex-col space-y-4">
                 {agents.map((agent, index) => (
                     <motion.div
                         key={agent.id}
@@ -362,7 +362,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: 0.1 * agents.length }}
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                        className="h-full"
+                        className="w-full"
                     >
                         <Card
                             className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group gap-2"

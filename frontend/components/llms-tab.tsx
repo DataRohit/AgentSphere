@@ -355,7 +355,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
         }
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex flex-col space-y-4">
                 {llms.map((llm, index) => (
                     <motion.div
                         key={llm.id}
@@ -471,7 +471,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: 0.1 * llms.length }}
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                        className="h-full"
+                        className="w-full"
                     >
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogTrigger asChild>
