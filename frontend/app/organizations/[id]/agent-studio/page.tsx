@@ -32,7 +32,7 @@ export default function AgentStudioPage() {
     const organizationId = params.id as string;
     const currentUser = useAppSelector(selectUser);
     const [isOwner, setIsOwner] = useState<boolean | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [, setIsLoading] = useState(true);
 
     useEffect(() => {
         const checkOwnership = async () => {
@@ -103,12 +103,15 @@ export default function AgentStudioPage() {
                         className="space-y-8"
                     >
                         <Button
-                            variant="ghost"
-                            className="flex items-center text-(--muted-foreground) hover:text-(--foreground)"
                             onClick={handleBackClick}
+                            variant="outline"
+                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer"
                         >
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            {isOwner ? "Back to Organization" : "Back to Dashboard"}
+                            <span className="relative z-10 flex items-center">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                {isOwner ? "Back to Organization" : "Back to Dashboard"}
+                            </span>
+                            <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                         </Button>
 
                         <motion.div

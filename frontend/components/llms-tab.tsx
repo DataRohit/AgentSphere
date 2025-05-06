@@ -90,9 +90,11 @@ type CreateLLMValues = z.infer<typeof createLLMSchema>;
 
 interface LLMsTabProps {
     organizationId: string;
+    filterByUsername?: string;
+    readOnly?: boolean;
 }
 
-export function LLMsTab({ organizationId }: LLMsTabProps) {
+export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: LLMsTabProps) {
     const [llms, setLLMs] = useState<LLM[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -127,16 +129,17 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch(
-                `http://localhost:8080/api/v1/llms/list/me?org_id=${organizationId}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+            const endpoint = filterByUsername
+                ? `http://localhost:8080/api/v1/llms/list/?organization_id=${organizationId}`
+                : `http://localhost:8080/api/v1/llms/list/me?org_id=${organizationId}`;
+
+            const response = await fetch(endpoint, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
 
             const data = await response.json();
 
@@ -148,7 +151,13 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                 throw new Error(data.error || "Failed to fetch LLMs");
             }
 
-            setLLMs(data.llms || []);
+            let llmsData = data.llms || [];
+
+            if (filterByUsername && llmsData.length > 0) {
+                llmsData = llmsData.filter((llm: LLM) => llm.user.username === filterByUsername);
+            }
+
+            setLLMs(llmsData);
         } catch (err) {
             const errorMessage =
                 err instanceof Error ? err.message : "An error occurred while fetching LLMs";
@@ -414,35 +423,37 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                         className="h-full"
                     >
-                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative">
-                            <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-colors duration-200 cursor-pointer"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setLlmToUpdate(llm);
-                                        setIsUpdateDialogOpen(true);
-                                    }}
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                    <span className="sr-only">Edit</span>
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-colors duration-200 cursor-pointer"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setLlmToDelete(llm);
-                                        setIsDeleteDialogOpen(true);
-                                    }}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                    <span className="sr-only">Delete</span>
-                                </Button>
-                            </div>
+                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative group">
+                            {!readOnly && (
+                                <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-colors duration-200 cursor-pointer"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setLlmToUpdate(llm);
+                                            setIsUpdateDialogOpen(true);
+                                        }}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                        <span className="sr-only">Edit</span>
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-colors duration-200 cursor-pointer"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setLlmToDelete(llm);
+                                            setIsDeleteDialogOpen(true);
+                                        }}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">Delete</span>
+                                    </Button>
+                                </div>
+                            )}
                             <CardHeader className="pb-2">
                                 <div className="flex items-center">
                                     <CardTitle className="flex items-center text-lg font-semibold">
@@ -452,7 +463,7 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                                     </CardTitle>
                                 </div>
                             </CardHeader>
-                            <CardContent className="flex-1 px-6">
+                            <CardContent className="px-6 pb-2">
                                 <div className="space-y-3">
                                     <div className="flex flex-col space-y-2">
                                         <div className="flex items-center text-xs text-(--muted-foreground)">
@@ -490,72 +501,84 @@ export function LLMsTab({ organizationId }: LLMsTabProps) {
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="pt-2 border-t bg-(--muted)/10 pb-4 mt-auto">
-                                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setLlmToUpdate(llm);
-                                            setIsUpdateDialogOpen(true);
-                                        }}
-                                    >
-                                        <span className="relative z-10 flex items-center justify-center w-full">
-                                            <Pencil className="mr-1 h-3 w-3" />
-                                            Update
-                                        </span>
-                                        <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setLlmToDelete(llm);
-                                            setIsDeleteDialogOpen(true);
-                                        }}
-                                    >
-                                        <span className="relative z-10 flex items-center justify-center w-full">
-                                            <Trash2 className="mr-1 h-3 w-3" />
-                                            Delete
-                                        </span>
-                                        <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                    </Button>
-                                </div>
-                            </CardFooter>
+                            {!readOnly ? (
+                                <CardFooter className="pt-2 border-t bg-(--muted)/10 pb-4 mt-auto">
+                                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setLlmToUpdate(llm);
+                                                setIsUpdateDialogOpen(true);
+                                            }}
+                                        >
+                                            <span className="relative z-10 flex items-center justify-center w-full">
+                                                <Pencil className="mr-1 h-3 w-3" />
+                                                Update
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setLlmToDelete(llm);
+                                                setIsDeleteDialogOpen(true);
+                                            }}
+                                        >
+                                            <span className="relative z-10 flex items-center justify-center w-full">
+                                                <Trash2 className="mr-1 h-3 w-3" />
+                                                Delete
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                        </Button>
+                                    </div>
+                                </CardFooter>
+                            ) : (
+                                <CardFooter className="border-t bg-(--muted)/10 mt-auto [.border-t]:pt-4 pb-4">
+                                    <div className="w-full flex justify-between items-center">
+                                        <div className="text-xs text-(--muted-foreground)">
+                                            Read-only view
+                                        </div>
+                                    </div>
+                                </CardFooter>
+                            )}
                         </Card>
                     </motion.div>
                 ))}
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 * llms.length }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    className="h-full"
-                >
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Card className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group">
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="h-12 w-12 rounded-full bg-(--primary)/10 flex items-center justify-center mb-4 group-hover:bg-(--primary)/20 transition-colors duration-300">
-                                        <Plus className="h-6 w-6 text-(--primary)" />
+                {!readOnly && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.1 * llms.length }}
+                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                        className="h-full"
+                    >
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Card className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group">
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className="h-12 w-12 rounded-full bg-(--primary)/10 flex items-center justify-center mb-4 group-hover:bg-(--primary)/20 transition-colors duration-300">
+                                            <Plus className="h-6 w-6 text-(--primary)" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold mb-2 group-hover:text-(--primary) transition-colors duration-300">
+                                            Add New LLM
+                                        </h3>
+                                        <p className="text-sm text-(--muted-foreground)">
+                                            Configure a new language model for your agents
+                                        </p>
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2 group-hover:text-(--primary) transition-colors duration-300">
-                                        Add New LLM
-                                    </h3>
-                                    <p className="text-sm text-(--muted-foreground)">
-                                        Configure a new language model for your agents
-                                    </p>
-                                </div>
-                            </Card>
-                        </DialogTrigger>
-                        {renderCreateLLMDialog()}
-                    </Dialog>
-                </motion.div>
+                                </Card>
+                            </DialogTrigger>
+                            {renderCreateLLMDialog()}
+                        </Dialog>
+                    </motion.div>
+                )}
             </div>
         );
     };

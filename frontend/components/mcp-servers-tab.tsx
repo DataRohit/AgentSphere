@@ -89,9 +89,15 @@ type CreateMCPServerValues = z.infer<typeof createMCPServerSchema>;
 
 interface MCPServersTabProps {
     organizationId: string;
+    filterByUsername?: string;
+    readOnly?: boolean;
 }
 
-export function MCPServersTab({ organizationId }: MCPServersTabProps) {
+export function MCPServersTab({
+    organizationId,
+    filterByUsername,
+    readOnly = false,
+}: MCPServersTabProps) {
     const [mcpServers, setMCPServers] = useState<MCPServer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -122,16 +128,17 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch(
-                `http://localhost:8080/api/v1/tools/mcpserver/list/me/?organization_id=${organizationId}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+            const endpoint = filterByUsername
+                ? `http://localhost:8080/api/v1/tools/mcpserver/list/?organization_id=${organizationId}`
+                : `http://localhost:8080/api/v1/tools/mcpserver/list/me/?organization_id=${organizationId}`;
+
+            const response = await fetch(endpoint, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
 
             const data = await response.json();
 
@@ -143,7 +150,15 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                 throw new Error(data.error || "Failed to fetch MCP servers");
             }
 
-            setMCPServers(data.mcpservers || []);
+            let serversData = data.mcpservers || [];
+
+            if (filterByUsername && serversData.length > 0) {
+                serversData = serversData.filter(
+                    (server: MCPServer) => server.user.username === filterByUsername
+                );
+            }
+
+            setMCPServers(serversData);
         } catch (err) {
             const errorMessage =
                 err instanceof Error ? err.message : "An error occurred while fetching MCP servers";
@@ -196,7 +211,6 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
 
             if (!response.ok) {
                 if (response.status === 400 && data.errors) {
-                    // Handle field-specific errors
                     Object.entries(data.errors).forEach(([field, fieldErrors]) => {
                         if (fieldErrors && fieldErrors.length > 0) {
                             if (field === "non_field_errors") {
@@ -208,7 +222,6 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                                     },
                                 });
                             } else {
-                                // Show toast error instead of form error
                                 toast.error(
                                     `${
                                         field.charAt(0).toUpperCase() +
@@ -272,7 +285,6 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
         }
     }, [organizationId]);
 
-    // Reset form when dialog is closed
     useEffect(() => {
         if (!isDialogOpen) {
             form.reset({
@@ -322,17 +334,21 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                         <Server className="h-12 w-12 text-(--muted-foreground) mb-3" />
                         <h3 className="text-lg font-medium mb-1">No MCP Servers Connected</h3>
                         <p className="text-sm text-(--muted-foreground) mb-4">
-                            Connect to MCP servers to enable advanced agent capabilities.
+                            {readOnly
+                                ? "This user has not created any MCP servers yet."
+                                : "Connect to MCP servers to enable advanced agent capabilities."}
                         </p>
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="font-medium">
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Add MCP Server
-                                </Button>
-                            </DialogTrigger>
-                            {renderCreateMCPServerDialog()}
-                        </Dialog>
+                        {!readOnly && (
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="font-medium">
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add MCP Server
+                                    </Button>
+                                </DialogTrigger>
+                                {renderCreateMCPServerDialog()}
+                            </Dialog>
+                        )}
                     </div>
                 </Card>
             );
@@ -349,35 +365,37 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                         className="h-full"
                     >
-                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative">
-                            <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-colors duration-200 cursor-pointer"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setMcpServerToUpdate(server);
-                                        setIsUpdateDialogOpen(true);
-                                    }}
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                    <span className="sr-only">Edit</span>
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-colors duration-200 cursor-pointer"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setMcpServerToDelete(server);
-                                        setIsDeleteDialogOpen(true);
-                                    }}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                    <span className="sr-only">Delete</span>
-                                </Button>
-                            </div>
+                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative group">
+                            {!readOnly && (
+                                <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-colors duration-200 cursor-pointer"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setMcpServerToUpdate(server);
+                                            setIsUpdateDialogOpen(true);
+                                        }}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                        <span className="sr-only">Edit</span>
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-colors duration-200 cursor-pointer"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setMcpServerToDelete(server);
+                                            setIsDeleteDialogOpen(true);
+                                        }}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">Delete</span>
+                                    </Button>
+                                </div>
+                            )}
                             <CardHeader className="pb-2">
                                 <div className="flex items-center">
                                     <CardTitle className="flex items-center text-lg font-semibold">
@@ -386,7 +404,7 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                                     </CardTitle>
                                 </div>
                             </CardHeader>
-                            <CardContent className="flex-1 px-6">
+                            <CardContent className="px-6 pb-2">
                                 <div className="space-y-3">
                                     {server.description && (
                                         <div className="text-sm text-(--muted-foreground) mb-2">
@@ -442,7 +460,7 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                                             <Wrench className="mr-2 h-4 w-4 text-(--primary)" />
                                             <p className="font-medium">Tools:</p>
                                         </div>
-                                        <div className="max-h-[200px] overflow-y-auto pr-2 border border-(--border) rounded-md p-2">
+                                        <div className="max-h-[150px] overflow-y-auto pr-2 border border-(--border) rounded-md p-2">
                                             {server.tools.length > 0 ? (
                                                 <div className="space-y-2">
                                                     {server.tools.map((tool, toolIndex) => {
@@ -484,72 +502,84 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="pt-2 border-t bg-(--muted)/10 pb-4 mt-auto">
-                                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setMcpServerToUpdate(server);
-                                            setIsUpdateDialogOpen(true);
-                                        }}
-                                    >
-                                        <span className="relative z-10 flex items-center justify-center w-full">
-                                            <Pencil className="mr-1 h-3 w-3" />
-                                            Update
-                                        </span>
-                                        <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setMcpServerToDelete(server);
-                                            setIsDeleteDialogOpen(true);
-                                        }}
-                                    >
-                                        <span className="relative z-10 flex items-center justify-center w-full">
-                                            <Trash2 className="mr-1 h-3 w-3" />
-                                            Delete
-                                        </span>
-                                        <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                    </Button>
-                                </div>
-                            </CardFooter>
+                            {!readOnly ? (
+                                <CardFooter className="pt-2 border-t bg-(--muted)/10 pb-4 mt-auto">
+                                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setMcpServerToUpdate(server);
+                                                setIsUpdateDialogOpen(true);
+                                            }}
+                                        >
+                                            <span className="relative z-10 flex items-center justify-center w-full">
+                                                <Pencil className="mr-1 h-3 w-3" />
+                                                Update
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setMcpServerToDelete(server);
+                                                setIsDeleteDialogOpen(true);
+                                            }}
+                                        >
+                                            <span className="relative z-10 flex items-center justify-center w-full">
+                                                <Trash2 className="mr-1 h-3 w-3" />
+                                                Delete
+                                            </span>
+                                            <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                        </Button>
+                                    </div>
+                                </CardFooter>
+                            ) : (
+                                <CardFooter className="pt-2 border-t bg-(--muted)/10 mt-auto [.border-t]:pt-4 pb-4">
+                                    <div className="w-full flex justify-between items-center">
+                                        <div className="text-xs text-(--muted-foreground)">
+                                            Read-only view
+                                        </div>
+                                    </div>
+                                </CardFooter>
+                            )}
                         </Card>
                     </motion.div>
                 ))}
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 * mcpServers.length }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    className="h-full"
-                >
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Card className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group">
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="h-12 w-12 rounded-full bg-(--primary)/10 flex items-center justify-center mb-4 group-hover:bg-(--primary)/20 transition-colors duration-300">
-                                        <Plus className="h-6 w-6 text-(--primary)" />
+                {!readOnly && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.1 * mcpServers.length }}
+                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                        className="h-full"
+                    >
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Card className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group">
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className="h-12 w-12 rounded-full bg-(--primary)/10 flex items-center justify-center mb-4 group-hover:bg-(--primary)/20 transition-colors duration-300">
+                                            <Plus className="h-6 w-6 text-(--primary)" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold mb-2 group-hover:text-(--primary) transition-colors duration-300">
+                                            Add New Server
+                                        </h3>
+                                        <p className="text-sm text-(--muted-foreground)">
+                                            Connect to a new MCP server for your agents
+                                        </p>
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2 group-hover:text-(--primary) transition-colors duration-300">
-                                        Add New Server
-                                    </h3>
-                                    <p className="text-sm text-(--muted-foreground)">
-                                        Connect to a new MCP server for your agents
-                                    </p>
-                                </div>
-                            </Card>
-                        </DialogTrigger>
-                        {renderCreateMCPServerDialog()}
-                    </Dialog>
-                </motion.div>
+                                </Card>
+                            </DialogTrigger>
+                            {renderCreateMCPServerDialog()}
+                        </Dialog>
+                    </motion.div>
+                )}
             </div>
         );
     };
@@ -680,7 +710,6 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                     onOpenChange={(open) => {
                         setIsDeleteDialogOpen(open);
                         if (!open) {
-                            // Reset the delete state when dialog is closed
                             setTimeout(() => setMcpServerToDelete(null), 300);
                         }
                     }}
@@ -695,7 +724,6 @@ export function MCPServersTab({ organizationId }: MCPServersTabProps) {
                     onOpenChange={(open) => {
                         setIsUpdateDialogOpen(open);
                         if (!open) {
-                            // Reset the update state when dialog is closed
                             setTimeout(() => setMcpServerToUpdate(null), 300);
                         }
                     }}

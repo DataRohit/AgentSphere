@@ -211,9 +211,13 @@ export default function ResendActivationPage() {
                                 <div className="flex items-center mb-2">
                                     <Link
                                         href="/auth/login"
-                                        className="text-(--muted-foreground) hover:text-(--primary) transition-colors duration-200 mr-2"
+                                        className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-8 px-3 rounded-md cursor-pointer flex items-center"
                                     >
-                                        <ArrowLeft size={18} />
+                                        <span className="relative z-10 flex items-center">
+                                            <ArrowLeft className="mr-2 h-4 w-4" />
+                                            Back
+                                        </span>
+                                        <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-md"></span>
                                     </Link>
                                     <CardTitle className="text-2xl font-bold text-center flex-1 pr-6">
                                         Resend Activation

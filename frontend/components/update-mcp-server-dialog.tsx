@@ -122,7 +122,6 @@ export function UpdateMCPServerDialog({
 
             if (!response.ok) {
                 if (response.status === 400 && data.errors) {
-                    // Handle field-specific errors
                     Object.entries(data.errors).forEach(([field, fieldErrors]) => {
                         if (fieldErrors && fieldErrors.length > 0) {
                             if (field === "non_field_errors") {
@@ -134,7 +133,6 @@ export function UpdateMCPServerDialog({
                                     },
                                 });
                             } else {
-                                // Show toast error instead of form error
                                 toast.error(
                                     `${
                                         field.charAt(0).toUpperCase() +

@@ -6,7 +6,6 @@ import { ActiveTransfersSection } from "@/components/active-transfers-section";
 import { AddMemberModal } from "@/components/add-member-modal";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { DeleteOrganizationDialog } from "@/components/delete-organization-dialog";
-import { MemberDetailsDialog } from "@/components/member-details-dialog";
 import { ProtectedRoute } from "@/components/protected-route";
 import { TransferOwnershipDialog } from "@/components/transfer-ownership-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -455,7 +454,6 @@ export default function OrganizationDetailPage() {
         const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
         const [isRemoving, setIsRemoving] = useState(false);
         const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
-        const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
         const handleRemoveMember = async () => {
             setIsRemoving(true);
@@ -536,7 +534,9 @@ export default function OrganizationDetailPage() {
             >
                 <Card
                     className="h-full border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col bg-(--card) dark:bg-(--secondary) relative group p-0 cursor-pointer"
-                    onClick={() => setIsDetailsDialogOpen(true)}
+                    onClick={() =>
+                        router.push(`/organizations/${organizationId}/members/${member.username}`)
+                    }
                 >
                     <CardHeader className="pb-1 pt-4 px-4">
                         <div className="flex items-start space-x-3">
@@ -675,13 +675,6 @@ export default function OrganizationDetailPage() {
                     organizationName={organization?.name || ""}
                     member={member}
                 />
-
-                <MemberDetailsDialog
-                    open={isDetailsDialogOpen}
-                    onOpenChange={setIsDetailsDialogOpen}
-                    member={member}
-                    organizationId={organizationId}
-                />
             </motion.div>
         );
     }
@@ -782,12 +775,15 @@ export default function OrganizationDetailPage() {
                         className="space-y-8"
                     >
                         <Button
-                            variant="ghost"
-                            className="flex items-center text-(--muted-foreground) hover:text-(--foreground)"
                             onClick={() => router.push("/dashboard")}
+                            variant="outline"
+                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer"
                         >
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Dashboard
+                            <span className="relative z-10 flex items-center">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back to Dashboard
+                            </span>
+                            <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                         </Button>
 
                         <Card className="border border-(--border) shadow-sm overflow-hidden p-0 pt-6">

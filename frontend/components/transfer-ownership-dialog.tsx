@@ -140,36 +140,43 @@ export function TransferOwnershipDialog({
                     </p>
                 </div>
 
-                <DialogFooter className="flex flex-col sm:flex-row sm:justify-between w-full gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        disabled={isTransferring}
-                        className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-full sm:flex-1"
-                    >
-                        <span className="relative z-10">Cancel</span>
-                        <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="default"
-                        onClick={handleTransfer}
-                        disabled={isTransferring}
-                        className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer w-full sm:flex-1"
-                    >
-                        <span className="relative z-10">
-                            {isTransferring ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
-                                    Transferring...
-                                </>
-                            ) : (
-                                "Initiate Transfer"
-                            )}
-                        </span>
-                        <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                    </Button>
+                <DialogFooter className="w-full">
+                    <div className="grid grid-cols-2 gap-3 w-full">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            disabled={isTransferring}
+                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-full"
+                        >
+                            <span className="relative z-10 flex items-center justify-center">
+                                <span>Cancel</span>
+                            </span>
+                            <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="default"
+                            onClick={handleTransfer}
+                            disabled={isTransferring}
+                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer w-full"
+                        >
+                            <span className="relative z-10 flex items-center justify-center">
+                                {isTransferring ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        <span>Transferring...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Users className="mr-2 h-4 w-4" />
+                                        <span>Transfer</span>
+                                    </>
+                                )}
+                            </span>
+                            <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
