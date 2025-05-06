@@ -5,7 +5,6 @@ from django.urls import path
 from apps.tools.views import (
     MCPServerCreateView,
     MCPServerDeleteView,
-    MCPServerDetailView,
     MCPServerListMeView,
     MCPServerListView,
     MCPServerUpdateView,
@@ -18,16 +17,10 @@ app_name = "org_tools"
 urlpatterns = [
     # MCP Server creation URL
     path("mcpserver/", MCPServerCreateView.as_view(), name="mcpserver-create"),
-    # MCP Server list URL - get all MCP servers within an organization (organization_id required)
+    # MCP Server list URL - get MCP servers by user within an organization (organization_id and username required)
     path("mcpserver/list/", MCPServerListView.as_view(), name="mcpserver-list"),
-    # MCP Server list me URL - get all MCP servers created by the current user (organization_id optional)
+    # MCP Server list me URL - get all MCP servers created by the current user (organization_id required)
     path("mcpserver/list/me/", MCPServerListMeView.as_view(), name="mcpserver-list-me"),
-    # MCP Server detail URL - get an MCP server by ID
-    path(
-        "mcpserver/<str:mcpserver_id>/",
-        MCPServerDetailView.as_view(),
-        name="mcpserver-detail",
-    ),
     # MCP Server update URL - update an MCP server by ID
     path(
         "mcpserver/<str:mcpserver_id>/update/",

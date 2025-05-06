@@ -1,6 +1,5 @@
 # Third-party imports
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
@@ -17,6 +16,7 @@ from apps.tools.models import MCPServer
 from apps.tools.serializers import (
     MCPServerAuthErrorResponseSerializer,
     MCPServerListMeResponseSerializer,
+    MCPServerListMissingParamResponseSerializer,
     MCPServerListNotFoundResponseSerializer,
     MCPServerSerializer,
 )
@@ -31,7 +31,7 @@ class MCPServerListMeView(APIView):
     """MCPServer list me view.
 
     This view allows authenticated users to list all MCP servers they have created.
-    It supports optional filtering by organization_id and tags.
+    It requires the organization_id parameter.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -81,24 +81,19 @@ class MCPServerListMeView(APIView):
         summary="List MCP servers created by the current user.",
         description="""
         Lists all MCP servers created by the authenticated user.
-        Supports optional filtering by organization_id and tags.
+        Requires organization_id parameter.
         """,
         parameters=[
             OpenApiParameter(
                 name="organization_id",
-                description="Filter by organization ID (optional)",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="tags",
-                description="Filter by comma-separated tags (optional)",
-                required=False,
+                description="Organization ID (required)",
+                required=True,
                 type=str,
             ),
         ],
         responses={
             status.HTTP_200_OK: MCPServerListMeResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: MCPServerListMissingParamResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: MCPServerAuthErrorResponseSerializer,
             status.HTTP_404_NOT_FOUND: MCPServerListNotFoundResponseSerializer,
         },
@@ -107,7 +102,7 @@ class MCPServerListMeView(APIView):
         """List MCP servers created by the current user.
 
         This method lists all MCP servers created by the authenticated user.
-        It supports optional filtering by organization_id and tags.
+        It requires the organization_id parameter.
 
         Args:
             request (Request): The HTTP request object.
@@ -119,50 +114,36 @@ class MCPServerListMeView(APIView):
         # Get the authenticated user
         user = request.user
 
-        # Build query for user's MCP servers only
-        queryset = MCPServer.objects.filter(user=user)
-
-        # Apply organization_id filter if provided
+        # Check if organization_id is provided
         organization_id = request.query_params.get("organization_id")
-        if organization_id:
-            try:
-                # Try to get the organization
-                organization = Organization.objects.get(id=organization_id)
+        if not organization_id:
+            # Return 400 Bad Request if organization_id is not provided
+            return Response(
+                {"error": "Missing required parameter: organization_id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-                # Check if the user is the owner or a member of the organization
-                if user != organization.owner and user not in organization.members.all():
-                    # Return 404 Not Found if the user is not a member of the organization
-                    return Response(
-                        {"error": "No MCP servers found matching the criteria."},
-                        status=status.HTTP_404_NOT_FOUND,
-                    )
+        try:
+            # Try to get the organization
+            organization = Organization.objects.get(id=organization_id)
 
-                # Filter queryset by the specified organization
-                queryset = queryset.filter(organization=organization)
-
-            except Organization.DoesNotExist:
-                # Return 404 Not Found if the organization doesn't exist
+            # Check if the user is the owner or a member of the organization
+            if user != organization.owner and user not in organization.members.all():
+                # Return 404 Not Found if the user is not a member of the organization
                 return Response(
                     {"error": "No MCP servers found matching the criteria."},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
-        # Apply tags filter if provided
-        tags = request.query_params.get("tags")
-        if tags:
-            # Split the tags string by comma and filter by any of the tags
-            tag_list = [tag.strip() for tag in tags.split(",")]
+            # Build query for user's MCP servers in the specified organization
+            queryset = MCPServer.objects.filter(user=user, organization=organization)
 
-            # Initialize the tag query
-            tag_query = Q()
-
-            # Traverse the tag list
-            for tag in tag_list:
-                # Build the tag query
-                tag_query |= Q(tags__icontains=tag)
-
-            # Filter the queryset by the tag query
-            queryset = queryset.filter(tag_query)
+        except Organization.DoesNotExist:
+            # Return 404 Not Found if the organization doesn't exist
+            return Response(
+                {"error": "No MCP servers found matching the criteria."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         # Check if any MCP servers were found
         if not queryset.exists():

@@ -128,11 +128,19 @@ export function MCPServersTab({
                 throw new Error("Authentication token not found");
             }
 
-            const endpoint = filterByUsername
-                ? `http://localhost:8080/api/v1/tools/mcpserver/list/?organization_id=${organizationId}`
-                : `http://localhost:8080/api/v1/tools/mcpserver/list/me/?organization_id=${organizationId}`;
+            let endpoint;
+            let queryParams = new URLSearchParams();
 
-            const response = await fetch(endpoint, {
+            if (filterByUsername) {
+                endpoint = "http://localhost:8080/api/v1/tools/mcpserver/list/";
+                queryParams.append("organization_id", organizationId);
+                queryParams.append("username", filterByUsername);
+            } else {
+                endpoint = "http://localhost:8080/api/v1/tools/mcpserver/list/me/";
+                queryParams.append("organization_id", organizationId);
+            }
+
+            const response = await fetch(`${endpoint}?${queryParams.toString()}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -150,13 +158,7 @@ export function MCPServersTab({
                 throw new Error(data.error || "Failed to fetch MCP servers");
             }
 
-            let serversData = data.mcpservers || [];
-
-            if (filterByUsername && serversData.length > 0) {
-                serversData = serversData.filter(
-                    (server: MCPServer) => server.user.username === filterByUsername
-                );
-            }
+            const serversData = data.mcpservers || [];
 
             setMCPServers(serversData);
         } catch (err) {
@@ -464,7 +466,7 @@ export function MCPServersTab({
                                             <Wrench className="mr-2 h-4 w-4 text-(--primary)" />
                                             <p className="font-medium">Tools:</p>
                                         </div>
-                                        <div className="max-h-[150px] overflow-y-auto pr-2 border border-(--border) rounded-md p-2">
+                                        <div className="max-h-[200px] overflow-y-auto pr-2 border border-(--border) rounded-md p-2">
                                             {server.tools.length > 0 ? (
                                                 <div className="space-y-2">
                                                     {server.tools.map((tool, toolIndex) => {

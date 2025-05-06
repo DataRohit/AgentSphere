@@ -11,11 +11,6 @@ from apps.tools.serializers.mcpserver_delete import (
     MCPServerDeletePermissionDeniedResponseSerializer,
     MCPServerDeleteSuccessResponseSerializer,
 )
-from apps.tools.serializers.mcpserver_detail import (
-    MCPServerDetailNotFoundResponseSerializer,
-    MCPServerDetailPermissionDeniedResponseSerializer,
-    MCPServerDetailSuccessResponseSerializer,
-)
 from apps.tools.serializers.mcpserver_list import (
     MCPServerListMeResponseSerializer,
     MCPServerListMissingParamResponseSerializer,
@@ -40,9 +35,6 @@ __all__ = [
     "MCPServerDeleteNotFoundResponseSerializer",
     "MCPServerDeletePermissionDeniedResponseSerializer",
     "MCPServerDeleteSuccessResponseSerializer",
-    "MCPServerDetailNotFoundResponseSerializer",
-    "MCPServerDetailPermissionDeniedResponseSerializer",
-    "MCPServerDetailSuccessResponseSerializer",
     "MCPServerListMeResponseSerializer",
     "MCPServerListMissingParamResponseSerializer",
     "MCPServerListNotFoundResponseSerializer",
