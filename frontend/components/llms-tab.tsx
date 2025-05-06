@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
@@ -423,35 +423,39 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                         className="h-full"
                     >
-                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative group">
+                        <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative">
                             {!readOnly && (
-                                <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-colors duration-200 cursor-pointer"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setLlmToUpdate(llm);
-                                            setIsUpdateDialogOpen(true);
-                                        }}
-                                    >
-                                        <Pencil className="h-4 w-4" />
-                                        <span className="sr-only">Edit</span>
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-colors duration-200 cursor-pointer"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setLlmToDelete(llm);
-                                            setIsDeleteDialogOpen(true);
-                                        }}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                        <span className="sr-only">Delete</span>
-                                    </Button>
+                                <div className="absolute top-2 right-2 flex space-x-1">
+                                    <div className="group">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-all duration-200 cursor-pointer"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setLlmToUpdate(llm);
+                                                setIsUpdateDialogOpen(true);
+                                            }}
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                            <span className="sr-only">Edit</span>
+                                        </Button>
+                                    </div>
+                                    <div className="group">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-all duration-200 cursor-pointer"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setLlmToDelete(llm);
+                                                setIsDeleteDialogOpen(true);
+                                            }}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-(--destructive)" />
+                                            <span className="sr-only">Delete</span>
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
                             <CardHeader className="pb-2">
@@ -463,7 +467,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                                     </CardTitle>
                                 </div>
                             </CardHeader>
-                            <CardContent className="px-6 pb-2">
+                            <CardContent className="px-6 pb-6">
                                 <div className="space-y-3">
                                     <div className="flex flex-col space-y-2">
                                         <div className="flex items-center text-xs text-(--muted-foreground)">
@@ -501,52 +505,6 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                                     </div>
                                 </div>
                             </CardContent>
-                            {!readOnly ? (
-                                <CardFooter className="pt-2 border-t bg-(--muted)/10 pb-4 mt-auto">
-                                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--primary) hover:bg-(--primary)/10 cursor-pointer w-full"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setLlmToUpdate(llm);
-                                                setIsUpdateDialogOpen(true);
-                                            }}
-                                        >
-                                            <span className="relative z-10 flex items-center justify-center w-full">
-                                                <Pencil className="mr-1 h-3 w-3" />
-                                                Update
-                                            </span>
-                                            <span className="absolute inset-0 bg-(--primary)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 text-xs font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--destructive) hover:bg-(--destructive)/10 cursor-pointer w-full"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setLlmToDelete(llm);
-                                                setIsDeleteDialogOpen(true);
-                                            }}
-                                        >
-                                            <span className="relative z-10 flex items-center justify-center w-full">
-                                                <Trash2 className="mr-1 h-3 w-3" />
-                                                Delete
-                                            </span>
-                                            <span className="absolute inset-0 bg-(--destructive)/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                        </Button>
-                                    </div>
-                                </CardFooter>
-                            ) : (
-                                <CardFooter className="border-t bg-(--muted)/10 mt-auto [.border-t]:pt-4 pb-4">
-                                    <div className="w-full flex justify-between items-center">
-                                        <div className="text-xs text-(--muted-foreground)">
-                                            Read-only view
-                                        </div>
-                                    </div>
-                                </CardFooter>
-                            )}
                         </Card>
                     </motion.div>
                 ))}
