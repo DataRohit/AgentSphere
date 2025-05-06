@@ -20,7 +20,7 @@ urlpatterns = [
     path("", LLMCreateView.as_view(), name="llm-create"),
     # LLM list URL - get all LLMs within an organization (organization_id required)
     path("list/", LLMListView.as_view(), name="llm-list"),
-    # LLM list me URL - get all LLMs created by the current user (organization_id optional)
+    # LLM list me URL - get all LLMs created by the current user (organization_id required)
     path("list/me/", LLMListMeView.as_view(), name="llm-list-me"),
     # LLM models URL - get supported models for a specific API type
     path("models/<str:api_type>/", LLMModelsView.as_view(), name="llm-models"),
