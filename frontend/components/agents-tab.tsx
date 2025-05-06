@@ -1,5 +1,6 @@
 "use client";
 
+import { CreateAgentDialog } from "@/components/create-agent-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
@@ -69,6 +70,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
     const [agents, setAgents] = useState<Agent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const router = useRouter();
 
     const fetchAgents = async () => {
@@ -185,11 +187,11 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                         </p>
                         {!readOnly && (
                             <Button
-                                className="font-medium"
-                                onClick={() => router.push("/agents/create")}
+                                className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer"
+                                onClick={() => setIsCreateDialogOpen(true)}
                             >
-                                <Plus className="mr-2 h-4 w-4" />
-                                Create Agent
+                                <span className="relative z-10">Create Agent</span>
+                                <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                             </Button>
                         )}
                     </div>
@@ -296,7 +298,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                     >
                         <Card
                             className="h-full flex flex-col justify-center items-center p-6 cursor-pointer border border-dashed border-(--primary) bg-(--card) hover:bg-(--primary)/5 transition-all duration-300 group"
-                            onClick={() => router.push("/agents/create")}
+                            onClick={() => setIsCreateDialogOpen(true)}
                         >
                             <div className="flex flex-col items-center text-center">
                                 <div className="h-12 w-12 rounded-full bg-(--primary)/10 flex items-center justify-center mb-4 group-hover:bg-(--primary)/20 transition-colors duration-300">
@@ -319,6 +321,13 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
     return (
         <>
             <div className="space-y-6">{renderAgentCards()}</div>
+
+            <CreateAgentDialog
+                organizationId={organizationId}
+                open={isCreateDialogOpen}
+                onOpenChange={setIsCreateDialogOpen}
+                onCreateSuccess={fetchAgents}
+            />
         </>
     );
 }
