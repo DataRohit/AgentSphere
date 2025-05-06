@@ -12,11 +12,6 @@ from apps.llms.serializers.llm_delete import (
     LLMDeleteSuccessResponseSerializer,
     LLMHasAgentsResponseSerializer,
 )
-from apps.llms.serializers.llm_detail import (
-    LLMDetailNotFoundResponseSerializer,
-    LLMDetailPermissionDeniedResponseSerializer,
-    LLMDetailSuccessResponseSerializer,
-)
 from apps.llms.serializers.llm_list import (
     LLMListMeResponseSerializer,
     LLMListMissingParamResponseSerializer,
@@ -46,9 +41,6 @@ __all__ = [
     "LLMDeleteNotFoundResponseSerializer",
     "LLMDeletePermissionDeniedResponseSerializer",
     "LLMDeleteSuccessResponseSerializer",
-    "LLMDetailNotFoundResponseSerializer",
-    "LLMDetailPermissionDeniedResponseSerializer",
-    "LLMDetailSuccessResponseSerializer",
     "LLMHasAgentsResponseSerializer",
     "LLMListMeResponseSerializer",
     "LLMListMissingParamResponseSerializer",

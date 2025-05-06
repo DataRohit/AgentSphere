@@ -1,7 +1,6 @@
 # Local application imports
 from apps.llms.views.llm_create import LLMCreateView
 from apps.llms.views.llm_delete import LLMDeleteView
-from apps.llms.views.llm_detail import LLMDetailView
 from apps.llms.views.llm_list import LLMListView
 from apps.llms.views.llm_list_me import LLMListMeView
 from apps.llms.views.llm_models import LLMModelsView
@@ -11,7 +10,6 @@ from apps.llms.views.llm_update import LLMUpdateView
 __all__ = [
     "LLMCreateView",
     "LLMDeleteView",
-    "LLMDetailView",
     "LLMListMeView",
     "LLMListView",
     "LLMModelsView",
