@@ -250,8 +250,13 @@ export default function MemberDetailsPage() {
             .substring(0, 2);
     };
 
+    useEffect(() => {
+        if (!isOwner && !isLoading) {
+            router.push(`/organizations/${organizationId}`);
+        }
+    }, [isOwner, isLoading, organizationId, router]);
+
     if (!isOwner && !isLoading) {
-        router.push(`/organizations/${organizationId}`);
         return null;
     }
 
@@ -273,7 +278,10 @@ export default function MemberDetailsPage() {
                         <div className="flex flex-col items-center justify-center h-64 text-center">
                             <p className="text-lg text-(--destructive) mb-4">{error}</p>
                             <Button
-                                onClick={() => router.push(`/organizations/${organizationId}`)}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    router.push(`/organizations/${organizationId}`);
+                                }}
                                 className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer"
                             >
                                 <span className="relative z-10 flex items-center">
@@ -291,7 +299,10 @@ export default function MemberDetailsPage() {
                         >
                             <div className="hidden md:flex md:items-center md:justify-between gap-4 mb-6">
                                 <Button
-                                    onClick={() => router.push(`/organizations/${organizationId}`)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        router.push(`/organizations/${organizationId}`);
+                                    }}
                                     variant="outline"
                                     className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer"
                                 >
@@ -331,7 +342,10 @@ export default function MemberDetailsPage() {
 
                             <div className="flex md:hidden mb-6">
                                 <Button
-                                    onClick={() => router.push(`/organizations/${organizationId}`)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        router.push(`/organizations/${organizationId}`);
+                                    }}
                                     variant="outline"
                                     className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-full"
                                 >
