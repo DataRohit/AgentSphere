@@ -22,8 +22,7 @@ class Agent(TimeStampedModel):
     """Model for AI agents in the system.
 
     This model stores AI agent information including name, description,
-    system prompt, and visibility settings. A user can create a maximum of 5 agents
-    per organization.
+    and system prompt. A user can create a maximum of 5 agents per organization.
 
     Attributes:
         name (CharField): The name of the AI agent.
@@ -33,7 +32,6 @@ class Agent(TimeStampedModel):
         user (ForeignKey): The user who created this agent.
         llm (ForeignKey): The LLM model this agent is connected to.
         mcp_servers (ManyToManyField): The MCP servers this agent is connected to.
-        is_public (BooleanField): Whether this agent is publicly visible to other users in the organization.
         avatar_url (URLField): URL for the agent's avatar image.
 
     Meta:
@@ -101,13 +99,6 @@ class Agent(TimeStampedModel):
         related_name="agents",
         blank=True,
         help_text=_("The MCP servers this agent is connected to"),
-    )
-
-    # Agent visibility setting
-    is_public = models.BooleanField(
-        verbose_name=_("Public"),
-        default=False,
-        help_text=_("Whether this agent is publicly visible to other users in the organization"),
     )
 
     # Meta class for Agent model configuration

@@ -85,7 +85,6 @@ class AgentCreateSerializer(serializers.ModelSerializer):
             "system_prompt",
             "llm_id",
             "mcp_server_ids",
-            "is_public",
         ]
 
         # Extra kwargs
@@ -93,7 +92,6 @@ class AgentCreateSerializer(serializers.ModelSerializer):
             "name": {"required": True},
             "description": {"required": False},
             "system_prompt": {"required": True},
-            "is_public": {"required": False, "default": False},
         }
 
     # Validate the serializer data

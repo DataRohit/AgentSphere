@@ -5,6 +5,7 @@ from django.urls import path
 from apps.agents.views import (
     AgentCreateView,
     AgentDeleteView,
+    AgentDetailView,
     AgentListMeView,
     AgentListView,
     AgentUpdateView,
@@ -27,6 +28,8 @@ urlpatterns = [
     path("stats/most-used/", MostUsedAgentsView.as_view(), name="agent-most-used"),
     # Most active agents URL - get the top 3 most active agents
     path("stats/most-active/", MostActiveAgentsView.as_view(), name="agent-most-active"),
+    # Agent detail URL - get an agent by ID
+    path("<str:agent_id>/", AgentDetailView.as_view(), name="agent-detail"),
     # Agent update URL - update an agent by ID
     path("<str:agent_id>/update/", AgentUpdateView.as_view(), name="agent-update"),
     # Agent delete URL - delete an agent by ID

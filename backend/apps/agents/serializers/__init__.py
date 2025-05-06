@@ -11,6 +11,11 @@ from apps.agents.serializers.agent_delete import (
     AgentDeletePermissionDeniedResponseSerializer,
     AgentDeleteSuccessResponseSerializer,
 )
+from apps.agents.serializers.agent_detail import (
+    AgentDetailNotFoundResponseSerializer,
+    AgentDetailPermissionDeniedResponseSerializer,
+    AgentDetailSuccessResponseSerializer,
+)
 from apps.agents.serializers.agent_list import (
     AgentListMeResponseSerializer,
     AgentListMissingParamResponseSerializer,
@@ -40,6 +45,9 @@ __all__ = [
     "AgentDeleteNotFoundResponseSerializer",
     "AgentDeletePermissionDeniedResponseSerializer",
     "AgentDeleteSuccessResponseSerializer",
+    "AgentDetailNotFoundResponseSerializer",
+    "AgentDetailPermissionDeniedResponseSerializer",
+    "AgentDetailSuccessResponseSerializer",
     "AgentListMeResponseSerializer",
     "AgentListMissingParamResponseSerializer",
     "AgentListNotFoundResponseSerializer",

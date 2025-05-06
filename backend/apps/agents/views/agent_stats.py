@@ -109,9 +109,6 @@ class MostUsedAgentsView(APIView):
         # Apply access filter
         query = query.filter(Q(user=user) | Q(organization__members=user) | Q(organization__owner=user))
 
-        # Only include public agents
-        query = query.filter(is_public=True)
-
         # Get the top 3 most used agents
         most_used_agents = query.order_by("-count")[:3]
 
@@ -215,9 +212,6 @@ class MostActiveAgentsView(APIView):
 
         # Apply access filter
         query = query.filter(Q(user=user) | Q(organization__members=user) | Q(organization__owner=user))
-
-        # Only include public agents
-        query = query.filter(is_public=True)
 
         # Get the top 3 most active agents
         most_active_agents = query.order_by("-count")[:3]
