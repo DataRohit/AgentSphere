@@ -35,15 +35,10 @@ export interface TransferRequest {
 
 interface TransferRequestCardProps {
     transfer: TransferRequest;
-    index: number;
     onCancelSuccess: () => void;
 }
 
-export function TransferRequestCard({
-    transfer,
-    index,
-    onCancelSuccess,
-}: TransferRequestCardProps) {
+export function TransferRequestCard({ transfer, onCancelSuccess }: TransferRequestCardProps) {
     const [isCancelling, setIsCancelling] = useState(false);
 
     const getInitials = (name: string) => {

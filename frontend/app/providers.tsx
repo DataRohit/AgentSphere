@@ -31,7 +31,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     const errorData = await response.json();
                     store.dispatch(setUserError(errorData.error || "Failed to fetch user data"));
                 }
-            } catch (error) {
+            } catch {
                 store.dispatch(setUserError("An error occurred while fetching user data"));
             }
         };

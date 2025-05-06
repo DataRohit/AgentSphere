@@ -16,7 +16,7 @@ import { ReceivedTransfersSection } from "@/components/received-transfers-sectio
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { AlertCircle, Building2, MailQuestion, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
@@ -74,7 +74,7 @@ export default function DashboardPage() {
         }
     };
 
-    const fetchMemberships = async () => {
+    const fetchMemberships = useCallback(async () => {
         setIsMembershipsLoading(true);
         setMembershipError(null);
 
@@ -121,7 +121,7 @@ export default function DashboardPage() {
         } finally {
             setIsMembershipsLoading(false);
         }
-    };
+    }, [organizations]);
 
     useEffect(() => {
         fetchOrganizations();
@@ -131,7 +131,7 @@ export default function DashboardPage() {
         if (!isLoading) {
             fetchMemberships();
         }
-    }, [isLoading, organizations]);
+    }, [isLoading, organizations, fetchMemberships]);
 
     const handleOrganizationCreated = (newOrganization: Organization) => {
         setOrganizations((prevOrganizations) => [newOrganization, ...prevOrganizations]);

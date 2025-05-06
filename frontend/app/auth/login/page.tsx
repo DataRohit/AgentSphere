@@ -86,7 +86,7 @@ export default function LoginPage() {
                 const errorData = await response.json();
                 dispatch(setUserError(errorData.error || "Failed to fetch user data"));
             }
-        } catch (error) {
+        } catch {
             dispatch(setUserError("An error occurred while fetching user data"));
         }
     };

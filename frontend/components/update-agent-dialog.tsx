@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import { Check, Loader2, Pencil, Server } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -122,7 +122,7 @@ export function UpdateAgentDialog({
         },
     });
 
-    const fetchLLMs = async () => {
+    const fetchLLMs = useCallback(async () => {
         setIsLoadingLLMs(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -161,9 +161,9 @@ export function UpdateAgentDialog({
         } finally {
             setIsLoadingLLMs(false);
         }
-    };
+    }, [agent.organization.id]);
 
-    const fetchMCPServers = async () => {
+    const fetchMCPServers = useCallback(async () => {
         setIsLoadingMCPServers(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -202,7 +202,7 @@ export function UpdateAgentDialog({
         } finally {
             setIsLoadingMCPServers(false);
         }
-    };
+    }, [agent.organization.id]);
 
     useEffect(() => {
         if (open) {
@@ -217,7 +217,7 @@ export function UpdateAgentDialog({
                 mcp_server_ids: agent.mcp_servers.map((server) => server.id),
             });
         }
-    }, [open, agent, form]);
+    }, [open, agent, form, fetchLLMs, fetchMCPServers]);
 
     const toggleMCPServer = (serverId: string) => {
         setSelectedMCPServers((prev) => {
@@ -284,7 +284,7 @@ export function UpdateAgentDialog({
                                     },
                                 });
                             } else {
-                                form.setError(field as any, {
+                                form.setError(field as keyof UpdateAgentValues, {
                                     type: "manual",
                                     message: errors[0],
                                 });

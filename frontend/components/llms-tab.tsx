@@ -36,7 +36,7 @@ import {
     Server,
     Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -119,7 +119,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
         },
     });
 
-    const fetchLLMs = async () => {
+    const fetchLLMs = useCallback(async () => {
         setIsLoading(true);
         setError(null);
 
@@ -130,7 +130,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
             }
 
             let endpoint;
-            let queryParams = new URLSearchParams();
+            const queryParams = new URLSearchParams();
 
             if (filterByUsername) {
                 endpoint = "http://localhost:8080/api/v1/llms/list/";
@@ -176,7 +176,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [organizationId, filterByUsername]);
 
     const fetchModels = async (apiType: string) => {
         setIsLoadingModels(true);
@@ -335,7 +335,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
         if (organizationId) {
             fetchLLMs();
         }
-    }, [organizationId]);
+    }, [organizationId, fetchLLMs]);
 
     useEffect(() => {
         if (!isDialogOpen) {

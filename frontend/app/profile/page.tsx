@@ -101,7 +101,7 @@ export default function ProfilePage() {
                 });
             } else {
                 if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]: [string, any]) => {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
                         if (Array.isArray(errors) && errors.length > 0) {
                             toast.error(`${field.replace("_", " ")}: ${errors[0]}`, {
                                 style: {
@@ -122,7 +122,7 @@ export default function ProfilePage() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                 window.location.reload();
             } else {
                 if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]: [string, any]) => {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
                         if (Array.isArray(errors) && errors.length > 0) {
                             toast.error(`${field.replace("_", " ")}: ${errors[0]}`, {
                                 style: {
@@ -224,7 +224,7 @@ export default function ProfilePage() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",

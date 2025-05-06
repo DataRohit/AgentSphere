@@ -126,7 +126,7 @@ export function AddMemberModal({
                 onMemberAdded(result.organization);
             } else {
                 if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]: [string, any]) => {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
                         if (Array.isArray(errors) && errors.length > 0) {
                             if (field === "non_field_errors") {
                                 toast.error(errors[0], {
@@ -175,7 +175,7 @@ export function AddMemberModal({
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",

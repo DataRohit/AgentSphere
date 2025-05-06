@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
 import { Bot, Check, Loader2, Server } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -104,7 +104,7 @@ export function CreateAgentDialog({
         },
     });
 
-    const fetchLLMs = async () => {
+    const fetchLLMs = useCallback(async () => {
         setIsLoadingLLMs(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -143,9 +143,9 @@ export function CreateAgentDialog({
         } finally {
             setIsLoadingLLMs(false);
         }
-    };
+    }, [organizationId]);
 
-    const fetchMCPServers = async () => {
+    const fetchMCPServers = useCallback(async () => {
         setIsLoadingMCPServers(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -184,14 +184,14 @@ export function CreateAgentDialog({
         } finally {
             setIsLoadingMCPServers(false);
         }
-    };
+    }, [organizationId]);
 
     useEffect(() => {
         if (open) {
             fetchLLMs();
             fetchMCPServers();
         }
-    }, [open, organizationId]);
+    }, [open, fetchLLMs, fetchMCPServers]);
 
     const toggleMCPServer = (serverId: string) => {
         setSelectedMCPServers((prev) => {
@@ -256,7 +256,7 @@ export function CreateAgentDialog({
                                     },
                                 });
                             } else {
-                                form.setError(field as any, {
+                                form.setError(field as keyof CreateAgentValues, {
                                     type: "manual",
                                     message: errors[0],
                                 });

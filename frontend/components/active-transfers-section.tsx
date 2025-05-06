@@ -15,43 +15,44 @@ export function ActiveTransfersSection({ organizationId }: ActiveTransfersSectio
     const [transfers, setTransfers] = useState<TransferRequest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const fetchTransfers = async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const accessToken = Cookies.get("access_token");
-            if (!accessToken) {
-                throw new Error("Authentication token not found");
-            }
-
-            const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/transfers/`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to fetch transfer requests");
-            }
-
-            setTransfers(data.transfers || []);
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An error occurred";
-            setError(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     useEffect(() => {
+        const fetchTransfers = async () => {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const accessToken = Cookies.get("access_token");
+                if (!accessToken) {
+                    throw new Error("Authentication token not found");
+                }
+
+                const response = await fetch(
+                    `http://localhost:8080/api/v1/organizations/${organizationId}/transfers/`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to fetch transfer requests");
+                }
+
+                setTransfers(data.transfers || []);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : "An error occurred";
+                setError(errorMessage);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         fetchTransfers();
     }, [organizationId]);
 
@@ -133,7 +134,6 @@ export function ActiveTransfersSection({ organizationId }: ActiveTransfersSectio
                         >
                             <TransferRequestCard
                                 transfer={transfer}
-                                index={index}
                                 onCancelSuccess={handleCancelSuccess}
                             />
                         </motion.div>

@@ -31,7 +31,7 @@ import {
     Trash2,
     Wrench,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -118,7 +118,7 @@ export function MCPServersTab({
         },
     });
 
-    const fetchMCPServers = async () => {
+    const fetchMCPServers = useCallback(async () => {
         setIsLoading(true);
         setError(null);
 
@@ -128,8 +128,8 @@ export function MCPServersTab({
                 throw new Error("Authentication token not found");
             }
 
+            const queryParams = new URLSearchParams();
             let endpoint;
-            let queryParams = new URLSearchParams();
 
             if (filterByUsername) {
                 endpoint = "http://localhost:8080/api/v1/tools/mcpserver/list/";
@@ -175,7 +175,7 @@ export function MCPServersTab({
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [filterByUsername, organizationId]);
 
     const onSubmit = async (values: CreateMCPServerValues) => {
         setIsSubmitting(true);
@@ -285,7 +285,7 @@ export function MCPServersTab({
         if (organizationId) {
             fetchMCPServers();
         }
-    }, [organizationId]);
+    }, [organizationId, fetchMCPServers]);
 
     useEffect(() => {
         if (!isDialogOpen) {

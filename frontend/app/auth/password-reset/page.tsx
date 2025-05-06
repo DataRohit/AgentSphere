@@ -142,7 +142,7 @@ export default function PasswordResetPage() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -218,8 +218,8 @@ export default function PasswordResetPage() {
                                     >
                                         <motion.div variants={itemVariants}>
                                             <p className="text-sm text-(--muted-foreground) mb-4">
-                                                Enter your email address below and we'll send you a
-                                                link to reset your password.
+                                                Enter your email address below and we&apos;ll send
+                                                you a link to reset your password.
                                             </p>
                                             <FormItem>
                                                 <FormLabel>Email</FormLabel>

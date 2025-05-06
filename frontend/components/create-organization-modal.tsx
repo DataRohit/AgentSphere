@@ -117,7 +117,7 @@ export function CreateOrganizationModal({
                 onOrganizationCreated(result.organization);
             } else {
                 if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]: [string, any]) => {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
                         if (Array.isArray(errors) && errors.length > 0) {
                             if (field === "non_field_errors") {
                                 toast.error(errors[0], {
@@ -128,7 +128,7 @@ export function CreateOrganizationModal({
                                     },
                                 });
                             } else {
-                                form.setError(field as any, {
+                                form.setError(field as keyof OrganizationFormValues, {
                                     type: "manual",
                                     message: errors[0],
                                 });
@@ -145,7 +145,7 @@ export function CreateOrganizationModal({
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -184,7 +184,7 @@ export function CreateOrganizationModal({
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        This is your organization's display name.
+                                        This is your organization&apos;s display name.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -226,7 +226,7 @@ export function CreateOrganizationModal({
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        Your organization's website (optional).
+                                        Your organization&apos;s website (optional).
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>

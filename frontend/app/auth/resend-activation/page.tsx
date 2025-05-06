@@ -160,7 +160,7 @@ export default function ResendActivationPage() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -240,8 +240,8 @@ export default function ResendActivationPage() {
                                     >
                                         <motion.div variants={itemVariants}>
                                             <p className="text-sm text-(--muted-foreground) mb-4">
-                                                Enter your email address below and we'll resend your
-                                                account activation link.
+                                                Enter your email address below and we&apos;ll resend
+                                                your account activation link.
                                             </p>
                                             <FormItem>
                                                 <FormLabel>Email</FormLabel>

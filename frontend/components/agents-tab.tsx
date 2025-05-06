@@ -2,6 +2,7 @@
 
 import { CreateAgentDialog } from "@/components/create-agent-dialog";
 import { DeleteAgentDialog } from "@/components/delete-agent-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UpdateAgentDialog } from "@/components/update-agent-dialog";
@@ -21,7 +22,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Tool {
@@ -80,7 +81,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const router = useRouter();
 
-    const fetchAgents = async () => {
+    const fetchAgents = useCallback(async () => {
         setIsLoading(true);
         setError(null);
 
@@ -91,7 +92,7 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
             }
 
             let endpoint;
-            let queryParams = new URLSearchParams();
+            const queryParams = new URLSearchParams();
 
             if (filterByUsername) {
                 endpoint = "http://localhost:8080/api/v1/agents/list/";
@@ -136,13 +137,13 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [organizationId, filterByUsername]);
 
     useEffect(() => {
         if (organizationId) {
             fetchAgents();
         }
-    }, [organizationId]);
+    }, [organizationId, fetchAgents]);
 
     const handleAgentClick = (agentId: string, e: React.MouseEvent) => {
         if ((e.target as HTMLElement).closest(".agent-action-button")) {
@@ -241,16 +242,19 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                             <CardHeader className="pb-2">
                                 <div className="flex items-center justify-between w-full">
                                     <div className="flex items-center">
-                                        <div className="w-10 h-10 rounded-full overflow-hidden mr-3 bg-(--muted) flex items-center justify-center">
-                                            {agent.avatar_url ? (
-                                                <img
-                                                    src={agent.avatar_url}
-                                                    alt={agent.name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <Bot className="h-5 w-5 text-(--muted-foreground)" />
-                                            )}
+                                        <div className="mr-3">
+                                            <Avatar className="h-10 w-10 border border-(--border)">
+                                                {agent.avatar_url ? (
+                                                    <AvatarImage
+                                                        src={agent.avatar_url}
+                                                        alt={agent.name}
+                                                    />
+                                                ) : (
+                                                    <AvatarFallback className="bg-(--muted) text-(--muted-foreground)">
+                                                        <Bot className="h-5 w-5" />
+                                                    </AvatarFallback>
+                                                )}
+                                            </Avatar>
                                         </div>
                                         <CardTitle className="flex items-center text-lg font-semibold">
                                             {agent.name}

@@ -88,7 +88,7 @@ export default function SettingsPage() {
                 router.push("/auth/login");
             } else {
                 if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]: [string, any]) => {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
                         if (Array.isArray(errors) && errors.length > 0) {
                             toast.error(`${field.replace("_", " ")}: ${errors[0]}`, {
                                 style: {
@@ -117,7 +117,7 @@ export default function SettingsPage() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -183,7 +183,7 @@ export default function SettingsPage() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
@@ -266,7 +266,7 @@ export default function SettingsPage() {
                                                         <div>
                                                             <p className="text-sm text-(--muted-foreground) mb-4">
                                                                 Your account will be deactivated and
-                                                                you won't be able to access the
+                                                                you won&apos;t be able to access the
                                                                 platform. This deactivation is
                                                                 temporary and your account can be
                                                                 reactivated in the future.

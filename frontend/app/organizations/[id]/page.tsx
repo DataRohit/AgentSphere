@@ -58,7 +58,7 @@ import {
     X,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -147,7 +147,7 @@ export default function OrganizationDetailPage() {
         },
     });
 
-    const fetchMembers = async () => {
+    const fetchMembers = useCallback(async () => {
         setIsFetchingMembers(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -184,7 +184,7 @@ export default function OrganizationDetailPage() {
         } finally {
             setIsFetchingMembers(false);
         }
-    };
+    }, [organizationId]);
 
     useEffect(() => {
         const fetchOrganization = async () => {
@@ -254,13 +254,13 @@ export default function OrganizationDetailPage() {
         };
 
         fetchOrganization();
-    }, [organizationId, router, form]);
+    }, [organizationId, router, form, currentUser]);
 
     useEffect(() => {
         if (organization) {
             fetchMembers();
         }
-    }, [organization]);
+    }, [organization, fetchMembers]);
 
     const onSubmit = async (values: OrganizationFormValues) => {
         setIsSubmitting(true);
@@ -296,7 +296,7 @@ export default function OrganizationDetailPage() {
                                 },
                             });
                         } else {
-                            form.setError(field as any, {
+                            form.setError(field as keyof OrganizationFormValues, {
                                 type: "manual",
                                 message: errors[0],
                             });
@@ -483,7 +483,7 @@ export default function OrganizationDetailPage() {
 
                 if (!response.ok) {
                     if (data.errors) {
-                        Object.entries(data.errors).forEach(([field, errors]: [string, any]) => {
+                        Object.entries(data.errors).forEach(([field, errors]) => {
                             if (Array.isArray(errors) && errors.length > 0) {
                                 toast.error(`${field}: ${errors[0]}`, {
                                     style: {
@@ -965,7 +965,7 @@ export default function OrganizationDetailPage() {
                                                         </FormControl>
                                                     )}
                                                     <FormDescription className="text-xs">
-                                                        Your organization's website (optional)
+                                                        Your organization&apos;s website (optional)
                                                     </FormDescription>
                                                     <FormMessage />
                                                 </FormItem>

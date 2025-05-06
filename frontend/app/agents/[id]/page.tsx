@@ -150,24 +150,7 @@ export default function AgentDetailPage() {
                     },
                 });
 
-                if (currentUser) {
-                    if (
-                        agent?.user.id === currentUser.id ||
-                        agent?.user.username === currentUser.username
-                    ) {
-                        router.push(`/organizations/${agent?.organization.id}/agent-studio`);
-                    } else {
-                        if (agent?.user.username) {
-                            router.push(
-                                `/organizations/${agent?.organization.id}/members/${agent.user.username}`
-                            );
-                        } else {
-                            router.push(`/organizations/${agent?.organization.id}`);
-                        }
-                    }
-                } else {
-                    router.push("/dashboard");
-                }
+                router.push("/dashboard");
             } finally {
                 setIsLoading(false);
             }
@@ -176,7 +159,7 @@ export default function AgentDetailPage() {
         if (agentId) {
             fetchAgentDetails();
         }
-    }, [agentId, currentUser, router]);
+    }, [agentId, router]);
 
     const handleBackClick = () => {
         if (agent) {

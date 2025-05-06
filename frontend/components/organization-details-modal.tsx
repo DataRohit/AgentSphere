@@ -25,7 +25,7 @@ import {
     Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { LeaveOrganizationDialog } from "./leave-organization-dialog";
 import { Organization } from "./organization-card";
@@ -60,7 +60,7 @@ export function OrganizationDetailsModal({
     const [membersError, setMembersError] = useState<string | null>(null);
     const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
 
-    const fetchMembers = async () => {
+    const fetchMembers = useCallback(async () => {
         if (!organization) return;
 
         setIsLoadingMembers(true);
@@ -104,13 +104,13 @@ export function OrganizationDetailsModal({
         } finally {
             setIsLoadingMembers(false);
         }
-    };
+    }, [organization]);
 
     useEffect(() => {
         if (open && organization) {
             fetchMembers();
         }
-    }, [open, organization]);
+    }, [open, organization, fetchMembers]);
 
     if (!organization) return null;
 

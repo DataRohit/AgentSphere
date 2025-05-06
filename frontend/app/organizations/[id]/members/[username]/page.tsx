@@ -68,107 +68,107 @@ export default function MemberDetailsPage() {
     const [isRemoving, setIsRemoving] = useState(false);
     const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
 
-    const fetchOrganization = async () => {
-        try {
-            const accessToken = Cookies.get("access_token");
-            if (!accessToken) {
-                throw new Error("Authentication token not found");
-            }
-
-            const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch organization details");
-            }
-
-            const data = await response.json();
-            setOrganization(data.organization);
-
-            if (currentUser && data.organization.owner.username === currentUser.username) {
-                setIsOwner(true);
-            }
-        } catch (err) {
-            const errorMessage =
-                err instanceof Error
-                    ? err.message
-                    : "An error occurred while fetching organization details";
-            setError(errorMessage);
-            toast.error(errorMessage, {
-                style: {
-                    backgroundColor: "var(--destructive)",
-                    color: "white",
-                    border: "none",
-                },
-            });
-        }
-    };
-
-    const fetchMember = async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const accessToken = Cookies.get("access_token");
-            if (!accessToken) {
-                throw new Error("Authentication token not found");
-            }
-
-            const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/members/`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch members");
-            }
-
-            const data = await response.json();
-            const foundMember = data.members.find(
-                (m: OrganizationMember) => m.username === username
-            );
-
-            if (!foundMember) {
-                throw new Error("Member not found");
-            }
-
-            setMember(foundMember);
-        } catch (err) {
-            const errorMessage =
-                err instanceof Error
-                    ? err.message
-                    : "An error occurred while fetching member details";
-            setError(errorMessage);
-            toast.error(errorMessage, {
-                style: {
-                    backgroundColor: "var(--destructive)",
-                    color: "white",
-                    border: "none",
-                },
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const fetchOrganization = async () => {
+            try {
+                const accessToken = Cookies.get("access_token");
+                if (!accessToken) {
+                    throw new Error("Authentication token not found");
+                }
+
+                const response = await fetch(
+                    `http://localhost:8080/api/v1/organizations/${organizationId}/`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch organization details");
+                }
+
+                const data = await response.json();
+                setOrganization(data.organization);
+
+                if (currentUser && data.organization.owner.username === currentUser.username) {
+                    setIsOwner(true);
+                }
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error
+                        ? err.message
+                        : "An error occurred while fetching organization details";
+                setError(errorMessage);
+                toast.error(errorMessage, {
+                    style: {
+                        backgroundColor: "var(--destructive)",
+                        color: "white",
+                        border: "none",
+                    },
+                });
+            }
+        };
+
+        const fetchMember = async () => {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const accessToken = Cookies.get("access_token");
+                if (!accessToken) {
+                    throw new Error("Authentication token not found");
+                }
+
+                const response = await fetch(
+                    `http://localhost:8080/api/v1/organizations/${organizationId}/members/`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch members");
+                }
+
+                const data = await response.json();
+                const foundMember = data.members.find(
+                    (m: OrganizationMember) => m.username === username
+                );
+
+                if (!foundMember) {
+                    throw new Error("Member not found");
+                }
+
+                setMember(foundMember);
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error
+                        ? err.message
+                        : "An error occurred while fetching member details";
+                setError(errorMessage);
+                toast.error(errorMessage, {
+                    style: {
+                        backgroundColor: "var(--destructive)",
+                        color: "white",
+                        border: "none",
+                    },
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         fetchOrganization();
         fetchMember();
-    }, [organizationId, username]);
+    }, [organizationId, username, currentUser]);
 
     const handleRemoveMember = async () => {
         if (!member) return;
@@ -198,7 +198,7 @@ export default function MemberDetailsPage() {
 
             if (!response.ok) {
                 if (data.errors) {
-                    Object.entries(data.errors).forEach(([field, errors]: [string, any]) => {
+                    Object.entries(data.errors).forEach(([field, errors]) => {
                         if (Array.isArray(errors) && errors.length > 0) {
                             toast.error(`${field}: ${errors[0]}`, {
                                 style: {

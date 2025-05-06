@@ -191,7 +191,7 @@ export default function PasswordResetConfirmPage() {
                     });
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred. Please try again later.", {
                 style: {
                     backgroundColor: "var(--destructive)",
