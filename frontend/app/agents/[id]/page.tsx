@@ -3,11 +3,13 @@
 import { useAppSelector } from "@/app/store/hooks";
 import { selectUser } from "@/app/store/slices/userSlice";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
+import { DeleteAgentDialog } from "@/components/delete-agent-dialog";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UpdateAgentDialog } from "@/components/update-agent-dialog";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import {
@@ -19,7 +21,9 @@ import {
     Globe,
     Loader2,
     MessageSquare,
+    Pencil,
     Server,
+    Trash2,
     User,
     Wrench,
 } from "lucide-react";
@@ -77,6 +81,8 @@ export default function AgentDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [referrer, setReferrer] = useState<string | null>(null);
+    const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     useEffect(() => {
         // Store the referrer path
@@ -176,8 +182,15 @@ export default function AgentDetailPage() {
                 // If came from agent studio, go back there
                 router.push(`/organizations/${agent.organization.id}/agent-studio`);
             } else if (referrer === "organization") {
-                // If came from organization page, go back there
-                router.push(`/organizations/${agent.organization.id}`);
+                // If came from organization page, go back to member detail page
+                if (agent.user.username) {
+                    router.push(
+                        `/organizations/${agent.organization.id}/members/${agent.user.username}`
+                    );
+                } else {
+                    // Fallback to organization page if username is not available
+                    router.push(`/organizations/${agent.organization.id}`);
+                }
             } else if (
                 currentUser &&
                 (agent.user.id === currentUser.id || agent.user.username === currentUser.username)
@@ -192,6 +205,14 @@ export default function AgentDetailPage() {
             // Fallback to dashboard
             router.push("/dashboard");
         }
+    };
+
+    const handleUpdateClick = () => {
+        setIsUpdateDialogOpen(true);
+    };
+
+    const handleDeleteClick = () => {
+        setIsDeleteDialogOpen(true);
     };
 
     // Remove unused getInitials function
@@ -266,25 +287,55 @@ export default function AgentDetailPage() {
 
                         <Card className="border border-(--border)">
                             <CardHeader className="pb-4">
-                                <div className="flex items-center gap-4">
-                                    <Avatar className="h-16 w-16 border border-(--border)">
-                                        {agent.avatar_url ? (
-                                            <AvatarImage src={agent.avatar_url} alt={agent.name} />
-                                        ) : (
-                                            <AvatarFallback className="bg-(--primary)/10 text-(--primary) text-xl">
-                                                <Bot className="h-8 w-8" />
-                                            </AvatarFallback>
-                                        )}
-                                    </Avatar>
-                                    <div>
-                                        <CardTitle className="text-xl md:text-2xl font-bold">
-                                            {agent.name}
-                                        </CardTitle>
-                                        <div className="flex items-center text-xs md:text-sm text-(--muted-foreground)">
-                                            <User className="mr-1 h-3 md:h-4 w-3 md:w-4" />
-                                            <span>Created by {agent.user.username}</span>
+                                <div className="flex items-center justify-between w-full">
+                                    <div className="flex items-center gap-4">
+                                        <Avatar className="h-16 w-16 border border-(--border)">
+                                            {agent.avatar_url ? (
+                                                <AvatarImage
+                                                    src={agent.avatar_url}
+                                                    alt={agent.name}
+                                                />
+                                            ) : (
+                                                <AvatarFallback className="bg-(--primary)/10 text-(--primary) text-xl">
+                                                    <Bot className="h-8 w-8" />
+                                                </AvatarFallback>
+                                            )}
+                                        </Avatar>
+                                        <div>
+                                            <CardTitle className="text-xl md:text-2xl font-bold">
+                                                {agent.name}
+                                            </CardTitle>
+                                            <div className="flex items-center text-xs md:text-sm text-(--muted-foreground)">
+                                                <User className="mr-1 h-3 md:h-4 w-3 md:w-4" />
+                                                <span>Created by {agent.user.username}</span>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    {currentUser &&
+                                        (agent.user.id === currentUser.id ||
+                                            agent.user.username === currentUser.username) && (
+                                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-10 w-10 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-all duration-200 cursor-pointer"
+                                                    onClick={handleUpdateClick}
+                                                >
+                                                    <Pencil className="h-5 w-5" />
+                                                    <span className="sr-only">Edit</span>
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-10 w-10 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-all duration-200 cursor-pointer"
+                                                    onClick={handleDeleteClick}
+                                                >
+                                                    <Trash2 className="h-5 w-5 text-(--destructive)" />
+                                                    <span className="sr-only">Delete</span>
+                                                </Button>
+                                            </div>
+                                        )}
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-6">
@@ -433,6 +484,102 @@ export default function AgentDetailPage() {
                             </CardContent>
                         </Card>
                     </motion.div>
+
+                    {agent &&
+                        currentUser &&
+                        (agent.user.id === currentUser.id ||
+                            agent.user.username === currentUser.username) && (
+                            <>
+                                <UpdateAgentDialog
+                                    agent={agent}
+                                    open={isUpdateDialogOpen}
+                                    onOpenChange={(open) => {
+                                        setIsUpdateDialogOpen(open);
+                                        if (!open) {
+                                            // Refresh agent details after update
+                                            const fetchAgentDetails = async () => {
+                                                try {
+                                                    const accessToken = Cookies.get("access_token");
+                                                    if (!accessToken) {
+                                                        throw new Error(
+                                                            "Authentication token not found"
+                                                        );
+                                                    }
+
+                                                    const response = await fetch(
+                                                        `http://localhost:8080/api/v1/agents/${agentId}/`,
+                                                        {
+                                                            method: "GET",
+                                                            headers: {
+                                                                "Content-Type": "application/json",
+                                                                Authorization: `Bearer ${accessToken}`,
+                                                            },
+                                                        }
+                                                    );
+
+                                                    const data = await response.json();
+
+                                                    if (response.ok) {
+                                                        setAgent(data.agent);
+                                                    }
+                                                } catch (err) {
+                                                    console.error(
+                                                        "Failed to refresh agent details:",
+                                                        err
+                                                    );
+                                                }
+                                            };
+                                            fetchAgentDetails();
+                                        }
+                                    }}
+                                    onUpdateSuccess={() => {
+                                        // Refresh agent details after update
+                                        const fetchAgentDetails = async () => {
+                                            try {
+                                                const accessToken = Cookies.get("access_token");
+                                                if (!accessToken) {
+                                                    throw new Error(
+                                                        "Authentication token not found"
+                                                    );
+                                                }
+
+                                                const response = await fetch(
+                                                    `http://localhost:8080/api/v1/agents/${agentId}/`,
+                                                    {
+                                                        method: "GET",
+                                                        headers: {
+                                                            "Content-Type": "application/json",
+                                                            Authorization: `Bearer ${accessToken}`,
+                                                        },
+                                                    }
+                                                );
+
+                                                const data = await response.json();
+
+                                                if (response.ok) {
+                                                    setAgent(data.agent);
+                                                }
+                                            } catch (err) {
+                                                console.error(
+                                                    "Failed to refresh agent details:",
+                                                    err
+                                                );
+                                            }
+                                        };
+                                        fetchAgentDetails();
+                                    }}
+                                />
+                                <DeleteAgentDialog
+                                    agent={agent}
+                                    open={isDeleteDialogOpen}
+                                    onOpenChange={setIsDeleteDialogOpen}
+                                    onDeleteSuccess={() => {
+                                        // Navigate back after deletion
+                                        handleBackClick();
+                                    }}
+                                />
+                            </>
+                        )}
                 </div>
             </div>
         </ProtectedRoute>
