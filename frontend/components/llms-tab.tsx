@@ -19,7 +19,6 @@ import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import {
     AlertCircle,
-    Bot,
     Calendar,
     Cpu,
     Globe,
@@ -329,23 +328,27 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
             return (
                 <Card className="p-6 border border-dashed border-(--border)">
                     <div className="flex flex-col items-center justify-center p-4 text-center">
-                        <Bot className="h-12 w-12 text-(--muted-foreground) mb-3" />
+                        <Cpu className="h-12 w-12 text-(--muted-foreground) mb-3" />
                         <h3 className="text-lg font-medium mb-1">No LLMs Configured</h3>
                         <p className="text-sm text-(--muted-foreground) mb-4">
-                            Configure your first LLM to start creating AI agents.
+                            {readOnly
+                                ? "This user has not configured any LLMs yet."
+                                : "Configure your first LLM to start creating AI agents."}
                         </p>
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer">
-                                    <span className="relative z-10 flex items-center">
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Configure LLM
-                                    </span>
-                                    <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                </Button>
-                            </DialogTrigger>
-                            {renderCreateLLMDialog()}
-                        </Dialog>
+                        {!readOnly && (
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer">
+                                        <span className="relative z-10 flex items-center">
+                                            <Plus className="mr-2 h-4 w-4" />
+                                            Configure LLM
+                                        </span>
+                                        <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                    </Button>
+                                </DialogTrigger>
+                                {renderCreateLLMDialog()}
+                            </Dialog>
+                        )}
                     </div>
                 </Card>
             );
