@@ -120,9 +120,16 @@ export default function AgentStudioPage() {
                             transition={{ duration: 0.5, delay: 0.1 }}
                             className="space-y-6"
                         >
-                            <div className="flex items-center space-x-3">
-                                <Bot className="h-8 w-8 text-(--primary)" />
-                                <h1 className="text-3xl font-bold tracking-tight">Agent Studio</h1>
+                            <div className="flex flex-col">
+                                <div className="flex items-center space-x-3">
+                                    <Bot className="h-8 w-8 text-(--primary)" />
+                                    <h1 className="text-3xl font-bold tracking-tight">
+                                        Agent Studio
+                                    </h1>
+                                </div>
+                                <p className="text-sm text-(--muted-foreground) mt-2">
+                                    Create, manage, and deploy AI agents for AgentSphere
+                                </p>
                             </div>
 
                             <Tabs defaultValue="agents" className="w-full">
@@ -173,7 +180,7 @@ export default function AgentStudioPage() {
                                         <Card>
                                             <CardHeader>
                                                 <CardTitle>Language Models</CardTitle>
-                                                <p className="text-(--muted-foreground)">
+                                                <p className="text-sm text-(--muted-foreground)">
                                                     Configure and manage your language models for
                                                     use with agents.
                                                 </p>
@@ -202,7 +209,7 @@ export default function AgentStudioPage() {
                                         <Card>
                                             <CardHeader>
                                                 <CardTitle>MCP Servers</CardTitle>
-                                                <p className="text-(--muted-foreground)">
+                                                <p className="text-sm text-(--muted-foreground)">
                                                     Connect to MCP servers to enable advanced agent
                                                     capabilities.
                                                 </p>
@@ -231,7 +238,7 @@ export default function AgentStudioPage() {
                                         <Card>
                                             <CardHeader>
                                                 <CardTitle>AI Agents</CardTitle>
-                                                <p className="text-(--muted-foreground)">
+                                                <p className="text-sm text-(--muted-foreground)">
                                                     Create, manage, and deploy AI agents for your
                                                     organization.
                                                 </p>
