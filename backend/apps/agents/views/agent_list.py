@@ -19,6 +19,7 @@ from apps.agents.serializers import (
     AgentSerializer,
 )
 from apps.common.renderers import GenericJSONRenderer
+from apps.organization.models import Organization
 
 # Get the User model
 User = get_user_model()
@@ -28,11 +29,9 @@ User = get_user_model()
 class AgentListView(APIView):
     """Agent list view.
 
-    This view allows authenticated users to list all public agents within an organization.
-    It requires the organization_id parameter and returns all public agents in that organization,
-    including those created by other members of the organization.
-    Only agents with is_public=True are returned.
-    It supports filtering by type.
+    This view allows organization owners to list agents within their organization.
+    It requires the organization_id and username parameters. Only the organization owner can
+    view agents created by other members of the organization.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -79,12 +78,11 @@ class AgentListView(APIView):
     # Define the schema for the list view
     @extend_schema(
         tags=["Agents"],
-        summary="List all public agents within an organization.",
+        summary="List agents within an organization by username.",
         description="""
-        Lists all public agents within the specified organization, including those created by
-        other members of the organization. Only agents with is_public=True are returned.
-        The organization_id parameter is mandatory.
-        Supports filtering by type.
+        Lists agents within the specified organization for a specific user.
+        Only the organization owner can view agents created by other members.
+        Both organization_id and username parameters are mandatory.
         """,
         parameters=[
             OpenApiParameter(
@@ -94,9 +92,9 @@ class AgentListView(APIView):
                 type=str,
             ),
             OpenApiParameter(
-                name="type",
-                description="Filter by agent type",
-                required=False,
+                name="username",
+                description="Username to filter agents by creator (required)",
+                required=True,
                 type=str,
             ),
         ],
@@ -104,16 +102,16 @@ class AgentListView(APIView):
             status.HTTP_200_OK: AgentListResponseSerializer,
             status.HTTP_400_BAD_REQUEST: AgentListMissingParamResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: AgentAuthErrorResponseSerializer,
+            status.HTTP_403_FORBIDDEN: AgentAuthErrorResponseSerializer,
             status.HTTP_404_NOT_FOUND: AgentListNotFoundResponseSerializer,
         },
     )
-    def get(self, request: Request) -> Response:
-        """List all public agents within an organization.
+    def get(self, request: Request) -> Response:  # noqa: PLR0911
+        """List agents within an organization by username.
 
-        This method lists all public agents within the specified organization,
-        including those created by other members of the organization.
-        Only agents with is_public=True are returned.
-        The organization_id parameter is mandatory.
+        This method lists agents within the specified organization for a specific user.
+        Only the organization owner can view agents created by other members.
+        Both organization_id and username parameters are mandatory.
 
         Args:
             request (Request): The HTTP request object.
@@ -134,6 +132,15 @@ class AgentListView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Check if username is provided
+        username = request.query_params.get("username")
+        if not username:
+            # Return 400 Bad Request if username is not provided
+            return Response(
+                {"error": "Missing required parameter: username"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Get the user's organizations
         user_organizations = user.organizations.all()
 
@@ -145,14 +152,48 @@ class AgentListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Get all agents in the specified organization that are public
-        queryset = Agent.objects.filter(organization_id=organization_id, is_public=True).distinct()
+        try:
+            # Get the organization
+            organization = Organization.objects.get(id=organization_id)
 
-        # Apply type filter if provided
-        agent_type = request.query_params.get("type")
-        if agent_type:
-            # Get agents of the specified type
-            queryset = queryset.filter(type=agent_type)
+            try:
+                # Check if the target user exists
+                target_user = User.objects.get(username=username)
+
+                # Check if the user is trying to view agents created by another user
+                if user.username != username:
+                    # Only the organization owner can view agents created by other members
+                    if organization.owner != user:
+                        # Return 403 Forbidden if the user is not the organization owner
+                        return Response(
+                            {"error": "Only the organization owner can view agents created by other members."},
+                            status=status.HTTP_403_FORBIDDEN,
+                        )
+
+                # Check if the target user is a member of the organization
+                if not organization.members.filter(id=target_user.id).exists():
+                    # Return 404 Not Found if the target user is not a member of the organization
+                    return Response(
+                        {"error": "The specified user is not a member of this organization."},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                # Get agents created by the specified user in the organization
+                queryset = Agent.objects.filter(organization_id=organization_id, user=target_user)
+
+            except User.DoesNotExist:
+                # Return 404 Not Found if the user doesn't exist
+                return Response(
+                    {"error": "User not found."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+        except Organization.DoesNotExist:
+            # Return 404 Not Found if the organization doesn't exist
+            return Response(
+                {"error": "Organization not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         # Check if any agents were found
         if not queryset.exists():

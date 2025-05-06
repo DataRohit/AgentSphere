@@ -14,6 +14,7 @@ from apps.agents.models import Agent
 from apps.agents.serializers import (
     AgentAuthErrorResponseSerializer,
     AgentListMeResponseSerializer,
+    AgentListMissingParamResponseSerializer,
     AgentListNotFoundResponseSerializer,
     AgentSerializer,
 )
@@ -28,7 +29,7 @@ class AgentListMeView(APIView):
     """Agent list me view.
 
     This view allows authenticated users to list all agents they have created.
-    It supports optional filtering by organization_id and type.
+    It requires the organization_id parameter.
 
     Attributes:
         renderer_classes (list): The renderer classes for the view.
@@ -78,25 +79,20 @@ class AgentListMeView(APIView):
         summary="List agents created by the current user.",
         description="""
         Lists all agents created by the authenticated user.
-        Supports optional filtering by organization_id and type.
+        Requires organization_id parameter.
         Returns 404 if no agents are found matching the criteria.
         """,
         parameters=[
             OpenApiParameter(
                 name="organization_id",
-                description="Filter by organization ID (optional)",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="type",
-                description="Filter by agent type (optional)",
-                required=False,
+                description="Organization ID (required)",
+                required=True,
                 type=str,
             ),
         ],
         responses={
             status.HTTP_200_OK: AgentListMeResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: AgentListMissingParamResponseSerializer,
             status.HTTP_401_UNAUTHORIZED: AgentAuthErrorResponseSerializer,
             status.HTTP_404_NOT_FOUND: AgentListNotFoundResponseSerializer,
         },
@@ -105,7 +101,7 @@ class AgentListMeView(APIView):
         """List agents created by the current user.
 
         This method lists all agents created by the authenticated user.
-        It supports optional filtering by organization_id and type.
+        It requires the organization_id parameter.
 
         Args:
             request (Request): The HTTP request object.
@@ -117,31 +113,28 @@ class AgentListMeView(APIView):
         # Get the authenticated user
         user = request.user
 
-        # Build query for user's agents only
-        queryset = Agent.objects.filter(user=user)
-
-        # Apply organization_id filter if provided
+        # Check if organization_id is provided
         organization_id = request.query_params.get("organization_id")
-        if organization_id:
-            # Get the user's organizations
-            user_organizations = user.organizations.all()
+        if not organization_id:
+            # Return 400 Bad Request if organization_id is not provided
+            return Response(
+                {"error": "Missing required parameter: organization_id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            # Check if the user is a member of the specified organization
-            if not user_organizations.filter(id=organization_id).exists():
-                # Return 404 Not Found if the user is not a member of the organization
-                return Response(
-                    {"error": "No agents found matching the criteria."},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
+        # Get the user's organizations
+        user_organizations = user.organizations.all()
 
-            # Filter by organization_id
-            queryset = queryset.filter(organization_id=organization_id)
+        # Check if the user is a member of the specified organization
+        if not user_organizations.filter(id=organization_id).exists():
+            # Return 404 Not Found if the user is not a member of the organization
+            return Response(
+                {"error": "No agents found matching the criteria."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-        # Apply type filter if provided
-        agent_type = request.query_params.get("type")
-        if agent_type:
-            # Get agents of the specified type
-            queryset = queryset.filter(type=agent_type)
+        # Build query for user's agents in the specified organization
+        queryset = Agent.objects.filter(user=user, organization_id=organization_id)
 
         # Check if any agents were found
         if not queryset.exists():
