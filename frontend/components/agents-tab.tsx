@@ -1,8 +1,10 @@
 "use client";
 
 import { CreateAgentDialog } from "@/components/create-agent-dialog";
+import { DeleteAgentDialog } from "@/components/delete-agent-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UpdateAgentDialog } from "@/components/update-agent-dialog";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
@@ -13,8 +15,10 @@ import {
     Cpu,
     Loader2,
     MessageSquare,
+    Pencil,
     Plus,
     Server,
+    Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -71,6 +75,9 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const router = useRouter();
 
     const fetchAgents = async () => {
@@ -139,8 +146,25 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
         }
     }, [organizationId]);
 
-    const handleAgentClick = (agentId: string) => {
+    const handleAgentClick = (agentId: string, e: React.MouseEvent) => {
+        // If the click is on the update or delete button, don't navigate
+        if ((e.target as HTMLElement).closest(".agent-action-button")) {
+            e.stopPropagation();
+            return;
+        }
         router.push(`/agents/${agentId}`);
+    };
+
+    const handleUpdateClick = (agent: Agent, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedAgent(agent);
+        setIsUpdateDialogOpen(true);
+    };
+
+    const handleDeleteClick = (agent: Agent, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedAgent(agent);
+        setIsDeleteDialogOpen(true);
     };
 
     const renderAgentCards = () => {
@@ -209,25 +233,53 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                         className="h-full cursor-pointer"
-                        onClick={() => handleAgentClick(agent.id)}
+                        onClick={(e) => handleAgentClick(agent.id, e)}
                     >
                         <Card className="h-full flex flex-col p-0 pt-6 border border-(--border) shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-(--secondary) dark:bg-(--secondary) relative">
                             <CardHeader className="pb-2">
-                                <div className="flex items-center">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden mr-3 bg-(--muted) flex items-center justify-center">
-                                        {agent.avatar_url ? (
-                                            <img
-                                                src={agent.avatar_url}
-                                                alt={agent.name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <Bot className="h-5 w-5 text-(--muted-foreground)" />
-                                        )}
+                                <div className="flex items-center justify-between w-full">
+                                    <div className="flex items-center">
+                                        <div className="w-10 h-10 rounded-full overflow-hidden mr-3 bg-(--muted) flex items-center justify-center">
+                                            {agent.avatar_url ? (
+                                                <img
+                                                    src={agent.avatar_url}
+                                                    alt={agent.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <Bot className="h-5 w-5 text-(--muted-foreground)" />
+                                            )}
+                                        </div>
+                                        <CardTitle className="flex items-center text-lg font-semibold">
+                                            {agent.name}
+                                        </CardTitle>
                                     </div>
-                                    <CardTitle className="flex items-center text-lg font-semibold">
-                                        {agent.name}
-                                    </CardTitle>
+                                    {!readOnly && (
+                                        <div className="absolute top-2 right-2 flex space-x-1">
+                                            <div className="group">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-all duration-200 cursor-pointer agent-action-button"
+                                                    onClick={(e) => handleUpdateClick(agent, e)}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                    <span className="sr-only">Edit</span>
+                                                </Button>
+                                            </div>
+                                            <div className="group">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-all duration-200 cursor-pointer agent-action-button"
+                                                    onClick={(e) => handleDeleteClick(agent, e)}
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-(--destructive)" />
+                                                    <span className="sr-only">Delete</span>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </CardHeader>
                             <CardContent className="px-6 pb-6">
@@ -328,6 +380,33 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
                 onOpenChange={setIsCreateDialogOpen}
                 onCreateSuccess={fetchAgents}
             />
+
+            {selectedAgent && (
+                <>
+                    <UpdateAgentDialog
+                        agent={selectedAgent}
+                        open={isUpdateDialogOpen}
+                        onOpenChange={(open) => {
+                            setIsUpdateDialogOpen(open);
+                            if (!open) {
+                                setTimeout(() => setSelectedAgent(null), 300);
+                            }
+                        }}
+                        onUpdateSuccess={fetchAgents}
+                    />
+                    <DeleteAgentDialog
+                        agent={selectedAgent}
+                        open={isDeleteDialogOpen}
+                        onOpenChange={(open) => {
+                            setIsDeleteDialogOpen(open);
+                            if (!open) {
+                                setTimeout(() => setSelectedAgent(null), 300);
+                            }
+                        }}
+                        onDeleteSuccess={fetchAgents}
+                    />
+                </>
+            )}
         </>
     );
 }
