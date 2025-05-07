@@ -43,13 +43,16 @@ export default function ChatDetailPage() {
     const chatId = params.id as string;
     const [chat, setChat] = useState<Chat | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    // We don't need currentUser for now
-    // const currentUser = useAppSelector(selectUser);
     const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isViewOnly, setIsViewOnly] = useState(false);
 
     useEffect(() => {
         fetchChatDetails();
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const viewOnly = searchParams.get("viewOnly") === "true";
+        setIsViewOnly(viewOnly);
     }, [chatId]);
 
     const fetchChatDetails = async () => {
@@ -176,42 +179,48 @@ export default function ChatDetailPage() {
                                 </div>
 
                                 <div className="flex flex-col space-y-2">
-                                    <div className="w-full">
-                                        <Button
-                                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer w-full"
-                                            onClick={() => router.push(`/conversations/${chat.id}`)}
-                                        >
-                                            <span className="relative z-10 flex items-center">
-                                                <MessageCircle className="mr-2 h-4 w-4" />
-                                                Continue Chat
-                                            </span>
-                                            <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                        </Button>
-                                    </div>
-                                    <div className="flex space-x-2 w-full">
-                                        <Button
-                                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-1/2"
-                                            variant="outline"
-                                            onClick={handleUpdateClick}
-                                        >
-                                            <span className="relative z-10 flex items-center">
-                                                <Pencil className="mr-2 h-4 w-4" />
-                                                Update
-                                            </span>
-                                            <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                        </Button>
-                                        <Button
-                                            className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-white dark:bg-(--destructive) dark:text-white dark:border-(--destructive) h-10 cursor-pointer w-1/2"
-                                            variant="destructive"
-                                            onClick={handleDeleteClick}
-                                        >
-                                            <span className="relative z-10 flex items-center">
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                Delete
-                                            </span>
-                                            <span className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                                        </Button>
-                                    </div>
+                                    {!isViewOnly && (
+                                        <>
+                                            <div className="w-full">
+                                                <Button
+                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer w-full"
+                                                    onClick={() =>
+                                                        router.push(`/conversations/${chat.id}`)
+                                                    }
+                                                >
+                                                    <span className="relative z-10 flex items-center">
+                                                        <MessageCircle className="mr-2 h-4 w-4" />
+                                                        Continue Chat
+                                                    </span>
+                                                    <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                                </Button>
+                                            </div>
+                                            <div className="flex space-x-2 w-full">
+                                                <Button
+                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-1/2"
+                                                    variant="outline"
+                                                    onClick={handleUpdateClick}
+                                                >
+                                                    <span className="relative z-10 flex items-center">
+                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        Update
+                                                    </span>
+                                                    <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                                </Button>
+                                                <Button
+                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-white dark:bg-(--destructive) dark:text-white dark:border-(--destructive) h-10 cursor-pointer w-1/2"
+                                                    variant="destructive"
+                                                    onClick={handleDeleteClick}
+                                                >
+                                                    <span className="relative z-10 flex items-center">
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Delete
+                                                    </span>
+                                                    <span className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                                </Button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 

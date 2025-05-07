@@ -63,7 +63,6 @@ export function DeleteChatDialog({ open, onOpenChange, chat, onSuccess }: Delete
                 },
             });
 
-            // Close dialog and trigger success callback
             onOpenChange(false);
             onSuccess();
         } catch (err) {

@@ -52,9 +52,15 @@ interface GroupChat {
 
 interface GroupChatListProps {
     organizationId: string;
+    filterByUsername?: string;
+    readOnly?: boolean;
 }
 
-export function GroupChatList({ organizationId }: GroupChatListProps) {
+export function GroupChatList({
+    organizationId,
+    filterByUsername,
+    readOnly = false,
+}: GroupChatListProps) {
     const router = useRouter();
     const [chats, setChats] = useState<GroupChat[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -76,13 +82,24 @@ export function GroupChatList({ organizationId }: GroupChatListProps) {
                 throw new Error("Authentication token not found");
             }
 
-            let url = `http://localhost:8080/api/v1/chats/group/list/me/?organization_id=${organizationId}`;
+            let endpoint;
+            const queryParams = new URLSearchParams();
+            queryParams.append("organization_id", organizationId);
 
-            if (isPublic === "true" || isPublic === "false") {
-                url += `&is_public=${isPublic}`;
+            if (filterByUsername) {
+                endpoint = "http://localhost:8080/api/v1/chats/group/list";
+                queryParams.append("username", filterByUsername);
+            } else {
+                endpoint = "http://localhost:8080/api/v1/chats/group/list/me";
             }
 
-            const response = await fetch(url, {
+            if (isPublic === "true" || isPublic === "false") {
+                queryParams.append("is_public", isPublic);
+            }
+
+            const fullUrl = `${endpoint}?${queryParams.toString()}`;
+
+            const response = await fetch(fullUrl, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -117,7 +134,11 @@ export function GroupChatList({ organizationId }: GroupChatListProps) {
             const errorMessage =
                 err instanceof Error ? err.message : "An error occurred while fetching group chats";
             toast.error(errorMessage, {
-                className: "bg-(--destructive) text-white border-none",
+                style: {
+                    backgroundColor: "#f44336",
+                    color: "white",
+                    border: "none",
+                },
             });
 
             if (
@@ -286,23 +307,41 @@ export function GroupChatList({ organizationId }: GroupChatListProps) {
                                 >
                                     <TableCell
                                         className="font-medium pl-4 cursor-pointer"
-                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
+                                        onClick={() =>
+                                            router.push(
+                                                `/group-chats/${chat.id}${
+                                                    readOnly ? "?viewOnly=true" : ""
+                                                }`
+                                            )
+                                        }
                                     >
                                         {chat.title}
                                     </TableCell>
                                     <TableCell
                                         className="cursor-pointer"
-                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
+                                        onClick={() =>
+                                            router.push(
+                                                `/group-chats/${chat.id}${
+                                                    readOnly ? "?viewOnly=true" : ""
+                                                }`
+                                            )
+                                        }
                                     >
                                         {formatAgentNames(chat.agents)}
                                     </TableCell>
                                     <TableCell
                                         className="cursor-pointer"
-                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
+                                        onClick={() =>
+                                            router.push(
+                                                `/group-chats/${chat.id}${
+                                                    readOnly ? "?viewOnly=true" : ""
+                                                }`
+                                            )
+                                        }
                                     >
                                         <Badge
                                             variant="outline"
-                                            className={`bg-(--primary)/10 text-(--primary) border-(--primary)/20 w-20 ${
+                                            className={`bg-(--primary)/10 border-(--primary)/20 w-20 ${
                                                 chat.is_public ? "text-blue-300" : "text-green-300"
                                             }`}
                                         >
@@ -311,34 +350,48 @@ export function GroupChatList({ organizationId }: GroupChatListProps) {
                                     </TableCell>
                                     <TableCell
                                         className="whitespace-nowrap cursor-pointer"
-                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
+                                        onClick={() =>
+                                            router.push(
+                                                `/group-chats/${chat.id}${
+                                                    readOnly ? "?viewOnly=true" : ""
+                                                }`
+                                            )
+                                        }
                                     >
                                         {formatDate(chat.created_at)}
                                     </TableCell>
                                     <TableCell className="text-right pr-4">
                                         <div className="flex space-x-1">
-                                            <div className="group">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-all duration-200 cursor-pointer agent-action-button"
-                                                    onClick={(e) => handleUpdateClick(e, chat)}
-                                                >
-                                                    <Pencil className="h-4 w-4" />
-                                                    <span className="sr-only">Edit</span>
-                                                </Button>
-                                            </div>
-                                            <div className="group">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-all duration-200 cursor-pointer agent-action-button"
-                                                    onClick={(e) => handleDeleteClick(e, chat)}
-                                                >
-                                                    <Trash2 className="h-4 w-4 text-(--destructive)" />
-                                                    <span className="sr-only">Delete</span>
-                                                </Button>
-                                            </div>
+                                            {!readOnly && (
+                                                <>
+                                                    <div className="group">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-all duration-200 cursor-pointer agent-action-button"
+                                                            onClick={(e) =>
+                                                                handleUpdateClick(e, chat)
+                                                            }
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                            <span className="sr-only">Edit</span>
+                                                        </Button>
+                                                    </div>
+                                                    <div className="group">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-all duration-200 cursor-pointer agent-action-button"
+                                                            onClick={(e) =>
+                                                                handleDeleteClick(e, chat)
+                                                            }
+                                                        >
+                                                            <Trash2 className="h-4 w-4 text-(--destructive)" />
+                                                            <span className="sr-only">Delete</span>
+                                                        </Button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </TableCell>
                                 </TableRow>

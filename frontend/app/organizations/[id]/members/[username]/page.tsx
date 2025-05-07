@@ -3,7 +3,9 @@
 import { useAppSelector } from "@/app/store/hooks";
 import { selectUser } from "@/app/store/slices/userSlice";
 import { AgentsTab } from "@/components/agents-tab";
+import { ChatList } from "@/components/chat-list";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
+import { GroupChatList } from "@/components/group-chat-list";
 import { LLMsTab } from "@/components/llms-tab";
 import { MCPServersTab } from "@/components/mcp-servers-tab";
 import { ProtectedRoute } from "@/components/protected-route";
@@ -15,7 +17,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
-import { ArrowLeft, Bot, Calendar, Cpu, Loader2, Server, Trash2, User, Users } from "lucide-react";
+import {
+    ArrowLeft,
+    Bot,
+    Calendar,
+    Cpu,
+    Loader2,
+    MessageCircle,
+    Server,
+    Trash2,
+    User,
+    Users,
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -504,6 +517,15 @@ export default function MemberDetailsPage() {
                                             <span>Agents</span>
                                         </div>
                                     </TabsTrigger>
+                                    <TabsTrigger
+                                        value="chats"
+                                        className="flex-1 data-[state=active]:bg-(--primary) data-[state=active]:text-(--primary-foreground) data-[state=active]:shadow-sm transition-all duration-200 hover:bg-(--accent) data-[state=active]:hover:bg-(--primary) rounded-md cursor-pointer flex items-center justify-center py-1.5 px-2 m-0 h-9 w-full"
+                                    >
+                                        <div className="flex items-center">
+                                            <MessageCircle className="mr-2 h-4 w-4" />
+                                            <span>Chats</span>
+                                        </div>
+                                    </TabsTrigger>
                                 </TabsList>
 
                                 <TabsContent
@@ -532,7 +554,7 @@ export default function MemberDetailsPage() {
                                             <CardContent>
                                                 <LLMsTab
                                                     organizationId={organizationId}
-                                                    filterByUsername={member?.username}
+                                                    filterByUsername={username}
                                                     readOnly={true}
                                                 />
                                             </CardContent>
@@ -564,7 +586,7 @@ export default function MemberDetailsPage() {
                                             <CardContent>
                                                 <MCPServersTab
                                                     organizationId={organizationId}
-                                                    filterByUsername={member?.username}
+                                                    filterByUsername={username}
                                                     readOnly={true}
                                                 />
                                             </CardContent>
@@ -596,7 +618,55 @@ export default function MemberDetailsPage() {
                                             <CardContent>
                                                 <AgentsTab
                                                     organizationId={organizationId}
-                                                    filterByUsername={member?.username}
+                                                    filterByUsername={username}
+                                                    readOnly={true}
+                                                />
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </TabsContent>
+
+                                <TabsContent
+                                    value="chats"
+                                    className="mt-6 data-[state=active]:animate-in data-[state=inactive]:animate-out data-[state=inactive]:fade-out-50 data-[state=active]:fade-in-50 duration-200"
+                                >
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 300,
+                                            damping: 30,
+                                            delay: 0.1,
+                                        }}
+                                    >
+                                        <Card>
+                                            <CardHeader>
+                                                <h2 className="text-xl font-bold">Single Chats</h2>
+                                                <p className="text-(--muted-foreground)">
+                                                    Chats created by {fullName}
+                                                </p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <ChatList
+                                                    organizationId={organizationId}
+                                                    filterByUsername={username}
+                                                    readOnly={true}
+                                                />
+                                            </CardContent>
+                                        </Card>
+
+                                        <Card className="mt-6">
+                                            <CardHeader>
+                                                <h2 className="text-xl font-bold">Group Chats</h2>
+                                                <p className="text-(--muted-foreground)">
+                                                    Group chats created by {fullName}
+                                                </p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <GroupChatList
+                                                    organizationId={organizationId}
+                                                    filterByUsername={username}
                                                     readOnly={true}
                                                 />
                                             </CardContent>

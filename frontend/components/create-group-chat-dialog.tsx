@@ -52,7 +52,6 @@ export function CreateGroupChatDialog({
     useEffect(() => {
         if (open) {
             fetchAgents();
-            // Reset form
             setTitle("");
             setIsPublic(false);
             setSelectedAgentIds([]);
@@ -169,7 +168,9 @@ export function CreateGroupChatDialog({
             onSuccess();
         } catch (err) {
             const errorMessage =
-                err instanceof Error ? err.message : "An error occurred while creating the group chat";
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while creating the group chat";
             toast.error(errorMessage, {
                 className: "bg-(--destructive) text-white border-none",
             });
@@ -209,7 +210,9 @@ export function CreateGroupChatDialog({
                                 {isLoadingAgents ? (
                                     <div className="flex items-center justify-center p-4 bg-(--secondary) rounded-md">
                                         <Loader2 className="h-4 w-4 animate-spin text-(--muted-foreground)" />
-                                        <span className="ml-2 text-sm text-(--muted-foreground)">Loading agents...</span>
+                                        <span className="ml-2 text-sm text-(--muted-foreground)">
+                                            Loading agents...
+                                        </span>
                                     </div>
                                 ) : agents.length === 0 ? (
                                     <div className="p-4 text-center text-(--muted-foreground) bg-(--secondary) rounded-md">

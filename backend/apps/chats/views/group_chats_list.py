@@ -87,7 +87,7 @@ class GroupChatsListView(APIView):
         - Organization owners can see all group chats in the organization
         - Organization members can see their own group chats and public group chats in the organization
         The organization_id parameter is mandatory.
-        Additional filters for user_id and is_public are available.
+        Additional filters for username and is_public are available.
         """,
         parameters=[
             OpenApiParameter(
@@ -97,8 +97,8 @@ class GroupChatsListView(APIView):
                 type=str,
             ),
             OpenApiParameter(
-                name="user_id",
-                description="Filter by user ID",
+                name="username",
+                description="Filter by username",
                 required=False,
                 type=str,
             ),
@@ -126,7 +126,7 @@ class GroupChatsListView(APIView):
         The organization_id parameter is mandatory.
 
         Additional filters can be applied using query parameters:
-        - user_id: Filter chats by specific user
+        - username: Filter chats by specific username
         - is_public: Filter chats by public status (true/false)
 
         Args:
@@ -173,11 +173,11 @@ class GroupChatsListView(APIView):
                     Q(organization=organization) & (Q(user=user) | Q(is_public=True)),
                 )
 
-            # If user_id is provided
-            user_id = request.query_params.get("user_id")
-            if user_id:
-                # Filter by user_id
-                queryset = queryset.filter(user_id=user_id)
+            # If username is provided
+            username = request.query_params.get("username")
+            if username:
+                # Filter by username directly
+                queryset = queryset.filter(user__username=username)
 
             # If is_public is provided
             is_public = request.query_params.get("is_public")

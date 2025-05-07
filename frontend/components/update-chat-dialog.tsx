@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Dialog,
     DialogContent,
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     Select,
     SelectContent,
@@ -19,10 +19,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import Cookies from "js-cookie";
 import { Loader2, MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import { toast } from "sonner";
 
 interface Agent {
     id: string;
@@ -125,18 +125,21 @@ export function UpdateChatDialog({
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch(`http://localhost:8080/api/v1/chats/single/${chat.id}/update/`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                    title,
-                    agent_id: selectedAgentId,
-                    is_public: isPublic,
-                }),
-            });
+            const response = await fetch(
+                `http://localhost:8080/api/v1/chats/single/${chat.id}/update/`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        title,
+                        agent_id: selectedAgentId,
+                        is_public: isPublic,
+                    }),
+                }
+            );
 
             const data = await response.json();
 
@@ -161,8 +164,7 @@ export function UpdateChatDialog({
                     border: "none",
                 },
             });
-            
-            // Close dialog and trigger success callback
+
             onOpenChange(false);
             onSuccess();
         } catch (err) {
@@ -184,9 +186,7 @@ export function UpdateChatDialog({
                         <MessageCircle className="mr-2 h-5 w-5 text-(--primary)" />
                         Update Chat
                     </DialogTitle>
-                    <DialogDescription>
-                        Update the details of your chat.
-                    </DialogDescription>
+                    <DialogDescription>Update the details of your chat.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">
@@ -223,8 +223,8 @@ export function UpdateChatDialog({
                                         </div>
                                     ) : (
                                         agents.map((agent) => (
-                                            <SelectItem 
-                                                key={agent.id} 
+                                            <SelectItem
+                                                key={agent.id}
                                                 value={agent.id}
                                                 className="hover:bg-(--secondary) focus:bg-(--secondary)"
                                             >

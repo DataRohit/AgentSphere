@@ -32,6 +32,10 @@ app_name = "chats"
 urlpatterns = [
     # Single chat creation URL
     path("single/", SingleChatCreateView.as_view(), name="single-chat-create"),
+    # Single chats list URL
+    path("single/list/", SingleChatsListView.as_view(), name="single-chats-list"),
+    # Single chats list for current user URL
+    path("single/list/me/", SingleChatsListMeView.as_view(), name="single-chats-list-me"),
     # Single chat detail URL
     path("single/<str:single_chat_id>/", SingleChatDetailView.as_view(), name="single-chat-detail"),
     # Single chat update URL
@@ -62,12 +66,12 @@ urlpatterns = [
         SingleChatMessagesListView.as_view(),
         name="single-chat-messages-list",
     ),
-    # Single chats list URL
-    path("single/list/", SingleChatsListView.as_view(), name="single-chats-list"),
-    # Single chats list for current user URL
-    path("single/list/me/", SingleChatsListMeView.as_view(), name="single-chats-list-me"),
     # Group chat creation URL
     path("group/", GroupChatCreateView.as_view(), name="group-chat-create"),
+    # Group chats list URL
+    path("group/list/", GroupChatsListView.as_view(), name="group-chats-list"),
+    # Group chats list for current user URL
+    path("group/list/me/", GroupChatsListMeView.as_view(), name="group-chats-list-me"),
     # Group chat detail URL
     path("group/<str:group_chat_id>/", GroupChatDetailView.as_view(), name="group-chat-detail"),
     # Group chat update URL
@@ -98,8 +102,4 @@ urlpatterns = [
         GroupChatMessagesListView.as_view(),
         name="group-chat-messages-list",
     ),
-    # Group chats list URL
-    path("group/list/", GroupChatsListView.as_view(), name="group-chats-list"),
-    # Group chats list for current user URL
-    path("group/list/me/", GroupChatsListMeView.as_view(), name="group-chats-list-me"),
 ]
