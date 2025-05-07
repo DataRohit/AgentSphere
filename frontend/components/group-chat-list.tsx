@@ -294,9 +294,11 @@ export function GroupChatList({
                                 <TableHead className="font-semibold">Agents</TableHead>
                                 <TableHead className="font-semibold">Visibility</TableHead>
                                 <TableHead className="font-semibold">Created</TableHead>
-                                <TableHead className="font-semibold text-right pr-4">
-                                    Actions
-                                </TableHead>
+                                {!readOnly && (
+                                    <TableHead className="font-semibold text-right pr-4">
+                                        Actions
+                                    </TableHead>
+                                )}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -360,40 +362,34 @@ export function GroupChatList({
                                     >
                                         {formatDate(chat.created_at)}
                                     </TableCell>
-                                    <TableCell className="text-right pr-4">
-                                        <div className="flex space-x-1">
-                                            {!readOnly && (
-                                                <>
-                                                    <div className="group">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-all duration-200 cursor-pointer agent-action-button"
-                                                            onClick={(e) =>
-                                                                handleUpdateClick(e, chat)
-                                                            }
-                                                        >
-                                                            <Pencil className="h-4 w-4" />
-                                                            <span className="sr-only">Edit</span>
-                                                        </Button>
-                                                    </div>
-                                                    <div className="group">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-all duration-200 cursor-pointer agent-action-button"
-                                                            onClick={(e) =>
-                                                                handleDeleteClick(e, chat)
-                                                            }
-                                                        >
-                                                            <Trash2 className="h-4 w-4 text-(--destructive)" />
-                                                            <span className="sr-only">Delete</span>
-                                                        </Button>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </TableCell>
+                                    {!readOnly && (
+                                        <TableCell className="text-right pr-4">
+                                            <div className="flex space-x-1">
+                                                <div className="group">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 rounded-full hover:bg-(--primary)/10 hover:text-(--primary) transition-all duration-200 cursor-pointer agent-action-button"
+                                                        onClick={(e) => handleUpdateClick(e, chat)}
+                                                    >
+                                                        <Pencil className="h-4 w-4" />
+                                                        <span className="sr-only">Edit</span>
+                                                    </Button>
+                                                </div>
+                                                <div className="group">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 rounded-full hover:bg-(--destructive)/10 hover:text-(--destructive) transition-all duration-200 cursor-pointer agent-action-button"
+                                                        onClick={(e) => handleDeleteClick(e, chat)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-(--destructive)" />
+                                                        <span className="sr-only">Delete</span>
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                    )}
                                 </TableRow>
                             ))}
                         </TableBody>
