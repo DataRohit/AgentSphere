@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
-import { ArrowLeft, Bot, Cpu, Server } from "lucide-react";
+import { ArrowLeft, Bot, Cpu, MessageCircle, Server } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -121,11 +121,27 @@ export default function AgentStudioPage() {
                             className="space-y-6"
                         >
                             <div className="flex flex-col">
-                                <div className="flex items-center space-x-3">
-                                    <Bot className="h-8 w-8 text-(--primary)" />
-                                    <h1 className="text-3xl font-bold tracking-tight">
-                                        Agent Studio
-                                    </h1>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                        <Bot className="h-8 w-8 text-(--primary)" />
+                                        <h1 className="text-3xl font-bold tracking-tight">
+                                            Agent Studio
+                                        </h1>
+                                    </div>
+                                    <Button
+                                        onClick={() =>
+                                            router.push(
+                                                `/organizations/${organizationId}/conversation-manager`
+                                            )
+                                        }
+                                        className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer"
+                                    >
+                                        <span className="relative z-10 flex items-center">
+                                            <MessageCircle className="mr-2 h-4 w-4" />
+                                            Conversation Manager
+                                        </span>
+                                        <span className="absolute inset-0 bg-(--primary-foreground)/10 dark:bg-(--primary-foreground)/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                    </Button>
                                 </div>
                                 <p className="text-sm text-(--muted-foreground) mt-2">
                                     Create, manage, and deploy AI agents for AgentSphere
