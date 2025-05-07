@@ -1,6 +1,6 @@
 "use client";
 
-import { DeleteChatDialog } from "@/components/delete-chat-dialog";
+import { DeleteGroupChatDialog } from "@/components/delete-group-chat-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,10 +18,10 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { UpdateChatDialog } from "@/components/update-chat-dialog";
+import { UpdateGroupChatDialog } from "@/components/update-group-chat-dialog";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { Loader2, MessageCircle, Pencil, RefreshCw, Trash2 } from "lucide-react";
+import { Loader2, Pencil, RefreshCw, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ interface Agent {
     name: string;
 }
 
-interface Chat {
+interface GroupChat {
     id: string;
     title: string;
     is_public: boolean;
@@ -47,70 +47,26 @@ interface Chat {
         username: string;
         email: string;
     };
-    agent: {
-        id: string;
-        name: string;
-    };
+    agents: Agent[];
 }
 
-interface ChatListProps {
+interface GroupChatListProps {
     organizationId: string;
 }
 
-export function ChatList({ organizationId }: ChatListProps) {
+export function GroupChatList({ organizationId }: GroupChatListProps) {
     const router = useRouter();
-    const [chats, setChats] = useState<Chat[]>([]);
-    const [agents, setAgents] = useState<Agent[]>([]);
+    const [chats, setChats] = useState<GroupChat[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedAgentId, setSelectedAgentId] = useState<string>("all");
     const [isPublic, setIsPublic] = useState<string>("all");
     const [sortOrder, setSortOrder] = useState<string>("newest");
-    const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+    const [selectedChat, setSelectedChat] = useState<GroupChat | null>(null);
     const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     useEffect(() => {
-        fetchAgents();
         fetchChats();
-    }, [organizationId]);
-
-    useEffect(() => {
-        fetchChats();
-    }, [selectedAgentId, isPublic, sortOrder]);
-
-    const fetchAgents = async () => {
-        try {
-            const accessToken = Cookies.get("access_token");
-            if (!accessToken) {
-                throw new Error("Authentication token not found");
-            }
-
-            const response = await fetch(
-                `http://localhost:8080/api/v1/agents/list/me/?organization_id=${organizationId}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to fetch agents");
-            }
-
-            setAgents(data.agents || []);
-        } catch (err) {
-            const errorMessage =
-                err instanceof Error ? err.message : "An error occurred while fetching agents";
-            toast.error(errorMessage, {
-                className: "bg-(--destructive) text-white border-none",
-            });
-        }
-    };
+    }, [organizationId, isPublic, sortOrder]);
 
     const fetchChats = async () => {
         setIsLoading(true);
@@ -120,11 +76,7 @@ export function ChatList({ organizationId }: ChatListProps) {
                 throw new Error("Authentication token not found");
             }
 
-            let url = `http://localhost:8080/api/v1/chats/single/list/me/?organization_id=${organizationId}`;
-
-            if (selectedAgentId && selectedAgentId !== "all") {
-                url += `&agent_id=${selectedAgentId}`;
-            }
+            let url = `http://localhost:8080/api/v1/chats/group/list/me/?organization_id=${organizationId}`;
 
             if (isPublic === "true" || isPublic === "false") {
                 url += `&is_public=${isPublic}`;
@@ -145,7 +97,7 @@ export function ChatList({ organizationId }: ChatListProps) {
                     setChats([]);
                     return;
                 }
-                throw new Error(data.error || "Failed to fetch chats");
+                throw new Error(data.error || "Failed to fetch group chats");
             }
 
             let sortedChats = [...(data.chats || [])];
@@ -163,7 +115,7 @@ export function ChatList({ organizationId }: ChatListProps) {
             setChats(sortedChats);
         } catch (err) {
             const errorMessage =
-                err instanceof Error ? err.message : "An error occurred while fetching chats";
+                err instanceof Error ? err.message : "An error occurred while fetching group chats";
             toast.error(errorMessage, {
                 className: "bg-(--destructive) text-white border-none",
             });
@@ -187,13 +139,17 @@ export function ChatList({ organizationId }: ChatListProps) {
         }
     };
 
-    const handleUpdateClick = (e: React.MouseEvent, chat: Chat) => {
+    const formatAgentNames = (agents: Agent[]) => {
+        return agents.map((agent) => agent.name).join(", ");
+    };
+
+    const handleUpdateClick = (e: React.MouseEvent, chat: GroupChat) => {
         e.stopPropagation();
         setSelectedChat(chat);
         setIsUpdateDialogOpen(true);
     };
 
-    const handleDeleteClick = (e: React.MouseEvent, chat: Chat) => {
+    const handleDeleteClick = (e: React.MouseEvent, chat: GroupChat) => {
         e.stopPropagation();
         setSelectedChat(chat);
         setIsDeleteDialogOpen(true);
@@ -206,36 +162,13 @@ export function ChatList({ organizationId }: ChatListProps) {
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Your Chats</h3>
+                <h3 className="text-lg font-medium">Your Group Chats</h3>
                 <div className="text-sm text-(--muted-foreground)">
                     {chats.length} {chats.length === 1 ? "chat" : "chats"} found
                 </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between bg-(--secondary) p-3 rounded-md border border-(--border) mb-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
-                    <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
-                        <SelectTrigger className="w-full bg-(--background)">
-                            <SelectValue placeholder="Filter by agent" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-(--background)">
-                            <SelectItem
-                                value="all"
-                                className="hover:bg-(--secondary) focus:bg-(--secondary)"
-                            >
-                                All agents
-                            </SelectItem>
-                            {agents.map((agent) => (
-                                <SelectItem
-                                    key={agent.id}
-                                    value={agent.id}
-                                    className="hover:bg-(--secondary) focus:bg-(--secondary)"
-                                >
-                                    {agent.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                     <Select value={isPublic} onValueChange={setIsPublic}>
                         <SelectTrigger className="w-full bg-(--background)">
                             {isPublic === "all" ? (
@@ -320,15 +253,15 @@ export function ChatList({ organizationId }: ChatListProps) {
                 <div className="flex justify-center items-center py-12 border rounded-md bg-(--secondary)">
                     <div className="flex flex-col items-center">
                         <Loader2 className="h-8 w-8 animate-spin text-(--muted-foreground) mb-2" />
-                        <p className="text-sm text-(--muted-foreground)">Loading chats...</p>
+                        <p className="text-sm text-(--muted-foreground)">Loading group chats...</p>
                     </div>
                 </div>
             ) : chats.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center border rounded-md bg-(--secondary)">
-                    <MessageCircle className="h-12 w-12 text-(--muted-foreground) mb-3" />
-                    <h3 className="text-lg font-medium mb-1">No chats found</h3>
+                    <Users className="h-12 w-12 text-(--muted-foreground) mb-3" />
+                    <h3 className="text-lg font-medium mb-1">No group chats found</h3>
                     <p className="text-sm text-(--muted-foreground) mb-4">
-                        Create a new chat using the button above
+                        Create a new group chat using the button above
                     </p>
                 </div>
             ) : (
@@ -337,7 +270,7 @@ export function ChatList({ organizationId }: ChatListProps) {
                         <TableHeader className="bg-(--secondary)">
                             <TableRow>
                                 <TableHead className="font-semibold pl-4">Title</TableHead>
-                                <TableHead className="font-semibold">Agent</TableHead>
+                                <TableHead className="font-semibold">Agents</TableHead>
                                 <TableHead className="font-semibold">Visibility</TableHead>
                                 <TableHead className="font-semibold">Created</TableHead>
                                 <TableHead className="font-semibold text-right pr-4">
@@ -353,19 +286,19 @@ export function ChatList({ organizationId }: ChatListProps) {
                                 >
                                     <TableCell
                                         className="font-medium pl-4 cursor-pointer"
-                                        onClick={() => router.push(`/chats/${chat.id}`)}
+                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
                                     >
                                         {chat.title}
                                     </TableCell>
                                     <TableCell
                                         className="cursor-pointer"
-                                        onClick={() => router.push(`/chats/${chat.id}`)}
+                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
                                     >
-                                        {chat.agent.name}
+                                        {formatAgentNames(chat.agents)}
                                     </TableCell>
                                     <TableCell
                                         className="cursor-pointer"
-                                        onClick={() => router.push(`/chats/${chat.id}`)}
+                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
                                     >
                                         <Badge
                                             variant="outline"
@@ -378,7 +311,7 @@ export function ChatList({ organizationId }: ChatListProps) {
                                     </TableCell>
                                     <TableCell
                                         className="whitespace-nowrap cursor-pointer"
-                                        onClick={() => router.push(`/chats/${chat.id}`)}
+                                        onClick={() => router.push(`/group-chats/${chat.id}`)}
                                     >
                                         {formatDate(chat.created_at)}
                                     </TableCell>
@@ -417,14 +350,14 @@ export function ChatList({ organizationId }: ChatListProps) {
 
             {selectedChat && (
                 <>
-                    <UpdateChatDialog
+                    <UpdateGroupChatDialog
                         open={isUpdateDialogOpen}
                         onOpenChange={setIsUpdateDialogOpen}
                         organizationId={organizationId}
                         chat={selectedChat}
                         onSuccess={handleSuccess}
                     />
-                    <DeleteChatDialog
+                    <DeleteGroupChatDialog
                         open={isDeleteDialogOpen}
                         onOpenChange={setIsDeleteDialogOpen}
                         chat={selectedChat}

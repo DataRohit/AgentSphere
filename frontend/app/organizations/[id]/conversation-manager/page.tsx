@@ -2,7 +2,9 @@
 
 import { ChatList } from "@/components/chat-list";
 import { CreateChatDialog } from "@/components/create-chat-dialog";
+import { CreateGroupChatDialog } from "@/components/create-group-chat-dialog";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
+import { GroupChatList } from "@/components/group-chat-list";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,12 +19,17 @@ export default function ConversationManagerPage() {
     const params = useParams();
     const organizationId = params.id as string;
     const [isCreateChatDialogOpen, setIsCreateChatDialogOpen] = useState(false);
+    const [isCreateGroupChatDialogOpen, setIsCreateGroupChatDialogOpen] = useState(false);
 
     const handleBackClick = () => {
         router.push(`/organizations/${organizationId}/agent-studio`);
     };
 
     const handleCreateChatSuccess = () => {
+        window.location.reload();
+    };
+
+    const handleCreateGroupChatSuccess = () => {
         window.location.reload();
     };
 
@@ -152,7 +159,12 @@ export default function ConversationManagerPage() {
                                                         conversation
                                                     </p>
                                                 </div>
-                                                <Button className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer">
+                                                <Button
+                                                    onClick={() =>
+                                                        setIsCreateGroupChatDialogOpen(true)
+                                                    }
+                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer"
+                                                >
                                                     <span className="relative z-10 flex items-center">
                                                         <Plus className="mr-2 h-4 w-4" />
                                                         New Group
@@ -161,16 +173,7 @@ export default function ConversationManagerPage() {
                                                 </Button>
                                             </CardHeader>
                                             <CardContent>
-                                                <div className="flex flex-col items-center justify-center p-8 text-center">
-                                                    <Users className="h-12 w-12 text-(--muted-foreground) mb-3" />
-                                                    <h3 className="text-lg font-medium mb-1">
-                                                        Group Chat Placeholder
-                                                    </h3>
-                                                    <p className="text-sm text-(--muted-foreground) mb-4">
-                                                        This is a placeholder for the group chat
-                                                        functionality.
-                                                    </p>
-                                                </div>
+                                                <GroupChatList organizationId={organizationId} />
                                             </CardContent>
                                         </Card>
                                     </motion.div>
@@ -186,6 +189,12 @@ export default function ConversationManagerPage() {
                 onOpenChange={setIsCreateChatDialogOpen}
                 organizationId={organizationId}
                 onSuccess={handleCreateChatSuccess}
+            />
+            <CreateGroupChatDialog
+                open={isCreateGroupChatDialogOpen}
+                onOpenChange={setIsCreateGroupChatDialogOpen}
+                organizationId={organizationId}
+                onSuccess={handleCreateGroupChatSuccess}
             />
         </ProtectedRoute>
     );
