@@ -364,7 +364,7 @@ export function GroupChatList({
                                     </TableCell>
                                     {!readOnly && (
                                         <TableCell className="text-right pr-4">
-                                            <div className="flex space-x-1">
+                                            <div className="flex space-x-1 justify-end">
                                                 <div className="group">
                                                     <Button
                                                         variant="ghost"
