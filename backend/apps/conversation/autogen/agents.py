@@ -14,6 +14,7 @@ from autogen_agentchat.messages import TextMessage, UserInputRequestedEvent
 from autogen_agentchat.teams import RoundRobinGroupChat, SelectorGroupChat
 from autogen_core.memory import ListMemory, MemoryContent
 from autogen_core.model_context import BufferedChatCompletionContext
+from autogen_core.models import ModelFamily
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 # Local application imports
@@ -123,6 +124,13 @@ def create_chat_completion_client(
             base_url=base_url,
             api_key=llm_api_key or "placeholder",
             max_tokens=llm_max_tokens,
+            model_info={
+                "vision": False,
+                "function_calling": True,
+                "json_output": False,
+                "family": ModelFamily.ANY,
+                "structured_output": False,
+            },
         )
 
     # Return None if there was an exception
