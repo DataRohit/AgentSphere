@@ -1,5 +1,6 @@
 "use client";
 
+import { selectUser } from "@/app/store/slices/userSlice";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import Cookies from "js-cookie";
 import { ArrowLeft, Loader2, MessageCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
 
 interface Agent {
@@ -40,6 +42,7 @@ export default function GroupChatConversationPage() {
     const chatId = params.id as string;
     const [chat, setChat] = useState<GroupChat | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const currentUser = useSelector(selectUser);
 
     useEffect(() => {
         fetchChat();
@@ -191,7 +194,7 @@ export default function GroupChatConversationPage() {
                                         <div className="flex items-start gap-2 max-w-[80%] ml-auto">
                                             <div className="flex flex-col items-end">
                                                 <p className="text-xs font-medium text-right text-(--primary) mb-1">
-                                                    {chat.user.username}
+                                                    {currentUser?.full_name || chat.user.username}
                                                 </p>
                                                 <div className="bg-(--primary) text-(--primary-foreground) p-3 rounded-lg">
                                                     <p className="text-sm">
@@ -258,7 +261,7 @@ export default function GroupChatConversationPage() {
                                         <div className="flex items-start gap-2 max-w-[80%] ml-auto">
                                             <div className="flex flex-col items-end">
                                                 <p className="text-xs font-medium text-right text-(--primary) mb-1">
-                                                    {chat.user.username}
+                                                    {currentUser?.full_name || chat.user.username}
                                                 </p>
                                                 <div className="bg-(--primary) text-(--primary-foreground) p-3 rounded-lg">
                                                     <p className="text-sm">
