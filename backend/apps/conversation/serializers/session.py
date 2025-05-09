@@ -101,9 +101,8 @@ class SessionLLMSerializer(serializers.Serializer):
 
     Attributes:
         id (UUID): LLM's unique identifier.
-        api_type (str): The API provider type.
+        base_url (str): The base URL for the LLM API.
         model (str): The specific model name.
-        api_type_display (str): Human-readable display name for the API type.
     """
 
     # ID field
@@ -112,9 +111,9 @@ class SessionLLMSerializer(serializers.Serializer):
         read_only=True,
     )
 
-    # API type field
-    api_type = serializers.CharField(
-        help_text=_("API provider type code."),
+    # Base URL field
+    base_url = serializers.URLField(
+        help_text=_("Base URL for the LLM API."),
         read_only=True,
     )
 
@@ -248,7 +247,7 @@ class SessionResponseSchema(serializers.ModelSerializer):
             obj (Session): The session instance.
 
         Returns:
-            dict | None: The LLM details including id, api_type, model, and api_type_display.
+            dict | None: The LLM details including id, base_url, and model.
         """
 
         # If the session has an LLM
@@ -256,7 +255,7 @@ class SessionResponseSchema(serializers.ModelSerializer):
             # Return the LLM details
             return {
                 "id": str(obj.llm.id),
-                "api_type": obj.llm.api_type,
+                "base_url": obj.llm.base_url,
                 "model": obj.llm.model,
             }
 

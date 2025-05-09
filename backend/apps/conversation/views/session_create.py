@@ -121,7 +121,7 @@ class SessionCreateView(APIView):
             session = serializer.save()
 
             # Generate the WebSocket URL
-            websocket_url = f"ws://{settings.ALLOWED_HOSTS[0]}/ws/conversation/session/{session.id}/"
+            websocket_url = f"{settings.DJANGO_WEBSOCKET_HOST}/conversation/session/{session.id}/"
 
             # Create a response serializer
             response_data = SessionResponseSchema(session).data

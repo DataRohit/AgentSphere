@@ -77,6 +77,12 @@ class MessageSerializer(serializers.ModelSerializer):
         updated_at (datetime): The date and time the message was last updated.
     """
 
+    # Session field
+    session = serializers.SerializerMethodField(
+        help_text=_("ID of the session this message belongs to."),
+        read_only=True,
+    )
+
     # User field using the proper serializer
     user = SingleChatUserSerializer(
         help_text=_("User details who sent the message."),
@@ -123,6 +129,21 @@ class MessageSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    # Get session details
+    @extend_schema_field(serializers.UUIDField())
+    def get_session(self, obj: Message) -> str:
+        """Get session details for the message.
+
+        Args:
+            obj (Message): The message instance.
+
+        Returns:
+            str: The session ID.
+        """
+
+        # Return the session ID with string UUID
+        return str(obj.session.id)
 
     # Get user details
     @extend_schema_field(MessageUserSerializer())

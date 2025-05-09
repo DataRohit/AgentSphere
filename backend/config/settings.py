@@ -61,6 +61,7 @@ ALLOWED_HOSTS = env.list(
         "agentsphere.serveo.net",
     ],
 )
+DJANGO_WEBSOCKET_HOST = env.str("DJANGO_WEBSOCKET_HOST", default="ws://localhost:8080/ws")
 
 # Allowed cors origins
 CORS_ALLOWED_ORIGINS = env.list(
