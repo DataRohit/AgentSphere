@@ -113,7 +113,11 @@ export default function GroupChatDetailPage() {
     };
 
     const handleBackClick = () => {
-        router.back();
+        if (chat && chat.organization) {
+            router.push(`/organizations/${chat.organization.id}/conversation-manager`);
+        } else {
+            router.back();
+        }
     };
 
     const handleUpdateClick = () => {
@@ -188,7 +192,9 @@ export default function GroupChatDetailPage() {
                                                 <Button
                                                     className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer w-full"
                                                     onClick={() =>
-                                                        router.push(`/conversations/${chat.id}`)
+                                                        router.push(
+                                                            `/group-chats/${chat.id}/conversation`
+                                                        )
                                                     }
                                                 >
                                                     <span className="relative z-10 flex items-center">
