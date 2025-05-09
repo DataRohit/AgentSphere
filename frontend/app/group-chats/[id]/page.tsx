@@ -3,6 +3,7 @@
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { DeleteGroupChatDialog } from "@/components/delete-group-chat-dialog";
 import { ProtectedRoute } from "@/components/protected-route";
+import { SelectLLMDialog } from "@/components/select-llm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +48,7 @@ export default function GroupChatDetailPage() {
     const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isViewOnly, setIsViewOnly] = useState(false);
+    const [isSelectLLMDialogOpen, setIsSelectLLMDialogOpen] = useState(false);
 
     useEffect(() => {
         fetchChat();
@@ -128,6 +130,10 @@ export default function GroupChatDetailPage() {
         setIsDeleteDialogOpen(true);
     };
 
+    const handleContinueChatClick = () => {
+        setIsSelectLLMDialogOpen(true);
+    };
+
     const handleUpdateSuccess = () => {
         fetchChat();
     };
@@ -191,11 +197,7 @@ export default function GroupChatDetailPage() {
                                             <div className="w-full">
                                                 <Button
                                                     className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--primary) bg-(--primary) text-(--primary-foreground) dark:bg-(--primary) dark:text-(--primary-foreground) dark:border-(--primary) h-10 cursor-pointer w-full"
-                                                    onClick={() =>
-                                                        router.push(
-                                                            `/group-chats/${chat.id}/conversation`
-                                                        )
-                                                    }
+                                                    onClick={handleContinueChatClick}
                                                 >
                                                     <span className="relative z-10 flex items-center">
                                                         <MessageCircle className="mr-2 h-4 w-4" />
@@ -338,6 +340,13 @@ export default function GroupChatDetailPage() {
                         onOpenChange={setIsDeleteDialogOpen}
                         chat={chat}
                         onSuccess={handleDeleteSuccess}
+                    />
+                    <SelectLLMDialog
+                        open={isSelectLLMDialogOpen}
+                        onOpenChange={setIsSelectLLMDialogOpen}
+                        chatId={chat.id}
+                        chatType="group"
+                        organizationId={chat.organization.id}
                     />
                 </>
             )}
