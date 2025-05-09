@@ -3,7 +3,7 @@ import asyncio
 import uuid
 
 # Third-party imports
-from autogen_core.models import UserMessage
+from autogen_core.models import ModelFamily, UserMessage
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from celery import shared_task
 from django.db import transaction
@@ -300,6 +300,13 @@ The summary should be comprehensive enough to understand the conversation withou
                 base_url=llm.base_url,
                 api_key=llm.get_api_key() or "placeholder",
                 max_tokens=32_768,
+                model_info={
+                    "vision": False,
+                    "function_calling": True,
+                    "json_output": False,
+                    "family": ModelFamily.ANY,
+                    "structured_output": False,
+                },
             )
 
             # Generate the summary
