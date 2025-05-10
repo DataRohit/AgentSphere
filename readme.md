@@ -11,6 +11,12 @@
 [![DRF](https://img.shields.io/badge/DRF-3.16.0-red.svg?logo=django&logoColor=white)](https://www.django-rest-framework.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
+<!-- Frontend Technologies -->
+[![Next.js 15.3](https://img.shields.io/badge/Next.js-15.3-black.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19-blue.svg?logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4-38B2AC.svg?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+
 <!-- Infrastructure -->
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Redis](https://img.shields.io/badge/Redis-Stack-red.svg?logo=redis&logoColor=white)](https://redis.io/)
@@ -27,6 +33,8 @@
 
 ## 🌟 Features
 
+### Backend Features
+
 - **🤖 AI Agents**: Create and manage AI agents with customizable system prompts
 - **🔄 LLM Integration**: Connect to various LLM providers (Only Gemini for Now!)
 - **🏢 Organizations**: Create and manage organizations with multiple members
@@ -36,18 +44,45 @@
 - **📊 API Documentation**: Comprehensive API documentation with Swagger/ReDoc
 - **🚀 Scalable**: Built with Docker for easy deployment and scaling
 
+### Frontend Features
+
+- **🎨 Modern UI**: Clean, responsive interface built with Next.js and Tailwind CSS
+- **🌓 Dark Mode**: Full support for light and dark themes
+- **💬 Real-time Chat**: WebSocket-powered conversations with AI agents
+- **📱 Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **🔐 Secure Authentication**: JWT-based authentication with secure cookie storage
+- **⚡ Fast Performance**: Optimized for speed with Next.js App Router
+- **🧩 Component Library**: Built with shadcn/ui and Radix UI primitives
+- **🔄 State Management**: Centralized state management with Redux Toolkit
+
 ## 🛠️ Tech Stack
 
-- **Backend**: Django 5.0, Django REST Framework
+### Backend
+
+- **Framework**: Django 5.0, Django REST Framework
 - **Database**: PostgreSQL
 - **Cache & Message Broker**: Redis
 - **Task Queue**: Celery
 - **Secret Management**: HashiCorp Vault
 - **Storage**: MinIO (S3-compatible)
-- **Containerization**: Docker, Docker Compose
 - **Documentation**: drf-spectacular (OpenAPI)
 - **Monitoring**: Sentry, Django Silk
 - **Email**: Mailpit (development)
+
+### Frontend
+
+- **Framework**: Next.js 15.3, React 19, TypeScript 5
+- **UI Components**: Tailwind CSS 4, shadcn/ui, Radix UI
+- **State Management**: Redux Toolkit
+- **Form Handling**: React Hook Form, Zod
+- **Animations**: Framer Motion
+- **HTTP Client**: Native fetch API
+- **WebSockets**: Native WebSocket API
+
+### Infrastructure
+
+- **Containerization**: Docker, Docker Compose
+- **Package Manager**: pnpm (frontend), pip (backend)
 
 ## 📋 Prerequisites
 
@@ -96,6 +131,29 @@ This will start all services defined in the docker-compose.yml file.
 - **Vault UI**: [http://localhost:8080/vault/ui/](http://localhost:8080/vault/ui/)
 - **Flower (Celery monitoring)**: [http://localhost:8080/flower/](http://localhost:8080/flower/)
 
+### Frontend Development Setup
+
+For frontend development, you can run the Next.js development server separately:
+
+```bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install dependencies with pnpm
+pnpm install
+
+# Start the development server
+pnpm dev
+```
+
+The frontend development server will be available at [http://localhost:3000](http://localhost:3000).
+
+You can also use the Makefile command:
+
+```bash
+make nextjs-dev
+```
+
 ## 🧰 Development Commands
 
 AgentSphere comes with a colorful Makefile that provides convenient commands for development:
@@ -121,6 +179,10 @@ make restart-infra     # 🔄 Restart infrastructure containers
 make lint              # 🔎 Run ruff linter on Python code
 make format            # 💅 Format Python code with ruff
 make fix               # 🔧 Fix auto-fixable issues with ruff
+
+# Frontend Development Commands
+make nextjs-dev        # 🚀 Start NextJS development server
+make nextjs-build      # 🔨 Build NextJS application
 ```
 
 ## 🏗️ Project Structure
@@ -140,12 +202,29 @@ AgentSphere/
 │   │   ├── templates/     # Email and HTML templates
 │   │   ├── tools/         # MCP tools integration
 │   │   └── users/         # User management & authentication
-│   ├── config/           # Django settings and configuration
-│   └── requirements.txt  # Python dependencies
+│   ├── config/            # Django settings and configuration
+│   └── requirements.txt   # Python dependencies
+├── frontend/              # Next.js frontend code
+│   ├── app/               # App router pages and layouts
+│   │   ├── auth/          # Authentication pages
+│   │   ├── dashboard/     # Dashboard pages
+│   │   ├── organizations/ # Organization management
+│   │   ├── agents/        # Agent management
+│   │   ├── chats/         # Chat interfaces
+│   │   ├── group-chats/   # Group chat interfaces
+│   │   ├── store/         # Redux store configuration
+│   │   └── globals.css    # Global CSS styles
+│   ├── components/        # Reusable React components
+│   │   ├── ui/            # UI components (shadcn/ui)
+│   │   └── ...            # Feature-specific components
+│   ├── lib/               # Utility functions and helpers
+│   ├── public/            # Static assets
+│   └── package.json       # Frontend dependencies
 ├── compose/               # Docker compose configuration
-│   ├── django/           # Django service configuration
-│   ├── nginx/            # Nginx service configuration
-│   └── postgres/         # PostgreSQL service configuration
+│   ├── django/            # Django service configuration
+│   ├── nginx/             # Nginx service configuration
+│   ├── postgres/          # PostgreSQL service configuration
+│   └── nextjs/            # Next.js service configuration
 ├── docker-compose.yml     # Docker compose services definition
 └── makefile               # Development commands
 ```
@@ -205,6 +284,37 @@ MCP (Multi-Agent Communication Protocol) tools allow integration with external s
 - Each user can add up to 5 MCP tools per organization
 - Tools are defined by name, description, URL, and optional tags
 - Secure authentication with external services
+
+## 🏛️ Frontend Architecture
+
+The frontend of AgentSphere is built with Next.js 15.3 using the App Router, providing a modern, type-safe, and performant user interface.
+
+### Key Components
+
+- **Authentication**: JWT-based authentication with secure cookie storage
+- **State Management**: Redux Toolkit for global state management
+- **UI Components**: Built with shadcn/ui, a collection of reusable components built on Radix UI
+- **Real-time Communication**: WebSocket connections for live chat functionality
+- **Form Handling**: React Hook Form with Zod schema validation
+- **Animations**: Framer Motion for smooth transitions and interactions
+
+### Page Structure
+
+- **Landing Page**: Introduction to AgentSphere with feature showcase
+- **Authentication**: Login, signup, account activation, and password reset
+- **Dashboard**: Organization management and overview
+- **Agent Studio**: Create and manage AI agents
+- **Chat Interfaces**: Single and group chat conversations with agents
+- **Organization Management**: Member management, settings, and permissions
+
+### WebSocket Implementation
+
+The chat functionality uses WebSockets for real-time communication:
+
+- Secure authentication via JWT tokens
+- Automatic reconnection handling
+- Real-time typing indicators
+- Support for both single-agent and multi-agent conversations
 
 ## 📚 API Documentation
 
