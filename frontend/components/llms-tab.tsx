@@ -117,11 +117,11 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
             const queryParams = new URLSearchParams();
 
             if (filterByUsername) {
-                endpoint = "http://localhost:8080/api/v1/llms/list/";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/llms/list/`;
                 queryParams.append("organization_id", organizationId);
                 queryParams.append("username", filterByUsername);
             } else {
-                endpoint = "http://localhost:8080/api/v1/llms/list/me";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/llms/list/me`;
                 queryParams.append("organization_id", organizationId);
             }
 
@@ -185,7 +185,7 @@ export function LLMsTab({ organizationId, filterByUsername, readOnly = false }: 
                 max_tokens: values.max_tokens,
             };
 
-            const response = await fetch("http://localhost:8080/api/v1/llms/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/llms/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

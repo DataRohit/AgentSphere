@@ -37,6 +37,7 @@ class GroupChatUserSerializer(serializers.Serializer):
         id (UUID): User's unique identifier.
         username (str): Username of the user.
         email (str): Email of the user.
+        avatar_url (str): URL for the user's avatar image.
     """
 
     # ID field
@@ -57,6 +58,12 @@ class GroupChatUserSerializer(serializers.Serializer):
         read_only=True,
     )
 
+    # Avatar URL field
+    avatar_url = serializers.URLField(
+        help_text=_("URL for the user's avatar image."),
+        read_only=True,
+    )
+
 
 # GroupChat agent nested serializer for API documentation
 class GroupChatAgentSerializer(serializers.Serializer):
@@ -65,6 +72,7 @@ class GroupChatAgentSerializer(serializers.Serializer):
     Attributes:
         id (UUID): Agent's unique identifier.
         name (str): Name of the agent.
+        avatar_url (str): URL for the agent's avatar image.
     """
 
     # ID field
@@ -76,6 +84,12 @@ class GroupChatAgentSerializer(serializers.Serializer):
     # Name field
     name = serializers.CharField(
         help_text=_("Name of the agent."),
+        read_only=True,
+    )
+
+    # Avatar URL field
+    avatar_url = serializers.URLField(
+        help_text=_("URL for the agent's avatar image."),
         read_only=True,
     )
 
@@ -92,8 +106,8 @@ class GroupChatSerializer(serializers.ModelSerializer):
         title (str): The chat's title.
         is_public (bool): Whether this chat is publicly visible to other users in the organization.
         organization (dict): Organization details including id and name.
-        user (dict): User details including id and username.
-        agents (list): List of agent details including id and name.
+        user (dict): User details including id, username, email, and avatar URL.
+        agents (list): List of agent details including id, name, and avatar URL.
         summary (TextField): A summary of the chat conversation.
         created_at (datetime): The date and time the chat was created.
         updated_at (datetime): The date and time the chat was last updated.
@@ -185,7 +199,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
             obj (GroupChat): The group chat instance.
 
         Returns:
-            dict | None: The user details including id, username, and email.
+            dict | None: The user details including id, username, email, and avatar URL.
         """
 
         # If the chat has a user
@@ -195,6 +209,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
                 "id": str(obj.user.id),
                 "username": obj.user.username,
                 "email": obj.user.email,
+                "avatar_url": obj.user.avatar_url,
             }
 
         # Return None if the chat has no user
@@ -209,7 +224,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
             obj (GroupChat): The group chat instance.
 
         Returns:
-            list: The agents details including id and name.
+            list: The agents details including id, name, and avatar URL.
         """
 
         # If the chat has agents
@@ -219,6 +234,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
                 {
                     "id": str(agent.id),
                     "name": agent.name,
+                    "avatar_url": agent.avatar_url(),
                 }
                 for agent in obj.agents.all()
             ]
@@ -238,8 +254,8 @@ class GroupChatResponseSchema(serializers.Serializer):
         title (str): The chat's title.
         is_public (bool): Whether this chat is publicly visible to other users in the organization.
         organization (SingleChatOrganizationSerializer): Organization details including id and name.
-        user (SingleChatUserSerializer): User details including id, username, and email.
-        agents (list): List of agent details including id and name.
+        user (SingleChatUserSerializer): User details including id, username, email, and avatar URL.
+        agents (list): List of agent details including id, name, and avatar URL.
         summary (TextField): A summary of the chat conversation.
         created_at (datetime): The date and time the chat was created.
         updated_at (datetime): The date and time the chat was last updated.

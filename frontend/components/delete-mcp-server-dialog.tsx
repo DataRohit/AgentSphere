@@ -65,7 +65,7 @@ export function DeleteMCPServerDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/tools/mcpserver/${mcpServer.id}/delete/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/tools/mcpserver/${mcpServer.id}/delete/`,
                 {
                     method: "DELETE",
                     headers: {

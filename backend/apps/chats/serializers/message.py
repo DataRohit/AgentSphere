@@ -16,6 +16,7 @@ class MessageUserSerializer(serializers.Serializer):
         id (UUID): User's unique identifier.
         username (str): Username of the user.
         email (str): Email of the user.
+        avatar_url (str): URL for the user's avatar image.
     """
 
     # ID field
@@ -36,6 +37,12 @@ class MessageUserSerializer(serializers.Serializer):
         read_only=True,
     )
 
+    # Avatar URL field
+    avatar_url = serializers.URLField(
+        help_text=_("URL for the user's avatar image."),
+        read_only=True,
+    )
+
 
 # Message agent nested serializer
 class MessageAgentSerializer(serializers.Serializer):
@@ -44,6 +51,7 @@ class MessageAgentSerializer(serializers.Serializer):
     Attributes:
         id (UUID): Agent's unique identifier.
         name (str): Name of the agent.
+        avatar_url (str): URL for the agent's avatar image.
     """
 
     # ID field
@@ -55,6 +63,12 @@ class MessageAgentSerializer(serializers.Serializer):
     # Name field
     name = serializers.CharField(
         help_text=_("Name of the agent."),
+        read_only=True,
+    )
+
+    # Avatar URL field
+    avatar_url = serializers.URLField(
+        help_text=_("URL for the agent's avatar image."),
         read_only=True,
     )
 
@@ -71,8 +85,8 @@ class MessageSerializer(serializers.ModelSerializer):
         content (str): The message content.
         sender (str): The sender type (user or agent).
         session (UUID): The ID of the session this message belongs to.
-        user (dict): User details if sender is a user.
-        agent (dict): Agent details if sender is an agent.
+        user (dict): User details if sender is a user, including avatar URL.
+        agent (dict): Agent details if sender is an agent, including avatar URL.
         created_at (datetime): The date and time the message was created.
         updated_at (datetime): The date and time the message was last updated.
     """
@@ -154,7 +168,7 @@ class MessageSerializer(serializers.ModelSerializer):
             obj (Message): The message instance.
 
         Returns:
-            dict | None: The user details including id, username, and email.
+            dict | None: The user details including id, username, email, and avatar URL.
         """
 
         # If the message has a user
@@ -164,6 +178,7 @@ class MessageSerializer(serializers.ModelSerializer):
                 "id": str(obj.user.id),
                 "username": obj.user.username,
                 "email": obj.user.email,
+                "avatar_url": obj.user.avatar_url,
             }
 
         # Return None if the message has no user
@@ -178,7 +193,7 @@ class MessageSerializer(serializers.ModelSerializer):
             obj (Message): The message instance.
 
         Returns:
-            dict | None: The agent details including id and name.
+            dict | None: The agent details including id, name, and avatar URL.
         """
 
         # If the message has an agent
@@ -187,6 +202,7 @@ class MessageSerializer(serializers.ModelSerializer):
             return {
                 "id": str(obj.agent.id),
                 "name": obj.agent.name,
+                "avatar_url": obj.agent.avatar_url(),
             }
 
         # Return None if the message has no agent
@@ -204,8 +220,8 @@ class MessageResponseSchema(serializers.Serializer):
         content (str): The message content.
         sender (str): The sender type (user or agent).
         session (UUID): The ID of the session this message belongs to.
-        user (MessageUserSerializer): User details if sender is a user.
-        agent (MessageAgentSerializer): Agent details if sender is an agent.
+        user (MessageUserSerializer): User details if sender is a user, including avatar URL.
+        agent (MessageAgentSerializer): Agent details if sender is an agent, including avatar URL.
         created_at (datetime): The date and time the message was created.
         updated_at (datetime): The date and time the message was last updated.
     """

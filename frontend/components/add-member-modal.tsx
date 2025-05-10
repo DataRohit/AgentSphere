@@ -96,7 +96,7 @@ export function AddMemberModal({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/members/add/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/members/add/`,
                 {
                     method: "POST",
                     headers: {

@@ -133,11 +133,11 @@ export function MCPServersTab({
             let endpoint;
 
             if (filterByUsername) {
-                endpoint = "http://localhost:8080/api/v1/tools/mcpserver/list/";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/tools/mcpserver/list/`;
                 queryParams.append("organization_id", organizationId);
                 queryParams.append("username", filterByUsername);
             } else {
-                endpoint = "http://localhost:8080/api/v1/tools/mcpserver/list/me/";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/tools/mcpserver/list/me/`;
                 queryParams.append("organization_id", organizationId);
             }
 
@@ -201,7 +201,7 @@ export function MCPServersTab({
                 tags: values.tags,
             };
 
-            const response = await fetch("http://localhost:8080/api/v1/tools/mcpserver/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tools/mcpserver/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

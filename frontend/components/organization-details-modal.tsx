@@ -73,7 +73,7 @@ export function OrganizationDetailsModal({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organization.id}/members/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organization.id}/members/`,
                 {
                     method: "GET",
                     headers: {

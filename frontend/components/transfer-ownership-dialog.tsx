@@ -58,7 +58,7 @@ export function TransferOwnershipDialog({
             const payload = member.email ? { email: member.email } : { username: member.username };
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/transfer/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/transfer/`,
                 {
                     method: "POST",
                     headers: {

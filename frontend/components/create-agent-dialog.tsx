@@ -113,7 +113,7 @@ export function CreateAgentDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/llms/list/me?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/llms/list/me?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -154,7 +154,7 @@ export function CreateAgentDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/tools/mcpserver/list/me/?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/tools/mcpserver/list/me/?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -231,7 +231,7 @@ export function CreateAgentDialog({
                 mcp_server_ids: values.mcp_server_ids || [],
             };
 
-            const response = await fetch("http://localhost:8080/api/v1/agents/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/agents/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

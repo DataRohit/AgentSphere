@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import Cookies from "js-cookie";
 import { Loader2, MessageCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Agent {
@@ -56,13 +56,7 @@ export function CreateChatDialog({
     const [isLoadingAgents, setIsLoadingAgents] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (open) {
-            fetchAgents();
-        }
-    }, [open, organizationId]);
-
-    const fetchAgents = async () => {
+    const fetchAgents = useCallback(async () => {
         setIsLoadingAgents(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -71,7 +65,7 @@ export function CreateChatDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/agents/list/me/?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/agents/list/me/?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -101,7 +95,13 @@ export function CreateChatDialog({
         } finally {
             setIsLoadingAgents(false);
         }
-    };
+    }, [organizationId]);
+
+    useEffect(() => {
+        if (open) {
+            fetchAgents();
+        }
+    }, [open, fetchAgents]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -113,7 +113,7 @@ export function CreateChatDialog({
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch("http://localhost:8080/api/v1/chats/single/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chats/single/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

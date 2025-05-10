@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import Cookies from "js-cookie";
 import { ArrowLeft, Calendar, MessageCircle, Pencil, Trash2, User } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Chat {
@@ -49,15 +49,7 @@ export default function ChatDetailPage() {
     const [isViewOnly, setIsViewOnly] = useState(false);
     const [isSelectLLMDialogOpen, setIsSelectLLMDialogOpen] = useState(false);
 
-    useEffect(() => {
-        fetchChatDetails();
-
-        const searchParams = new URLSearchParams(window.location.search);
-        const viewOnly = searchParams.get("viewOnly") === "true";
-        setIsViewOnly(viewOnly);
-    }, [chatId]);
-
-    const fetchChatDetails = async () => {
+    const fetchChatDetails = useCallback(async () => {
         setIsLoading(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -65,13 +57,16 @@ export default function ChatDetailPage() {
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch(`http://localhost:8080/api/v1/chats/single/${chatId}/`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/chats/single/${chatId}/`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
 
             const data = await response.json();
 
@@ -106,12 +101,20 @@ export default function ChatDetailPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [chatId, router]);
+
+    useEffect(() => {
+        fetchChatDetails();
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const viewOnly = searchParams.get("viewOnly") === "true";
+        setIsViewOnly(viewOnly);
+    }, [fetchChatDetails]);
 
     const formatDate = (dateString: string) => {
         try {
             return format(new Date(dateString), "MMM d, yyyy h:mm a");
-        } catch (e) {
+        } catch {
             return dateString;
         }
     };
@@ -133,7 +136,7 @@ export default function ChatDetailPage() {
     };
 
     const handleContinueChatClick = () => {
-        setIsSelectLLMDialogOpen(true);
+        router.push(`/chats/${chatId}/conversation`);
     };
 
     const handleSuccess = () => {
@@ -205,7 +208,7 @@ export default function ChatDetailPage() {
                                             </div>
                                             <div className="flex space-x-2 w-full">
                                                 <Button
-                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-1/2"
+                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer flex-1 mr-2"
                                                     variant="outline"
                                                     onClick={handleUpdateClick}
                                                 >
@@ -216,7 +219,7 @@ export default function ChatDetailPage() {
                                                     <span className="absolute inset-0 bg-(--muted)/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                                 </Button>
                                                 <Button
-                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-white dark:bg-(--destructive) dark:text-white dark:border-(--destructive) h-10 cursor-pointer w-1/2"
+                                                    className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--destructive) bg-(--destructive) text-white dark:bg-(--destructive) dark:text-white dark:border-(--destructive) h-10 cursor-pointer flex-1"
                                                     variant="destructive"
                                                     onClick={handleDeleteClick}
                                                 >
@@ -308,8 +311,8 @@ export default function ChatDetailPage() {
                             <MessageCircle className="h-12 w-12 text-(--muted-foreground) mb-3" />
                             <h3 className="text-lg font-medium mb-1">Chat not found</h3>
                             <p className="text-sm text-(--muted-foreground) mb-4">
-                                The chat you're looking for doesn't exist or you don't have
-                                permission to view it.
+                                The chat you&apos;re looking for doesn&apos;t exist or you
+                                don&apos;t have permission to view it.
                             </p>
                         </div>
                     )}

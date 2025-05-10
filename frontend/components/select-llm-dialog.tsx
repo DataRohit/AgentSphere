@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import Cookies from "js-cookie";
 import { Check, Cpu, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface LLM {
@@ -35,33 +34,20 @@ interface LLM {
 
 interface SelectLLMDialogProps {
     open: boolean;
-    onOpenChange: (open: boolean) => void;
-    chatId: string;
-    chatType: "single" | "group";
+    onOpenChange: (open: boolean, selectedLLMId?: string) => void;
     organizationId: string;
+    chatId?: string;
+    chatType?: "single" | "group";
 }
 
-export function SelectLLMDialog({
-    open,
-    onOpenChange,
-    chatId,
-    chatType,
-    organizationId,
-}: SelectLLMDialogProps) {
-    const router = useRouter();
+export function SelectLLMDialog(props: SelectLLMDialogProps) {
+    const { open, onOpenChange, organizationId } = props;
     const [llms, setLLMs] = useState<LLM[]>([]);
     const [isLoadingLLMs, setIsLoadingLLMs] = useState(false);
     const [selectedLLMId, setSelectedLLMId] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (open) {
-            fetchLLMs();
-            setSelectedLLMId(null);
-        }
-    }, [open, organizationId]);
-
-    const fetchLLMs = async () => {
+    const fetchLLMs = useCallback(async () => {
         setIsLoadingLLMs(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -70,7 +56,7 @@ export function SelectLLMDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/llms/list/me?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/llms/list/me?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -103,7 +89,14 @@ export function SelectLLMDialog({
         } finally {
             setIsLoadingLLMs(false);
         }
-    };
+    }, [organizationId]);
+
+    useEffect(() => {
+        if (open) {
+            fetchLLMs();
+            setSelectedLLMId(null);
+        }
+    }, [open, organizationId, fetchLLMs]);
 
     const handleLLMSelection = (llmId: string) => {
         setSelectedLLMId(llmId);
@@ -125,65 +118,14 @@ export function SelectLLMDialog({
 
         setIsSubmitting(true);
         try {
-            const accessToken = Cookies.get("access_token");
-            if (!accessToken) {
-                throw new Error("Authentication token not found");
-            }
-
-            const response = await fetch("http://localhost:8080/api/v1/conversation/session/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    llm_id: selectedLLMId,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                const errorMessages = [];
-                if (data.error && typeof data.error === "object") {
-                    for (const field in data.error) {
-                        errorMessages.push(...data.error[field]);
-                    }
-                }
-                throw new Error(
-                    errorMessages.length > 0
-                        ? errorMessages.join(", ")
-                        : data.error || "Failed to create conversation session"
-                );
-            }
-
-            const redirectPath =
-                chatType === "single"
-                    ? `/chats/${chatId}/conversation`
-                    : `/group-chats/${chatId}/conversation`;
-
-            router.push(redirectPath);
-            onOpenChange(false);
-        } catch (err) {
-            const errorMessage =
-                err instanceof Error
-                    ? err.message
-                    : "An error occurred while creating conversation session";
-            toast.error(errorMessage, {
-                style: {
-                    backgroundColor: "var(--destructive)",
-                    color: "white",
-                    border: "none",
-                },
-            });
+            onOpenChange(false, selectedLLMId);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={(open) => onOpenChange(open, undefined)}>
             <DialogContent className="sm:max-w-[500px] bg-(--background) border-(--border) [&_[data-slot=dialog-close]]:hover:opacity-100 [&_[data-slot=dialog-close]]:cursor-pointer [&_[data-slot=dialog-close]]:transition-opacity [&_[data-slot=dialog-close]]:duration-200">
                 <DialogHeader>
                     <DialogTitle className="flex items-center pb-2 text-left">
@@ -206,7 +148,7 @@ export function SelectLLMDialog({
                                 No language models available
                             </div>
                         ) : (
-                            <div className="max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                            <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                                 <div className="grid grid-cols-1 gap-2">
                                     {llms.map((llm) => (
                                         <div
@@ -242,7 +184,7 @@ export function SelectLLMDialog({
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => onOpenChange(false)}
+                            onClick={() => onOpenChange(false, undefined)}
                             disabled={isSubmitting}
                             className="font-mono relative overflow-hidden group transition-all duration-300 transform hover:shadow-lg border border-(--border) bg-(--background) text-(--foreground) hover:bg-(--muted) h-10 cursor-pointer w-full sm:flex-1"
                         >

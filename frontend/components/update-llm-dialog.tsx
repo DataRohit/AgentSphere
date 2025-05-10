@@ -96,14 +96,17 @@ export function UpdateLLMDialog({
                 max_tokens: values.max_tokens,
             };
 
-            const response = await fetch(`http://localhost:8080/api/v1/llms/${llm.id}/update/`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(payload),
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/llms/${llm.id}/update/`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
             const data = (await response.json()) as ApiErrorResponse;
 

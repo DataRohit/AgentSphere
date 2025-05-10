@@ -90,7 +90,7 @@ export function CreateOrganizationModal({
                 website: data.website || undefined,
             };
 
-            const response = await fetch("http://localhost:8080/api/v1/organizations/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

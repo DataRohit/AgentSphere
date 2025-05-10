@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import Cookies from "js-cookie";
 import { Loader2, MessageCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Agent {
@@ -68,16 +68,7 @@ export function UpdateChatDialog({
     const [isLoadingAgents, setIsLoadingAgents] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (open) {
-            setTitle(chat.title);
-            setSelectedAgentId(chat.agent.id);
-            setIsPublic(chat.is_public);
-            fetchAgents();
-        }
-    }, [open, chat, organizationId]);
-
-    const fetchAgents = async () => {
+    const fetchAgents = useCallback(async () => {
         setIsLoadingAgents(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -86,7 +77,7 @@ export function UpdateChatDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/agents/list/me/?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/agents/list/me/?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -113,7 +104,16 @@ export function UpdateChatDialog({
         } finally {
             setIsLoadingAgents(false);
         }
-    };
+    }, [organizationId]);
+
+    useEffect(() => {
+        if (open) {
+            setTitle(chat.title);
+            setSelectedAgentId(chat.agent.id);
+            setIsPublic(chat.is_public);
+            fetchAgents();
+        }
+    }, [open, chat, organizationId, fetchAgents]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -126,7 +126,7 @@ export function UpdateChatDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/chats/single/${chat.id}/update/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/chats/single/${chat.id}/update/`,
                 {
                     method: "PATCH",
                     headers: {

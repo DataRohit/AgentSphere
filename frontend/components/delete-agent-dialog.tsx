@@ -88,7 +88,7 @@ export function DeleteAgentDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/agents/${agent.id}/delete/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/agents/${agent.id}/delete/`,
                 {
                     method: "DELETE",
                     headers: {

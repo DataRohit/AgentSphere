@@ -42,13 +42,16 @@ export function DeleteGroupChatDialog({
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch(`http://localhost:8080/api/v1/chats/group/${chat.id}/delete/`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/chats/group/${chat.id}/delete/`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
 
             const data = await response.json();
 
@@ -68,7 +71,9 @@ export function DeleteGroupChatDialog({
             onSuccess();
         } catch (err) {
             const errorMessage =
-                err instanceof Error ? err.message : "An error occurred while deleting the group chat";
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while deleting the group chat";
             toast.error(errorMessage, {
                 className: "bg-(--destructive) text-white border-none",
             });
@@ -86,11 +91,14 @@ export function DeleteGroupChatDialog({
                         Delete Group Chat
                     </DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete this group chat? This action cannot be undone.
+                        Are you sure you want to delete this group chat? This action cannot be
+                        undone.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
-                    <p className="text-sm font-medium mb-2">You are about to delete the group chat:</p>
+                    <p className="text-sm font-medium mb-2">
+                        You are about to delete the group chat:
+                    </p>
                     <div className="p-3 bg-(--secondary) rounded-md">
                         <p className="font-medium">{chat.title}</p>
                     </div>

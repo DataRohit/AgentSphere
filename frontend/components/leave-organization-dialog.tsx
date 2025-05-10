@@ -44,7 +44,7 @@ export function LeaveOrganizationDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/leave/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/leave/`,
                 {
                     method: "DELETE",
                     headers: {

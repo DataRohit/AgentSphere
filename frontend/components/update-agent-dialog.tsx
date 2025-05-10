@@ -131,7 +131,7 @@ export function UpdateAgentDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/llms/list/me?organization_id=${agent.organization.id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/llms/list/me?organization_id=${agent.organization.id}`,
                 {
                     method: "GET",
                     headers: {
@@ -172,7 +172,7 @@ export function UpdateAgentDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/tools/mcpserver/list/me/?organization_id=${agent.organization.id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/tools/mcpserver/list/me/?organization_id=${agent.organization.id}`,
                 {
                     method: "GET",
                     headers: {
@@ -257,7 +257,7 @@ export function UpdateAgentDialog({
             };
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/agents/${agent.id}/update/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/agents/${agent.id}/update/`,
                 {
                     method: "PATCH",
                     headers: {

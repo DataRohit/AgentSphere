@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Cookies from "js-cookie";
 import { Check, Loader2, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Agent {
@@ -49,16 +49,7 @@ export function CreateGroupChatDialog({
     const [isLoadingAgents, setIsLoadingAgents] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (open) {
-            fetchAgents();
-            setTitle("");
-            setIsPublic(false);
-            setSelectedAgentIds([]);
-        }
-    }, [open, organizationId]);
-
-    const fetchAgents = async () => {
+    const fetchAgents = useCallback(async () => {
         setIsLoadingAgents(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -67,7 +58,7 @@ export function CreateGroupChatDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/agents/list/me/?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/agents/list/me/?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -93,7 +84,16 @@ export function CreateGroupChatDialog({
         } finally {
             setIsLoadingAgents(false);
         }
-    };
+    }, [organizationId]);
+
+    useEffect(() => {
+        if (open) {
+            fetchAgents();
+            setTitle("");
+            setIsPublic(false);
+            setSelectedAgentIds([]);
+        }
+    }, [open, fetchAgents]);
 
     const toggleAgent = (agentId: string) => {
         setSelectedAgentIds((prev) => {
@@ -122,7 +122,7 @@ export function CreateGroupChatDialog({
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch("http://localhost:8080/api/v1/chats/group/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chats/group/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

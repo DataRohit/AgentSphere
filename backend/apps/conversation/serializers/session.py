@@ -15,6 +15,7 @@ class SessionAgentSerializer(serializers.Serializer):
         id (UUID): Agent's unique identifier.
         name (str): Name of the agent.
         description (str): Description of the agent.
+        avatar_url (str): URL for the agent's avatar image.
     """
 
     # ID field
@@ -35,6 +36,12 @@ class SessionAgentSerializer(serializers.Serializer):
         read_only=True,
     )
 
+    # Avatar URL field
+    avatar_url = serializers.URLField(
+        help_text=_("URL for the agent's avatar image."),
+        read_only=True,
+    )
+
 
 # SingleChat nested serializer for Session responses
 class SessionSingleChatSerializer(serializers.Serializer):
@@ -43,7 +50,7 @@ class SessionSingleChatSerializer(serializers.Serializer):
     Attributes:
         id (UUID): SingleChat's unique identifier.
         title (str): Title of the chat.
-        agent (SessionAgentSerializer): Agent associated with the chat.
+        agent (SessionAgentSerializer): Agent associated with the chat, including avatar URL.
     """
 
     # ID field
@@ -72,7 +79,7 @@ class SessionGroupChatSerializer(serializers.Serializer):
     Attributes:
         id (UUID): GroupChat's unique identifier.
         title (str): Title of the chat.
-        agents (list): List of agents associated with the chat.
+        agents (list): List of agents associated with the chat, each including avatar URL.
     """
 
     # ID field
@@ -133,8 +140,8 @@ class SessionResponseSchema(serializers.ModelSerializer):
 
     Attributes:
         id (UUIDField): The ID of the session.
-        single_chat (SingleChatSerializer): The serialized single chat (if applicable).
-        group_chat (GroupChatSerializer): The serialized group chat (if applicable).
+        single_chat (SingleChatSerializer): The serialized single chat with agent avatar URL (if applicable).
+        group_chat (GroupChatSerializer): The serialized group chat with agent avatar URLs (if applicable).
         is_active (BooleanField): Whether the session is active.
         selector_prompt (TextField): Prompt used for selecting the appropriate agent or tool.
         llm (SessionLLMSerializer): The LLM model used for this session (if applicable).
@@ -173,7 +180,7 @@ class SessionResponseSchema(serializers.ModelSerializer):
             obj (Session): The session instance.
 
         Returns:
-            dict | None: The single chat details including id, title, and agent.
+            dict | None: The single chat details including id, title, and agent with avatar URL.
         """
 
         # If the session has a single chat
@@ -190,6 +197,7 @@ class SessionResponseSchema(serializers.ModelSerializer):
                     "id": str(obj.single_chat.agent.id),
                     "name": obj.single_chat.agent.name,
                     "description": obj.single_chat.agent.description,
+                    "avatar_url": obj.single_chat.agent.avatar_url(),
                 }
 
             # If the single chat has no agent
@@ -212,7 +220,7 @@ class SessionResponseSchema(serializers.ModelSerializer):
             obj (Session): The session instance.
 
         Returns:
-            dict | None: The group chat details including id, title, and agents.
+            dict | None: The group chat details including id, title, and agents with avatar URLs.
         """
 
         # If the session has a group chat
@@ -224,7 +232,12 @@ class SessionResponseSchema(serializers.ModelSerializer):
             if obj.group_chat.agents.exists():
                 # Prepare the agents
                 agents = [
-                    {"id": str(agent.id), "name": agent.name, "description": agent.description}
+                    {
+                        "id": str(agent.id),
+                        "name": agent.name,
+                        "description": agent.description,
+                        "avatar_url": agent.avatar_url(),
+                    }
                     for agent in obj.group_chat.agents.all()
                 ]
 

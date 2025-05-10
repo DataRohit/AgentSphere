@@ -112,13 +112,16 @@ export default function AgentDetailPage() {
                     throw new Error("Authentication token not found");
                 }
 
-                const response = await fetch(`http://localhost:8080/api/v1/agents/${agentId}/`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/agents/${agentId}/`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
 
                 const data = await response.json();
 
@@ -475,7 +478,7 @@ export default function AgentDetailPage() {
                                                     }
 
                                                     const response = await fetch(
-                                                        `http://localhost:8080/api/v1/agents/${agentId}/`,
+                                                        `${process.env.NEXT_PUBLIC_API_URL}/agents/${agentId}/`,
                                                         {
                                                             method: "GET",
                                                             headers: {
@@ -511,7 +514,7 @@ export default function AgentDetailPage() {
                                                 }
 
                                                 const response = await fetch(
-                                                    `http://localhost:8080/api/v1/agents/${agentId}/`,
+                                                    `${process.env.NEXT_PUBLIC_API_URL}/agents/${agentId}/`,
                                                     {
                                                         method: "GET",
                                                         headers: {

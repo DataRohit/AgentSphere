@@ -70,7 +70,7 @@ export function TransferRequestCard({ transfer, onCancelSuccess }: TransferReque
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${transfer.organization_id}/transfer/cancel/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${transfer.organization_id}/transfer/cancel/`,
                 {
                     method: "GET",
                     headers: {

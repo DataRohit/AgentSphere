@@ -23,7 +23,7 @@ import { format } from "date-fns";
 import Cookies from "js-cookie";
 import { Loader2, MessageCircle, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Agent {
@@ -71,16 +71,7 @@ export function ChatList({ organizationId, filterByUsername, readOnly = false }:
     const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-    useEffect(() => {
-        fetchAgents();
-        fetchChats();
-    }, [organizationId]);
-
-    useEffect(() => {
-        fetchChats();
-    }, [selectedAgentId, isPublic, sortOrder]);
-
-    const fetchAgents = async () => {
+    const fetchAgents = useCallback(async () => {
         try {
             const accessToken = Cookies.get("access_token");
             if (!accessToken) {
@@ -88,7 +79,7 @@ export function ChatList({ organizationId, filterByUsername, readOnly = false }:
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/agents/list/me/?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/agents/list/me/?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -112,9 +103,9 @@ export function ChatList({ organizationId, filterByUsername, readOnly = false }:
                 className: "bg-(--destructive) text-white border-none",
             });
         }
-    };
+    }, [organizationId]);
 
-    const fetchChats = async () => {
+    const fetchChats = useCallback(async () => {
         setIsLoading(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -127,10 +118,10 @@ export function ChatList({ organizationId, filterByUsername, readOnly = false }:
             queryParams.append("organization_id", organizationId);
 
             if (filterByUsername) {
-                endpoint = "http://localhost:8080/api/v1/chats/single/list";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/chats/single/list`;
                 queryParams.append("username", filterByUsername);
             } else {
-                endpoint = "http://localhost:8080/api/v1/chats/single/list/me";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/chats/single/list/me`;
             }
 
             if (selectedAgentId && selectedAgentId !== "all") {
@@ -161,7 +152,7 @@ export function ChatList({ organizationId, filterByUsername, readOnly = false }:
                 throw new Error(data.error || "Failed to fetch chats");
             }
 
-            let sortedChats = [...(data.chats || [])];
+            const sortedChats = [...(data.chats || [])];
 
             if (sortOrder === "newest") {
                 sortedChats.sort(
@@ -194,31 +185,40 @@ export function ChatList({ organizationId, filterByUsername, readOnly = false }:
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [organizationId, selectedAgentId, isPublic, sortOrder, filterByUsername, router]);
+
+    useEffect(() => {
+        fetchAgents();
+        fetchChats();
+    }, [fetchAgents, fetchChats]);
+
+    useEffect(() => {
+        fetchChats();
+    }, [fetchChats]);
 
     const formatDate = (dateString: string) => {
         try {
             return format(new Date(dateString), "MMM d, yyyy h:mm a");
-        } catch (e) {
+        } catch {
             return dateString;
         }
     };
 
-    const handleUpdateClick = (e: React.MouseEvent, chat: Chat) => {
+    const handleUpdateClick = useCallback((e: React.MouseEvent, chat: Chat) => {
         e.stopPropagation();
         setSelectedChat(chat);
         setIsUpdateDialogOpen(true);
-    };
+    }, []);
 
-    const handleDeleteClick = (e: React.MouseEvent, chat: Chat) => {
+    const handleDeleteClick = useCallback((e: React.MouseEvent, chat: Chat) => {
         e.stopPropagation();
         setSelectedChat(chat);
         setIsDeleteDialogOpen(true);
-    };
+    }, []);
 
-    const handleSuccess = () => {
+    const handleSuccess = useCallback(() => {
         fetchChats();
-    };
+    }, [fetchChats]);
 
     return (
         <div>
@@ -319,7 +319,7 @@ export function ChatList({ organizationId, filterByUsername, readOnly = false }:
                         <Button
                             variant="outline"
                             size="icon"
-                            onClick={fetchChats}
+                            onClick={() => fetchChats()}
                             disabled={isLoading}
                             className="bg-(--background) hover:bg-(--muted)"
                         >

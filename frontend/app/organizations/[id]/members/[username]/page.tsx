@@ -90,7 +90,7 @@ export default function MemberDetailsPage() {
                 }
 
                 const response = await fetch(
-                    `http://localhost:8080/api/v1/organizations/${organizationId}/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/`,
                     {
                         method: "GET",
                         headers: {
@@ -137,7 +137,7 @@ export default function MemberDetailsPage() {
                 }
 
                 const response = await fetch(
-                    `http://localhost:8080/api/v1/organizations/${organizationId}/members/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/members/`,
                     {
                         method: "GET",
                         headers: {
@@ -196,7 +196,7 @@ export default function MemberDetailsPage() {
             const payload = member.email ? { email: member.email } : { username: member.username };
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/members/remove/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/members/remove/`,
                 {
                     method: "POST",
                     headers: {

@@ -50,12 +50,15 @@ export function DeleteLLMDialog({
                 return;
             }
 
-            const response = await fetch(`http://localhost:8080/api/v1/llms/${llm.id}/delete`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/llms/${llm.id}/delete`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
 
             const data = await response.json();
 

@@ -39,7 +39,7 @@ export function DeleteChatDialog({ open, onOpenChange, chat, onSuccess }: Delete
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/chats/single/${chat.id}/delete/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/chats/single/${chat.id}/delete/`,
                 {
                     method: "DELETE",
                     headers: {

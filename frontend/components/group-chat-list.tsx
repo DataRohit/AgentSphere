@@ -23,7 +23,7 @@ import { format } from "date-fns";
 import Cookies from "js-cookie";
 import { Loader2, Pencil, RefreshCw, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Agent {
@@ -70,11 +70,7 @@ export function GroupChatList({
     const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-    useEffect(() => {
-        fetchChats();
-    }, [organizationId, isPublic, sortOrder]);
-
-    const fetchChats = async () => {
+    const fetchChats = useCallback(async () => {
         setIsLoading(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -87,10 +83,10 @@ export function GroupChatList({
             queryParams.append("organization_id", organizationId);
 
             if (filterByUsername) {
-                endpoint = "http://localhost:8080/api/v1/chats/group/list";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/chats/group/list`;
                 queryParams.append("username", filterByUsername);
             } else {
-                endpoint = "http://localhost:8080/api/v1/chats/group/list/me";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/chats/group/list/me`;
             }
 
             if (isPublic === "true" || isPublic === "false") {
@@ -117,7 +113,7 @@ export function GroupChatList({
                 throw new Error(data.error || "Failed to fetch group chats");
             }
 
-            let sortedChats = [...(data.chats || [])];
+            const sortedChats = [...(data.chats || [])];
 
             if (sortOrder === "newest") {
                 sortedChats.sort(
@@ -150,12 +146,16 @@ export function GroupChatList({
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [organizationId, isPublic, sortOrder, router, filterByUsername]);
+
+    useEffect(() => {
+        fetchChats();
+    }, [fetchChats]);
 
     const formatDate = (dateString: string) => {
         try {
             return format(new Date(dateString), "MMM d, yyyy h:mm a");
-        } catch (e) {
+        } catch {
             return dateString;
         }
     };

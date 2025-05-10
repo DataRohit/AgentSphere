@@ -156,7 +156,7 @@ export default function OrganizationDetailPage() {
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/members/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/members/`,
                 {
                     method: "GET",
                     headers: {
@@ -196,7 +196,7 @@ export default function OrganizationDetailPage() {
                 }
 
                 const response = await fetch(
-                    `http://localhost:8080/api/v1/organizations/${organizationId}/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/`,
                     {
                         method: "GET",
                         headers: {
@@ -271,7 +271,7 @@ export default function OrganizationDetailPage() {
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/`,
                 {
                     method: "PATCH",
                     headers: {
@@ -374,7 +374,7 @@ export default function OrganizationDetailPage() {
             formData.append("logo", file);
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/${organizationId}/logo/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/logo/`,
                 {
                     method: "PUT",
                     headers: {
@@ -468,7 +468,7 @@ export default function OrganizationDetailPage() {
                     : { username: member.username };
 
                 const response = await fetch(
-                    `http://localhost:8080/api/v1/organizations/${organizationId}/members/remove/`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/organizations/${organizationId}/members/remove/`,
                     {
                         method: "POST",
                         headers: {

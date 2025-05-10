@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Cookies from "js-cookie";
 import { Check, Loader2, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Agent {
@@ -58,16 +58,7 @@ export function UpdateGroupChatDialog({
     const [isLoadingAgents, setIsLoadingAgents] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (open) {
-            setTitle(chat.title);
-            setIsPublic(chat.is_public);
-            setSelectedAgentIds(chat.agents.map(agent => agent.id));
-            fetchAgents();
-        }
-    }, [open, chat, organizationId]);
-
-    const fetchAgents = async () => {
+    const fetchAgents = useCallback(async () => {
         setIsLoadingAgents(true);
         try {
             const accessToken = Cookies.get("access_token");
@@ -76,7 +67,7 @@ export function UpdateGroupChatDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/agents/list/me/?organization_id=${organizationId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/agents/list/me/?organization_id=${organizationId}`,
                 {
                     method: "GET",
                     headers: {
@@ -102,7 +93,16 @@ export function UpdateGroupChatDialog({
         } finally {
             setIsLoadingAgents(false);
         }
-    };
+    }, [organizationId]);
+
+    useEffect(() => {
+        if (open) {
+            setTitle(chat.title);
+            setIsPublic(chat.is_public);
+            setSelectedAgentIds(chat.agents.map((agent) => agent.id));
+            fetchAgents();
+        }
+    }, [open, chat, organizationId, fetchAgents]);
 
     const toggleAgent = (agentId: string) => {
         setSelectedAgentIds((prev) => {
@@ -131,18 +131,21 @@ export function UpdateGroupChatDialog({
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch(`http://localhost:8080/api/v1/chats/group/${chat.id}/update/`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                    title,
-                    agent_ids: selectedAgentIds,
-                    is_public: isPublic,
-                }),
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/chats/group/${chat.id}/update/`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        title,
+                        agent_ids: selectedAgentIds,
+                        is_public: isPublic,
+                    }),
+                }
+            );
 
             const data = await response.json();
 
@@ -172,7 +175,9 @@ export function UpdateGroupChatDialog({
             onSuccess();
         } catch (err) {
             const errorMessage =
-                err instanceof Error ? err.message : "An error occurred while updating the group chat";
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while updating the group chat";
             toast.error(errorMessage, {
                 className: "bg-(--destructive) text-white border-none",
             });
@@ -189,9 +194,7 @@ export function UpdateGroupChatDialog({
                         <Users className="mr-2 h-5 w-5 text-(--primary)" />
                         Update Group Chat
                     </DialogTitle>
-                    <DialogDescription>
-                        Update the details of your group chat.
-                    </DialogDescription>
+                    <DialogDescription>Update the details of your group chat.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">
@@ -212,7 +215,9 @@ export function UpdateGroupChatDialog({
                                 {isLoadingAgents ? (
                                     <div className="flex items-center justify-center p-4 bg-(--secondary) rounded-md">
                                         <Loader2 className="h-4 w-4 animate-spin text-(--muted-foreground)" />
-                                        <span className="ml-2 text-sm text-(--muted-foreground)">Loading agents...</span>
+                                        <span className="ml-2 text-sm text-(--muted-foreground)">
+                                            Loading agents...
+                                        </span>
                                     </div>
                                 ) : agents.length === 0 ? (
                                     <div className="p-4 text-center text-(--muted-foreground) bg-(--secondary) rounded-md">

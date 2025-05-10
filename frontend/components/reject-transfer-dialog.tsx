@@ -42,7 +42,7 @@ export function RejectTransferDialog({
             }
 
             const response = await fetch(
-                `http://localhost:8080/api/v1/organizations/transfer/${transferId}/reject/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/transfer/${transferId}/reject/`,
                 {
                     method: "GET",
                     headers: {

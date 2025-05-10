@@ -96,11 +96,11 @@ export function AgentsTab({ organizationId, filterByUsername, readOnly = false }
             const queryParams = new URLSearchParams();
 
             if (filterByUsername) {
-                endpoint = "http://localhost:8080/api/v1/agents/list/";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/agents/list/`;
                 queryParams.append("organization_id", organizationId);
                 queryParams.append("username", filterByUsername);
             } else {
-                endpoint = "http://localhost:8080/api/v1/agents/list/me/";
+                endpoint = `${process.env.NEXT_PUBLIC_API_URL}/agents/list/me/`;
                 queryParams.append("organization_id", organizationId);
             }
 

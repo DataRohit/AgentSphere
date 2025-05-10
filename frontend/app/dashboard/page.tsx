@@ -41,13 +41,16 @@ export default function DashboardPage() {
                 throw new Error("Authentication token not found");
             }
 
-            const response = await fetch("http://localhost:8080/api/v1/organizations/owned/", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/owned/`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
 
             const data = await response.json();
 
@@ -85,7 +88,7 @@ export default function DashboardPage() {
             }
 
             const response = await fetch(
-                "http://localhost:8080/api/v1/organizations/memberships/",
+                `${process.env.NEXT_PUBLIC_API_URL}/organizations/memberships/`,
                 {
                     method: "GET",
                     headers: {
